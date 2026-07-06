@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="ko" data-theme="emerald">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FocusWhale Mockup · Options</title>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@5" rel="stylesheet" type="text/css" />
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  </head>
+  <body class="m-0 bg-base-200 font-sans text-base-content">
+    <main class="mx-auto grid w-full max-w-[720px] gap-8 px-5 py-8">
+      <header class="space-y-2">
+        <p class="text-sm font-semibold text-base-content/50">FocusWhale</p>
+        <h1 class="text-3xl font-extrabold">로컬 설정과 기록</h1>
+        <p class="text-sm text-base-content/60">설정은 조용하게, 행동은 한 번에 끝나게 정리합니다.</p>
+      </header>
+
+      <section class="stats stats-vertical overflow-hidden bg-base-100 shadow-sm md:stats-horizontal">
+        <div class="stat">
+          <div class="stat-title">집중 분</div>
+          <div class="stat-value tabular-nums">145</div>
+        </div>
+        <div class="stat">
+          <div class="stat-title">차단 시도</div>
+          <div class="stat-value tabular-nums">12</div>
+        </div>
+        <div class="stat">
+          <div class="stat-title">임시 허용</div>
+          <div class="stat-value tabular-nums">2</div>
+        </div>
+        <div class="stat">
+          <div class="stat-title">중단 기록</div>
+          <div class="stat-value tabular-nums">0</div>
+        </div>
+      </section>
+
+      <section class="space-y-4">
+        <div>
+          <h2 class="text-xl font-bold">설정</h2>
+          <p class="text-sm text-base-content/60">집중 시간대와 soft 대기 시간을 조정합니다.</p>
+        </div>
+        <div class="divider my-0"></div>
+        <form class="grid gap-3 md:grid-cols-3 md:items-end">
+          <fieldset class="fieldset">
+            <legend class="fieldset-legend">집중 시작</legend>
+            <input class="input w-full tabular-nums" type="time" value="09:00" />
+          </fieldset>
+          <fieldset class="fieldset">
+            <legend class="fieldset-legend">집중 종료</legend>
+            <input class="input w-full tabular-nums" type="time" value="18:00" />
+          </fieldset>
+          <fieldset class="fieldset">
+            <legend class="fieldset-legend">Soft 대기 초</legend>
+            <input class="input w-full tabular-nums" type="number" value="10" min="3" max="60" />
+          </fieldset>
+          <div class="md:col-span-3">
+            <button class="btn btn-primary">저장</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="space-y-4">
+        <div class="flex items-end justify-between gap-3">
+          <div>
+            <h2 class="text-xl font-bold">목록</h2>
+            <p class="text-sm text-base-content/60">도메인 목록은 필요한 행만 펼쳐서 수정합니다.</p>
+          </div>
+          <button class="btn btn-ghost btn-sm">목록 추가</button>
+        </div>
+        <div class="divider my-0"></div>
+        <div class="overflow-x-auto rounded-box border border-base-300 bg-base-100">
+          <table class="table table-sm">
+            <thead>
+              <tr>
+                <th>이름</th>
+                <th>모드</th>
+                <th>도메인</th>
+                <th class="text-right">작업</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="font-medium">기본 차단 목록</td>
+                <td><span class="badge badge-primary badge-outline">blocklist</span></td>
+                <td class="text-base-content/60">youtube.com, instagram.com, x.com</td>
+                <td class="text-right"><button class="btn btn-ghost btn-xs">수정</button></td>
+              </tr>
+              <tr>
+                <td class="font-medium">집중 허용 목록</td>
+                <td><span class="badge badge-ghost">allowlist</span></td>
+                <td class="text-base-content/60">docs.google.com, notion.so</td>
+                <td class="text-right"><button class="btn btn-ghost btn-xs">수정</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="space-y-4">
+        <div class="flex items-end justify-between gap-3">
+          <div>
+            <h2 class="text-xl font-bold">추천</h2>
+            <p class="text-sm text-base-content/60">방문 기록은 로컬에서만 분석합니다.</p>
+          </div>
+          <button class="btn btn-outline btn-sm">방문 기록 분석</button>
+        </div>
+        <div class="divider my-0"></div>
+        <div class="overflow-x-auto rounded-box border border-base-300 bg-base-100">
+          <table class="table table-sm">
+            <thead>
+              <tr>
+                <th>도메인</th>
+                <th>카테고리</th>
+                <th class="text-right">방문수</th>
+                <th class="text-right">작업</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="h-12">
+                <td class="font-medium">youtube.com</td>
+                <td><span class="badge badge-outline">entertainment</span></td>
+                <td class="text-right tabular-nums">38</td>
+                <td class="text-right"><button class="btn btn-outline btn-xs">차단</button></td>
+              </tr>
+              <tr class="h-12">
+                <td class="font-medium">news.example</td>
+                <td><span class="badge badge-outline">news</span></td>
+                <td class="text-right tabular-nums">14</td>
+                <td class="text-right"><button class="btn btn-ghost btn-xs">차단</button></td>
+              </tr>
+              <tr class="h-12">
+                <td class="font-medium">shopping.example</td>
+                <td><span class="badge badge-outline">shopping</span></td>
+                <td class="text-right tabular-nums">9</td>
+                <td class="text-right"><button class="btn btn-ghost btn-xs">차단</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

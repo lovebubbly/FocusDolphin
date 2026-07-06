@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="ko" data-theme="emerald">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FocusWhale Mockup · Popup Idle</title>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@5" rel="stylesheet" type="text/css" />
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <style>
+      .pet-hero {
+        background:
+          radial-gradient(circle at 24% 24%, color-mix(in oklab, var(--color-primary) 18%, transparent), transparent 34%),
+          linear-gradient(135deg, color-mix(in oklab, var(--color-primary) 10%, var(--color-base-100)), var(--color-base-100));
+      }
+
+      @supports (backdrop-filter: blur(10px)) {
+        .pet-hero {
+          backdrop-filter: blur(10px);
+        }
+      }
+
+      .pet-sprite {
+        width: 96px;
+        height: 96px;
+        background-image: url("../assets/sprites/focuswhale-atlas.png");
+        background-size: 384px 960px;
+        background-position: 0 calc(var(--pet-row, 0) * -96px);
+        animation: pet-swim 1200ms steps(4) infinite;
+      }
+
+      @keyframes pet-swim {
+        to { background-position-x: -384px; }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .pet-sprite { animation: none; }
+      }
+    </style>
+  </head>
+  <body class="m-0 grid min-h-screen place-items-center bg-base-200 font-sans text-base-content">
+    <main class="flex h-[580px] w-[360px] flex-col gap-3 bg-base-100 p-4 shadow-xl">
+      <section class="card pet-hero shrink-0 border border-base-200">
+        <div class="card-body grid grid-cols-[112px_1fr] items-center gap-3 p-4">
+          <div class="grid place-items-center">
+            <div class="pet-sprite" role="img" aria-label="FocusWhale pet stage 1 idle" style="--pet-row: 1"></div>
+          </div>
+          <div class="space-y-2">
+            <div class="flex flex-wrap gap-1.5">
+              <span class="badge badge-primary badge-outline">1일 스트릭</span>
+              <span class="badge badge-ghost">프리즈 0/2</span>
+            </div>
+            <p class="text-sm text-base-content/70">징표 1개</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="flex min-h-0 flex-1 flex-col gap-4">
+        <div class="space-y-2">
+          <h1 class="text-xl font-bold">집중 시작</h1>
+          <p class="text-sm text-base-content/60">오늘 한 번만 정하고 바로 들어갑니다.</p>
+        </div>
+
+        <fieldset class="fieldset">
+          <legend class="fieldset-legend">목록</legend>
+          <select class="select w-full" aria-label="목록">
+            <option>기본 차단 목록</option>
+            <option>집중 허용 목록</option>
+          </select>
+        </fieldset>
+
+        <fieldset class="fieldset">
+          <legend class="fieldset-legend">시간</legend>
+          <div class="join w-full" role="group" aria-label="시간 선택">
+            <input class="join-item btn flex-1" type="radio" name="duration" aria-label="15" />
+            <input class="join-item btn flex-1" type="radio" name="duration" aria-label="25" checked />
+            <input class="join-item btn flex-1" type="radio" name="duration" aria-label="50" />
+            <input class="join-item btn flex-1" type="radio" name="duration" aria-label="90" />
+          </div>
+        </fieldset>
+
+        <details class="collapse collapse-arrow bg-base-200">
+          <summary class="collapse-title min-h-10 text-sm font-medium">직접 입력</summary>
+          <div class="collapse-content">
+            <input class="input w-full" type="number" min="1" max="240" placeholder="분" />
+          </div>
+        </details>
+
+        <fieldset class="fieldset">
+          <legend class="fieldset-legend">강도</legend>
+          <div class="join w-full" role="group" aria-label="강도 선택">
+            <input class="join-item btn flex-1" type="radio" name="intensity" aria-label="soft" />
+            <input class="join-item btn flex-1" type="radio" name="intensity" aria-label="medium" checked />
+            <input class="join-item btn flex-1" type="radio" name="intensity" aria-label="hard" />
+          </div>
+        </fieldset>
+      </section>
+
+      <button class="btn btn-primary w-full shrink-0">25분 시작</button>
+    </main>
+  </body>
+</html>

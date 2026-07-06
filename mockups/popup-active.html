@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="ko" data-theme="emerald">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FocusWhale Mockup · Popup Active</title>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@5" rel="stylesheet" type="text/css" />
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <style>
+      .pet-hero {
+        background:
+          radial-gradient(circle at 24% 24%, color-mix(in oklab, var(--color-primary) 18%, transparent), transparent 34%),
+          linear-gradient(135deg, color-mix(in oklab, var(--color-primary) 10%, var(--color-base-100)), var(--color-base-100));
+      }
+
+      @supports (backdrop-filter: blur(10px)) {
+        .pet-hero {
+          backdrop-filter: blur(10px);
+        }
+      }
+
+      .pet-sprite {
+        width: 96px;
+        height: 96px;
+        background-image: url("../assets/sprites/focuswhale-atlas.png");
+        background-size: 384px 960px;
+        background-position: 0 calc(var(--pet-row, 0) * -96px);
+        animation: pet-swim 1200ms steps(4) infinite;
+      }
+
+      @keyframes pet-swim {
+        to { background-position-x: -384px; }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .pet-sprite { animation: none; }
+      }
+    </style>
+  </head>
+  <body class="m-0 grid min-h-screen place-items-center bg-base-200 font-sans text-base-content">
+    <main class="flex h-[580px] w-[360px] flex-col gap-3 bg-base-100 p-4 shadow-xl">
+      <section class="card pet-hero shrink-0 border border-base-200">
+        <div class="card-body grid grid-cols-[112px_1fr] items-center gap-3 p-4">
+          <div class="grid place-items-center">
+            <div class="radial-progress text-primary tabular-nums" style="--value: 68;" aria-valuenow="68" role="progressbar">
+              <div class="pet-sprite scale-75" role="img" aria-label="FocusWhale pet stage 1 idle" style="--pet-row: 1"></div>
+            </div>
+          </div>
+          <div class="space-y-2">
+            <div class="flex flex-wrap gap-1.5">
+              <span class="badge badge-primary badge-outline">1일 스트릭</span>
+              <span class="badge badge-ghost">medium</span>
+            </div>
+            <p class="text-sm text-base-content/70">세션을 시작했습니다.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="card flex-1 border border-base-200 bg-base-100">
+        <div class="card-body gap-5 p-4">
+          <div class="space-y-2">
+            <p class="text-sm font-semibold text-base-content/60">진행 중</p>
+            <h1 class="text-4xl font-extrabold tabular-nums">남은 시간 18분</h1>
+            <p class="text-sm text-base-content/60">현재 강도 medium</p>
+          </div>
+
+          <div class="divider my-0"></div>
+
+          <div class="space-y-2">
+            <p class="text-sm text-base-content/60">더 단단한 설정이 필요할 때만 상향합니다.</p>
+            <button class="btn btn-outline btn-sm">hard로 상향</button>
+          </div>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>
