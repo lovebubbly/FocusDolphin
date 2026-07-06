@@ -41,6 +41,7 @@ select {
 }
 
 .pet-mount {
+  justify-self: center;
   transform: scale(1.08);
   transform-origin: center;
 }

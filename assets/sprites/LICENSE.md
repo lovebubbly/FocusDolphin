@@ -1,7 +1,11 @@
-# FocusWhale Placeholder Sprite Atlas
+# FocusWhale Sprite Atlas
 
-`focuswhale-placeholder.svg` is a simple project-authored placeholder sprite atlas created for FocusWhale Goal 2.
+`focuswhale-atlas.png` is the runtime sprite atlas for the FocusWhale pet. It was generated with the built-in Codex `$imagegen` skill on 2026-07-06, then locally chroma-key processed into a transparent PNG and resized to the extension's `4 x 10`, `96px` cell atlas contract.
 
-The asset is dedicated to the public domain under CC0-style terms for this personal project. It uses only basic SVG geometry authored in this repository and does not include external artwork.
+Generation prompt summary: cute focus whale desktop pet, polished 2D sticker mascot style, teal-blue palette, 4 columns by 10 rows, calm idle rows plus happy reward rows, flat `#00ff00` chroma-key background, no text or watermark.
 
-Future sprite replacements should use only clearly marked CC0 assets, with source URL and license recorded here before use.
+Source copy: `assets/sprites/generated/focuswhale-atlas-source.png`.
+
+`focuswhale-placeholder.svg` is kept as an older project-authored fallback/reference asset and is no longer used by the runtime renderer.
+
+Future sprite replacements should record their generation/source path, prompt summary, processing steps, and license assumptions here before use.

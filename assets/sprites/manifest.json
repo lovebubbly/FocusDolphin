@@ -1,6 +1,6 @@
 {
-  "name": "focuswhale-placeholder-atlas",
-  "image": "focuswhale-placeholder.svg",
+  "name": "focuswhale-generated-atlas",
+  "image": "focuswhale-atlas.png",
   "frameWidth": 96,
   "frameHeight": 96,
   "columns": 4,
