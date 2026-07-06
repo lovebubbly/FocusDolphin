@@ -1,5 +1,6 @@
 import { sendMessage } from "../../shared/messaging";
 import { getTyped, setTyped, STORAGE_KEYS } from "../../shared/storage";
+import { DEFAULT_SITE_LISTS, migrateSiteListsForCurrentDefaults } from "../../shared/siteLists";
 import type { Intensity, PetState, Session, SiteList } from "../../shared/types";
 import { awardBadges } from "../../pet/badges";
 import { normalizePetState } from "../../pet/defaultState";
@@ -35,21 +36,6 @@ interface PopupHandlers {
   startSession: () => Promise<void>;
   upgradeIntensity: (intensity: Intensity) => Promise<void>;
 }
-
-const DEFAULT_SITE_LISTS: SiteList[] = [
-  {
-    id: "default-blocklist",
-    name: "기본 차단 목록",
-    mode: "blocklist",
-    domains: ["youtube.com", "instagram.com", "x.com"]
-  },
-  {
-    id: "deep-work-allowlist",
-    name: "집중 허용 목록",
-    mode: "allowlist",
-    domains: ["docs.google.com", "notion.so"]
-  }
-];
 
 function minutesRemaining(session: Session, now = Date.now()): number {
   return Math.max(0, Math.ceil((session.endsAt - now) / 60_000));
@@ -345,9 +331,10 @@ async function loadPopupModel(notice?: string): Promise<PopupModel> {
     getTyped<StreakRecoveryState>("local", STREAK_LEDGER_KEY)
   ]);
 
-  const siteLists = storedSiteLists && storedSiteLists.length > 0 ? storedSiteLists : DEFAULT_SITE_LISTS;
-  if (!storedSiteLists || storedSiteLists.length === 0) {
-    await setTyped("sync", STORAGE_KEYS.sync.siteLists, DEFAULT_SITE_LISTS);
+  const migration = migrateSiteListsForCurrentDefaults(storedSiteLists);
+  const siteLists = migration.siteLists;
+  if (migration.changed) {
+    await setTyped("sync", STORAGE_KEYS.sync.siteLists, siteLists);
   }
   const streakResult = reconcileStreakFromSessions(settlement.petState, sessionLog, {
     now: new Date(),

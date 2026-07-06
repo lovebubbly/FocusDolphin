@@ -5,7 +5,8 @@ import {
   TEMP_ALLOW_RULE_IDS,
   applySessionRules,
   compileRules,
-  compileTempAllowRules
+  compileTempAllowRules,
+  domainMatches
 } from "./rules";
 
 describe("compileRules", () => {
@@ -30,11 +31,11 @@ describe("compileRules", () => {
         redirect: { extensionPath: "/src/pages/blocked/index.html?d=example.com" }
       },
       condition: {
-        requestDomains: ["example.com"],
+        urlFilter: "||example.com^",
         resourceTypes: ["main_frame"]
       }
     });
-    expect(rules[1]?.condition.requestDomains).toEqual(["news.example"]);
+    expect(rules[1]?.condition.urlFilter).toBe("||news.example^");
   });
 
   it("creates allowlist catch-all redirect plus high-priority allow rules", () => {
@@ -63,6 +64,29 @@ describe("compileRules", () => {
     expect(rules.slice(1).map((rule) => rule.action.type)).toEqual(["allow", "allow"]);
     expect(rules.slice(1).map((rule) => rule.priority)).toEqual([100, 100]);
   });
+
+  it("expands X and Twitter aliases into domain-anchored DNR filters", () => {
+    const list: SiteList = {
+      id: "work",
+      name: "Work",
+      mode: "blocklist",
+      domains: ["x.com", "twitter.com"]
+    };
+
+    const rules = compileRules(list, "medium");
+
+    expect(rules).toHaveLength(2);
+    expect(rules[0]?.condition.regexFilter).toBe("^https?://([^/?#]+\\.)?x\\.com(:[0-9]+)?([/?#]|$)");
+    expect(rules[1]?.condition.urlFilter).toBe("||twitter.com^");
+    expect(rules[0]?.action.redirect).toEqual({ extensionPath: "/src/pages/blocked/index.html?d=x.com" });
+    expect(rules[1]?.action.redirect).toEqual({ extensionPath: "/src/pages/blocked/index.html?d=x.com" });
+  });
+
+  it("matches X and Twitter aliases for soft overlay decisions", () => {
+    expect(domainMatches("mobile.twitter.com", "x.com")).toBe(true);
+    expect(domainMatches("www.x.com", "twitter.com")).toBe(true);
+    expect(domainMatches("notx.com", "x.com")).toBe(false);
+  });
 });
 
 describe("compileTempAllowRules", () => {
@@ -78,7 +102,15 @@ describe("compileTempAllowRules", () => {
     expect(rules).toHaveLength(2);
     expect(rules.map((rule) => rule.id)).toEqual([1000, 1001]);
     expect(rules.map((rule) => rule.priority)).toEqual([200, 200]);
-    expect(rules.map((rule) => rule.condition.requestDomains)).toEqual([["example.com"], ["mail.example"]]);
+    expect(rules.map((rule) => rule.condition.urlFilter)).toEqual(["||example.com^", "||mail.example^"]);
+  });
+
+  it("uses a regex temporary allow rule for x.com to match the redirect rule shape", () => {
+    const rules = compileTempAllowRules([{ domain: "x.com", until: 2_000 }], 1_000);
+
+    expect(rules).toHaveLength(2);
+    expect(rules[0]?.condition.regexFilter).toBe("^https?://([^/?#]+\\.)?x\\.com(:[0-9]+)?([/?#]|$)");
+    expect(rules[1]?.condition.urlFilter).toBe("||twitter.com^");
   });
 });
 

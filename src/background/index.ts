@@ -1,4 +1,6 @@
 import type { FocusWhaleRequest } from "../shared/messaging";
+import { STORAGE_KEYS, getTyped, setTyped } from "../shared/storage";
+import { migrateSiteListsForCurrentDefaults } from "../shared/siteLists";
 import { ChromeDynamicRuleClient } from "./rules";
 import {
   EMERGENCY_END_ALARM,
@@ -7,6 +9,7 @@ import {
   SessionManager
 } from "./session";
 import { SCHEDULE_RECONCILE_ALARM, ScheduleManager } from "./schedule";
+import { redirectOpenBlockedTabs, redirectTabIfBlocked } from "./tabRedirect";
 
 const sessionManager = new SessionManager(new ChromeDynamicRuleClient());
 const scheduleManager = new ScheduleManager(sessionManager);
@@ -42,15 +45,30 @@ chrome.storage.onChanged.addListener((changes, areaName) => {
   void handleSyncStorageChange(changes);
 });
 
+chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+  void redirectTabIfBlocked(tabId, changeInfo.url ?? tab.url);
+});
+
 async function boot(): Promise<void> {
+  await migrateDefaultSiteLists();
   await sessionManager.reconcile();
   await scheduleManager.reconcile();
+  await redirectOpenBlockedTabs();
+}
+
+async function migrateDefaultSiteLists(): Promise<void> {
+  const storedSiteLists = await getTyped("sync", STORAGE_KEYS.sync.siteLists);
+  const migration = migrateSiteListsForCurrentDefaults(storedSiteLists);
+  if (migration.changed) {
+    await setTyped("sync", STORAGE_KEYS.sync.siteLists, migration.siteLists);
+  }
 }
 
 async function handleMessage(message: FocusWhaleRequest): Promise<unknown> {
   switch (message.type) {
     case "START_SESSION": {
       const session = await sessionManager.startSession(message.payload);
+      await redirectOpenBlockedTabs();
       return { ok: true, session };
     }
     case "END_SESSION": {

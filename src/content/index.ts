@@ -1,6 +1,6 @@
 import { STORAGE_KEYS, getTyped } from "../shared/storage";
 import type { Session, SiteList, TempAllow } from "../shared/types";
-import { normalizeDomain, shouldBlockDomain } from "../background/rules";
+import { domainMatches, normalizeDomain, shouldBlockDomain } from "../background/rules";
 import overlayStyles from "../styles/overlay.css?inline";
 
 const OVERLAY_ID = "focuswhale-soft-overlay";
@@ -10,7 +10,7 @@ const PRETENDARD_FONT_URL = new URL("../../assets/fonts/PretendardVariable.woff2
 let countdownTimer: number | undefined;
 let sessionExpiryTimer: number | undefined;
 
-void evaluateSoftOverlay();
+void evaluateSessionSurface();
 installNavigationHooks();
 
 chrome.storage.onChanged.addListener((changes, areaName) => {
@@ -18,33 +18,33 @@ chrome.storage.onChanged.addListener((changes, areaName) => {
     (areaName === "local" && (changes.activeSession || changes.tempAllows)) ||
     (areaName === "sync" && changes.siteLists)
   ) {
-    void evaluateSoftOverlay();
+    void evaluateSessionSurface();
   }
 });
 
 window.addEventListener(URL_CHANGED_EVENT, () => {
-  void evaluateSoftOverlay();
+  void evaluateSessionSurface();
 });
 
 window.addEventListener("popstate", () => {
-  void evaluateSoftOverlay();
+  void evaluateSessionSurface();
 });
 
-async function evaluateSoftOverlay(): Promise<void> {
+async function evaluateSessionSurface(): Promise<void> {
   const session = (await getTyped("local", STORAGE_KEYS.local.activeSession)) ?? null;
   clearSessionExpiryTimer();
 
-  if (!isActiveSoftSession(session)) {
+  if (!isActiveSession(session)) {
     removeOverlay();
     return;
   }
 
   sessionExpiryTimer = window.setTimeout(() => {
-    void evaluateSoftOverlay();
+    void evaluateSessionSurface();
   }, Math.max(1_000, session.endsAt - Date.now()));
 
   const hostname = normalizeDomain(window.location.hostname);
-  if (!hostname || isSoftAllowedForPage(session.id, hostname)) {
+  if (!hostname || (session.intensity === "soft" && isSoftAllowedForPage(session.id, hostname))) {
     removeOverlay();
     return;
   }
@@ -60,10 +60,16 @@ async function evaluateSoftOverlay(): Promise<void> {
   }
 
   if (shouldBlockDomain(hostname, siteList)) {
-    showOverlay(session, siteList, hostname);
-  } else {
-    removeOverlay();
+    if (session.intensity === "soft") {
+      showOverlay(session, siteList, hostname);
+      return;
+    }
+
+    redirectToBlockedPage(hostname);
+    return;
   }
+
+  removeOverlay();
 }
 
 function showOverlay(session: Session, siteList: SiteList, hostname: string): void {
@@ -159,17 +165,23 @@ function installNavigationHooks(): void {
   };
 }
 
-function isActiveSoftSession(session: Session | null): session is Session {
-  return Boolean(session && session.status === "active" && session.intensity === "soft" && session.endsAt > Date.now());
+function redirectToBlockedPage(hostname: string): void {
+  removeOverlay();
+  const blockedUrl = chrome.runtime.getURL(
+    `src/pages/blocked/index.html?d=${encodeURIComponent(hostname)}`
+  );
+
+  if (window.location.href !== blockedUrl) {
+    window.location.replace(blockedUrl);
+  }
+}
+
+function isActiveSession(session: Session | null): session is Session {
+  return Boolean(session && session.status === "active" && session.endsAt > Date.now());
 }
 
 function hasActiveTempAllow(hostname: string, tempAllows: TempAllow[]): boolean {
   return tempAllows.some((entry) => entry.until > Date.now() && domainMatches(hostname, entry.domain));
-}
-
-function domainMatches(hostname: string, domain: string): boolean {
-  const normalizedDomain = normalizeDomain(domain);
-  return hostname === normalizedDomain || hostname.endsWith(`.${normalizedDomain}`);
 }
 
 function rememberSoftAllowed(sessionId: string, hostname: string): void {
