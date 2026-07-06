@@ -20,6 +20,7 @@ async function render(): Promise<void> {
   const state = await sendRuntime<{ state: { activeSession: Session | null } }>({ type: "GET_STATE" });
   const session = state.ok ? state.state.activeSession : null;
 
+  app.className = "grid min-h-screen place-items-center bg-base-200 p-6 text-base-content";
   app.innerHTML = baseMarkup(session);
   await mountBlockedPet();
   wireRemainingTime(session);
@@ -58,44 +59,54 @@ async function mountBlockedPet(): Promise<void> {
 
 function baseMarkup(session: Session | null): string {
   return `
-    <section class="shell" aria-labelledby="blocked-title">
-      <div id="pet-slot" aria-hidden="true"></div>
-      <div class="eyebrow">FocusWhale</div>
-      <h1 id="blocked-title">집중 세션이 진행 중입니다</h1>
-      <dl class="facts">
-        <div>
-          <dt>대상</dt>
-          <dd>${escapeHtml(domain)}</dd>
+    <section class="card w-full max-w-lg border border-base-200 bg-base-100 shadow-xl" aria-labelledby="blocked-title">
+      <div class="card-body gap-5">
+        <div class="grid place-items-center">
+          <div id="pet-slot" class="rounded-box grid h-28 w-28 place-items-center bg-base-200" aria-hidden="true"></div>
         </div>
-        <div>
-          <dt>남은 시간</dt>
-          <dd id="remaining-time">${session ? formatRemaining(session.endsAt) : "세션 없음"}</dd>
+        <div class="text-center">
+          <p class="text-xs font-bold uppercase tracking-wide text-base-content/50">FocusWhale</p>
+          <h1 id="blocked-title" class="mt-1 text-3xl font-extrabold">집중 세션이 진행 중입니다</h1>
         </div>
-      </dl>
-      <div id="action-area"></div>
+        <dl class="stats stats-horizontal bg-base-200">
+          <div class="stat">
+            <dt class="stat-title">대상</dt>
+            <dd class="stat-value text-base tabular-nums">${escapeHtml(domain)}</dd>
+          </div>
+          <div class="stat">
+            <dt class="stat-title">남은 시간</dt>
+            <dd id="remaining-time" class="stat-value text-2xl tabular-nums">${session ? formatRemaining(session.endsAt) : "세션 없음"}</dd>
+          </div>
+        </dl>
+        <div id="action-area" class="space-y-3"></div>
+      </div>
     </section>
   `;
 }
 
 function renderNoSession(): void {
   setActionArea(`
-    <p class="note">현재 활성 세션을 찾을 수 없습니다. 잠시 후 다시 시도해 주세요.</p>
+    <div class="alert"><span>현재 활성 세션을 찾을 수 없습니다. 잠시 후 다시 시도해 주세요.</span></div>
   `);
 }
 
 function renderSoftFallback(): void {
   setActionArea(`
-    <p class="note">이 사이트는 soft 세션에서 안내 오버레이로 처리됩니다.</p>
-    <button id="back-button" type="button" class="secondary">되돌아가기</button>
+    <p class="text-sm text-base-content/60">이 사이트는 soft 세션에서 안내 오버레이로 처리됩니다.</p>
+    <div class="card-actions justify-center">
+      <button id="back-button" type="button" class="btn btn-soft shadow-sm">되돌아가기</button>
+    </div>
   `);
   document.getElementById("back-button")?.addEventListener("click", goBack);
 }
 
 function renderMedium(session: Session): void {
   setActionArea(`
-    <p class="note">열기 전에 짧은 확인 시간을 둡니다.</p>
-    <button id="open-anyway-button" type="button" class="primary">그래도 열기</button>
-    <button id="back-button" type="button" class="secondary">되돌아가기</button>
+    <p class="text-sm text-base-content/60">열기 전에 짧은 확인 시간을 둡니다.</p>
+    <div class="card-actions justify-center">
+      <button id="open-anyway-button" type="button" class="btn btn-primary">그래도 열기</button>
+      <button id="back-button" type="button" class="btn btn-soft shadow-sm">되돌아가기</button>
+    </div>
   `);
 
   document.getElementById("back-button")?.addEventListener("click", goBack);
@@ -107,11 +118,15 @@ function renderMedium(session: Session): void {
 function renderMediumFriction(session: Session): void {
   const waitSeconds = session.snoozeCount === 0 ? 30 : Math.max(30, session.nextSnoozeDelayMin * 60);
   setActionArea(`
-    <form id="intent-form" class="form">
-      <label for="intent-input">열어야 하는 이유</label>
-      <input id="intent-input" name="intent" type="text" maxlength="140" autocomplete="off" />
-      <button id="allow-button" type="submit" class="primary" disabled>${formatCountdown(waitSeconds)}</button>
-      <button id="back-button" type="button" class="secondary">되돌아가기</button>
+    <form id="intent-form" class="space-y-3">
+      <fieldset class="fieldset">
+        <legend class="fieldset-legend">열어야 하는 이유</legend>
+        <input id="intent-input" class="input w-full" name="intent" type="text" maxlength="140" autocomplete="off" />
+      </fieldset>
+      <div class="card-actions justify-center">
+        <button id="allow-button" type="submit" class="btn btn-primary" disabled>${formatCountdown(waitSeconds)}</button>
+        <button id="back-button" type="button" class="btn btn-soft shadow-sm">되돌아가기</button>
+      </div>
     </form>
   `);
 
@@ -129,8 +144,10 @@ function renderMediumFriction(session: Session): void {
 
 function renderHard(): void {
   setActionArea(`
-    <p class="note">hard 세션에서는 임시 허용을 제공하지 않습니다.</p>
-    <button id="emergency-button" type="button" class="secondary">비상 종료 요청</button>
+    <div class="alert"><span>hard 세션에서는 임시 허용을 제공하지 않습니다.</span></div>
+    <div class="card-actions justify-center">
+      <button id="emergency-button" type="button" class="btn btn-error btn-soft shadow-sm">비상 종료 요청</button>
+    </div>
   `);
 
   document.getElementById("emergency-button")?.addEventListener("click", () => {
@@ -155,13 +172,15 @@ async function submitTemporaryAllow(intent: string): Promise<void> {
   await sendRuntime({ type: "SNOOZE_REQUEST", payload: { domain } });
   const response = await sendRuntime({ type: "TEMP_ALLOW", payload: { domain, minutes: 5 } });
   if (!response.ok) {
-    setActionArea(`<p class="note">임시 허용을 적용하지 못했습니다. 다시 시도해 주세요.</p>`);
+    setActionArea(`<div class="alert alert-error"><span>임시 허용을 적용하지 못했습니다. 다시 시도해 주세요.</span></div>`);
     return;
   }
 
   setActionArea(`
-    <p class="note">5분 동안 열 수 있습니다. 시간이 지나면 세션 규칙이 다시 적용됩니다.</p>
-    <button id="continue-button" type="button" class="primary">계속하기</button>
+    <p class="text-sm text-base-content/60">5분 동안 열 수 있습니다. 시간이 지나면 세션 규칙이 다시 적용됩니다.</p>
+    <div class="card-actions justify-center">
+      <button id="continue-button" type="button" class="btn btn-primary">계속하기</button>
+    </div>
   `);
   document.getElementById("continue-button")?.addEventListener("click", goBack);
 }
@@ -169,13 +188,13 @@ async function submitTemporaryAllow(intent: string): Promise<void> {
 async function requestEmergencyEnd(): Promise<void> {
   const response = await sendRuntime({ type: "END_SESSION", payload: { reason: "emergency" } });
   if (!response.ok) {
-    setActionArea(`<p class="note">요청을 저장하지 못했습니다. 다시 시도해 주세요.</p>`);
+    setActionArea(`<div class="alert alert-error"><span>요청을 저장하지 못했습니다. 다시 시도해 주세요.</span></div>`);
     return;
   }
 
   setActionArea(`
-    <p class="note">비상 종료 요청이 저장되었습니다. 약 5분 뒤 세션이 종료됩니다.</p>
-    <div id="emergency-countdown" class="countdown">${formatCountdown(5 * 60)}</div>
+    <p class="text-sm text-base-content/60">비상 종료 요청이 저장되었습니다. 약 5분 뒤 세션이 종료됩니다.</p>
+    <div id="emergency-countdown" class="text-center text-4xl font-extrabold tabular-nums">${formatCountdown(5 * 60)}</div>
   `);
 
   const countdown = document.getElementById("emergency-countdown");

@@ -37,3 +37,16 @@ npm test
 ## Manual Loading Note
 
 Goal 0 only creates loadable placeholders. Browser smoke checks that require Whale are documented later in `SMOKE_TEST.md` by the blocking-engine goal.
+
+## Goal 6 UI Verification Checklist
+
+Implementation themes: `focuswhale`, `focuswhale-dark`, `focuswhale-ocean`, `focuswhale-mint`, `focuswhale-lavender`, `focuswhale-coral`.
+
+- [ ] Popup idle, light and dark: pet hero is the only decorative color area; bottom primary CTA is the only full-width button.
+- [ ] Popup active, light and dark: radial progress frames the pet; intensity upgrade actions render as small soft floating buttons.
+- [ ] Blocked medium, light and dark: one centered card; temporary-allow friction stays inside the same card.
+- [ ] Blocked hard, light and dark: no temporary allow; emergency valve remains visible as `btn-error btn-soft`.
+- [ ] Soft overlay, light and dark: shadow DOM card uses bundled CSS and remains isolated from the page.
+- [ ] Options, light and dark: content is centered at 720px max width; four dashboard stats stay in one stats row on desktop.
+- [ ] Recommendations: rows are table/list-like, no giant cards, row height stays compact, category labels use soft badges.
+- [ ] Additional themes: `focuswhale-ocean`, `focuswhale-mint`, `focuswhale-lavender`, and `focuswhale-coral` keep contrast and component structure intact.

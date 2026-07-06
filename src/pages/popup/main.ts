@@ -63,6 +63,13 @@ function formatRemaining(session: Session): string {
   return hours > 0 ? `${hours}시간 ${minutes}분` : `${minutes}분`;
 }
 
+function progressValue(session: Session, now = Date.now()): number {
+  const totalMs = Math.max(1, session.endsAt - session.startedAt);
+  const elapsedMs = Math.min(totalMs, Math.max(0, now - session.startedAt));
+
+  return Math.round((elapsedMs / totalMs) * 100);
+}
+
 function appendText(parent: HTMLElement, tagName: keyof HTMLElementTagNameMap, text: string, className?: string): HTMLElement {
   const child = document.createElement(tagName);
   child.textContent = text;
@@ -84,28 +91,72 @@ function createButton(text: string, className: string, onClick: () => void): HTM
 
 function renderPetPanel(root: HTMLElement, model: PopupModel): void {
   const panel = document.createElement("section");
-  panel.className = "pet-panel";
+  panel.className = "card fw-pet-hero shrink-0 border border-base-200 shadow-sm";
+
+  const body = document.createElement("div");
+  body.className = "card-body grid grid-cols-[112px_1fr] items-center gap-3 p-4";
 
   const petMount = document.createElement("div");
-  petMount.className = "pet-mount";
-  panel.append(petMount);
+  petMount.className = "grid place-items-center";
+  body.append(petMount);
   mountPet(petMount, model.petState, model.awardedXp > 0 ? "happy" : "idle");
 
   const stats = document.createElement("div");
-  stats.className = "pet-stats";
-  appendText(stats, "p", model.streakStatus === "recoveryPending" ? "복원 대기" : `${model.petState.streakDays}일 스트릭`, "streak-value");
-  appendText(stats, "p", `프리즈 ${model.petState.streakFreezes}/2`, "muted");
-  appendText(stats, "p", `징표 ${model.petState.badges.length}개`, "muted");
+  stats.className = "space-y-2";
+  const badges = document.createElement("div");
+  badges.className = "flex flex-wrap gap-1.5";
+  appendText(badges, "span", model.streakStatus === "recoveryPending" ? "복원 대기" : `${model.petState.streakDays}일 스트릭`, "badge badge-soft badge-primary shadow-sm");
+  appendText(badges, "span", `프리즈 ${model.petState.streakFreezes}/2`, "badge badge-soft shadow-sm");
+  stats.append(badges);
+  appendText(stats, "p", `징표 ${model.petState.badges.length}개`, "text-sm text-base-content/70");
 
   if (model.awardedXp > 0) {
-    appendText(stats, "p", `방금 집중 보상 +${model.awardedXp} XP`, "reward-summary");
+    appendText(stats, "p", `방금 집중 보상 +${model.awardedXp} XP`, "text-sm font-semibold text-success");
   }
 
   if (model.notice) {
-    appendText(stats, "p", model.notice, "notice");
+    appendText(stats, "p", model.notice, "text-sm text-base-content/70");
   }
 
-  panel.append(stats);
+  body.append(stats);
+  panel.append(body);
+  root.append(panel);
+}
+
+function renderActiveHero(root: HTMLElement, model: PopupModel): void {
+  const session = model.activeSession;
+  if (!session) {
+    renderPetPanel(root, model);
+    return;
+  }
+
+  const panel = document.createElement("section");
+  panel.className = "card fw-pet-hero shrink-0 border border-base-200 shadow-sm";
+
+  const body = document.createElement("div");
+  body.className = "card-body grid grid-cols-[112px_1fr] items-center gap-3 p-4";
+
+  const progress = document.createElement("div");
+  progress.className = "radial-progress text-primary tabular-nums";
+  progress.style.setProperty("--value", String(progressValue(session)));
+  progress.setAttribute("aria-valuenow", String(progressValue(session)));
+  progress.setAttribute("role", "progressbar");
+  const petMount = document.createElement("div");
+  petMount.className = "scale-75";
+  mountPet(petMount, model.petState, "idle");
+  progress.append(petMount);
+  body.append(progress);
+
+  const stats = document.createElement("div");
+  stats.className = "space-y-2";
+  const badges = document.createElement("div");
+  badges.className = "flex flex-wrap gap-1.5";
+  appendText(badges, "span", model.streakStatus === "recoveryPending" ? "복원 대기" : `${model.petState.streakDays}일 스트릭`, "badge badge-soft badge-primary shadow-sm");
+  appendText(badges, "span", session.intensity, "badge badge-soft shadow-sm");
+  stats.append(badges);
+  appendText(stats, "p", model.notice ?? `프리즈 ${model.petState.streakFreezes}/2`, "text-sm text-base-content/70");
+  body.append(stats);
+  panel.append(body);
   root.append(panel);
 }
 
@@ -115,46 +166,60 @@ function renderActiveSession(root: HTMLElement, model: PopupModel, handlers: Pop
   }
 
   const section = document.createElement("section");
-  section.className = "session-panel";
-  appendText(section, "h2", "진행 중", "panel-title");
-  appendText(section, "p", `남은 시간 ${formatRemaining(model.activeSession)}`, "session-remaining");
-  appendText(section, "p", `현재 강도 ${model.activeSession.intensity}`, "muted");
+  section.className = "card flex-1 border border-base-200 bg-base-100 shadow-sm";
+  const body = document.createElement("div");
+  body.className = "card-body gap-5 p-4";
+  const copy = document.createElement("div");
+  copy.className = "space-y-2";
+  appendText(copy, "p", "진행 중", "text-sm font-semibold text-base-content/60");
+  appendText(copy, "h1", `남은 시간 ${formatRemaining(model.activeSession)}`, "text-4xl font-extrabold tabular-nums");
+  appendText(copy, "p", `현재 강도 ${model.activeSession.intensity}`, "text-sm text-base-content/60");
+  body.append(copy);
 
   const upgrades = (["soft", "medium", "hard"] as Intensity[]).filter(
     (intensity) => INTENSITY_ORDER[intensity] > INTENSITY_ORDER[model.activeSession?.intensity ?? "hard"]
   );
 
   const actions = document.createElement("div");
-  actions.className = "button-row";
+  actions.className = "space-y-2 border-t border-base-200 pt-4";
 
   if (upgrades.length === 0) {
-    appendText(actions, "p", "이미 가장 단단한 설정입니다.", "muted");
+    appendText(actions, "p", "이미 가장 단단한 설정입니다.", "text-sm text-base-content/60");
+  } else {
+    appendText(actions, "p", "더 단단한 설정이 필요할 때만 상향합니다.", "text-sm text-base-content/60");
   }
 
   for (const intensity of upgrades) {
-    actions.append(createButton(`${intensity}로 상향`, "secondary-button", () => {
+    actions.append(createButton(`${intensity}로 상향`, "btn btn-soft btn-sm shadow-sm", () => {
       void handlers.upgradeIntensity(intensity);
     }));
   }
 
-  section.append(actions);
+  body.append(actions);
+  section.append(body);
   root.append(section);
 }
 
 function renderSessionForm(root: HTMLElement, model: PopupModel, selection: SelectionState, handlers: PopupHandlers): void {
   const form = document.createElement("form");
-  form.className = "session-panel";
+  form.className = "flex min-h-0 flex-1 flex-col gap-4";
   form.addEventListener("submit", (event) => {
     event.preventDefault();
     void handlers.startSession();
   });
 
-  appendText(form, "h2", "집중 시작", "panel-title");
+  const heading = document.createElement("div");
+  heading.className = "space-y-2";
+  appendText(heading, "h1", "집중 시작", "text-xl font-bold");
+  appendText(heading, "p", "오늘 한 번만 정하고 바로 들어갑니다.", "text-sm text-base-content/60");
+  form.append(heading);
 
-  const listLabel = appendText(form, "label", "목록", "field-label") as HTMLLabelElement;
+  const listLabel = appendText(form, "fieldset", "", "fieldset") as HTMLFieldSetElement;
+  appendText(listLabel, "legend", "목록", "fieldset-legend");
   const listSelect = document.createElement("select");
   listSelect.name = "siteList";
-  listSelect.className = "select-control";
+  listSelect.className = "select w-full";
+  listSelect.setAttribute("aria-label", "목록");
   for (const siteList of model.siteLists) {
     const option = document.createElement("option");
     option.value = siteList.id;
@@ -164,25 +229,42 @@ function renderSessionForm(root: HTMLElement, model: PopupModel, selection: Sele
   }
   listSelect.addEventListener("change", () => handlers.updateSelection({ listId: listSelect.value }));
   listLabel.append(listSelect);
+  form.append(listLabel);
 
-  appendText(form, "p", "시간", "field-label");
+  const durationFieldset = document.createElement("fieldset");
+  durationFieldset.className = "fieldset";
+  appendText(durationFieldset, "legend", "시간", "fieldset-legend");
   const durations = document.createElement("div");
-  durations.className = "segmented";
+  durations.className = "join w-full";
+  durations.setAttribute("role", "group");
+  durations.setAttribute("aria-label", "시간 선택");
   for (const minutes of [15, 25, 50, 90]) {
-    const button = createButton(`${minutes}`, selection.durationMinutes === minutes ? "segment active" : "segment", () => {
+    const radio = document.createElement("input");
+    radio.type = "radio";
+    radio.name = "duration";
+    radio.className = "join-item btn flex-1";
+    radio.setAttribute("aria-label", String(minutes));
+    radio.checked = selection.durationMinutes === minutes && !selection.customMinutes;
+    radio.addEventListener("change", () => {
       handlers.updateSelection({ durationMinutes: minutes, customMinutes: "" });
     });
-    durations.append(button);
+    durations.append(radio);
   }
-  form.append(durations);
+  durationFieldset.append(durations);
+  form.append(durationFieldset);
 
-  const customLabel = appendText(form, "label", "직접 입력", "field-label") as HTMLLabelElement;
+  const customDetails = document.createElement("details");
+  customDetails.className = "collapse collapse-arrow bg-base-200";
+  customDetails.open = Boolean(selection.customMinutes);
+  appendText(customDetails, "summary", "직접 입력", "collapse-title min-h-10 text-sm font-medium");
+  const customContent = document.createElement("div");
+  customContent.className = "collapse-content";
   const customInput = document.createElement("input");
   customInput.type = "number";
   customInput.min = "1";
   customInput.max = "240";
   customInput.inputMode = "numeric";
-  customInput.className = "number-control";
+  customInput.className = "input w-full";
   customInput.value = selection.customMinutes;
   customInput.placeholder = "분";
   customInput.addEventListener("input", () => {
@@ -192,26 +274,42 @@ function renderSessionForm(root: HTMLElement, model: PopupModel, selection: Sele
       durationMinutes: Number.isFinite(parsed) && parsed > 0 ? Math.min(240, Math.round(parsed)) : selection.durationMinutes
     });
   });
-  customLabel.append(customInput);
+  customContent.append(customInput);
+  customDetails.append(customContent);
+  form.append(customDetails);
 
-  appendText(form, "p", "강도", "field-label");
+  const intensityFieldset = document.createElement("fieldset");
+  intensityFieldset.className = "fieldset";
+  appendText(intensityFieldset, "legend", "강도", "fieldset-legend");
   const intensities = document.createElement("div");
-  intensities.className = "segmented";
+  intensities.className = "join w-full";
+  intensities.setAttribute("role", "group");
+  intensities.setAttribute("aria-label", "강도 선택");
   for (const intensity of ["soft", "medium", "hard"] as Intensity[]) {
-    const button = createButton(intensity, selection.intensity === intensity ? "segment active" : "segment", () => {
+    const radio = document.createElement("input");
+    radio.type = "radio";
+    radio.name = "intensity";
+    radio.className = "join-item btn flex-1";
+    radio.setAttribute("aria-label", intensity);
+    radio.checked = selection.intensity === intensity;
+    radio.addEventListener("change", () => {
       handlers.updateSelection({ intensity });
     });
-    intensities.append(button);
+    intensities.append(radio);
   }
-  form.append(intensities);
+  intensityFieldset.append(intensities);
+  form.append(intensityFieldset);
 
   if (selection.intensity === "hard") {
-    appendText(form, "p", "hard는 종료까지 해제할 수 없습니다.", "hard-note");
+    const hardNote = document.createElement("div");
+    hardNote.className = "alert alert-warning py-2 text-sm";
+    appendText(hardNote, "span", "hard는 종료까지 해제할 수 없습니다.");
+    form.append(hardNote);
   }
 
   const submit = document.createElement("button");
   submit.type = "submit";
-  submit.className = "primary-button";
+  submit.className = "btn btn-primary mt-auto w-full shrink-0";
   submit.textContent = `${selection.durationMinutes}분 시작`;
   form.append(submit);
   root.append(form);
@@ -219,12 +317,13 @@ function renderSessionForm(root: HTMLElement, model: PopupModel, selection: Sele
 
 export function renderPopup(root: HTMLElement, model: PopupModel, selection: SelectionState, handlers: PopupHandlers): void {
   root.replaceChildren();
-  root.className = "popup-shell";
-  renderPetPanel(root, model);
+  root.className = "flex h-[580px] w-[360px] flex-col gap-3 bg-base-100 p-4 text-base-content shadow-xl";
 
   if (model.activeSession?.status === "active") {
+    renderActiveHero(root, model);
     renderActiveSession(root, model, handlers);
   } else {
+    renderPetPanel(root, model);
     renderSessionForm(root, model, selection, handlers);
   }
 }

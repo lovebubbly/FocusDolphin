@@ -1,9 +1,11 @@
 import { STORAGE_KEYS, getTyped } from "../shared/storage";
 import type { Session, SiteList, TempAllow } from "../shared/types";
 import { normalizeDomain, shouldBlockDomain } from "../background/rules";
+import overlayStyles from "../styles/overlay.css?inline";
 
 const OVERLAY_ID = "focuswhale-soft-overlay";
 const URL_CHANGED_EVENT = "focuswhale:url-changed";
+const PRETENDARD_FONT_URL = new URL("../../assets/fonts/PretendardVariable.woff2", import.meta.url).toString();
 
 let countdownTimer: number | undefined;
 let sessionExpiryTimer: number | undefined;
@@ -72,85 +74,19 @@ function showOverlay(session: Session, siteList: SiteList, hostname: string): vo
   const host = document.createElement("div");
   host.id = OVERLAY_ID;
   const shadow = host.attachShadow({ mode: "open" });
+  const theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "focuswhale-dark" : "focuswhale";
   shadow.innerHTML = `
-    <style>
-      :host {
-        all: initial;
-        position: fixed;
-        inset: 0;
-        z-index: 2147483647;
-        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      }
-
-      .screen {
-        box-sizing: border-box;
-        min-height: 100vh;
-        width: 100vw;
-        display: grid;
-        place-items: center;
-        background: rgba(247, 250, 252, 0.96);
-        color: #162033;
-        padding: 28px;
-      }
-
-      .panel {
-        width: min(520px, 100%);
-        display: grid;
-        gap: 18px;
-      }
-
-      .meta {
-        color: #526070;
-        font-size: 14px;
-        line-height: 1.5;
-      }
-
-      h1 {
-        margin: 0;
-        color: #0f172a;
-        font-size: 26px;
-        line-height: 1.2;
-        font-weight: 750;
-        letter-spacing: 0;
-      }
-
-      .actions {
-        display: grid;
-        gap: 12px;
-      }
-
-      button {
-        min-height: 52px;
-        border: 1px solid #cbd5e1;
-        border-radius: 8px;
-        background: #ffffff;
-        color: #162033;
-        font: inherit;
-        font-size: 16px;
-        cursor: pointer;
-      }
-
-      button.primary {
-        background: #164e63;
-        border-color: #164e63;
-        color: #ffffff;
-        font-weight: 700;
-      }
-
-      button.primary:disabled {
-        background: #94a3b8;
-        border-color: #94a3b8;
-        cursor: wait;
-      }
-    </style>
-    <div class="screen" role="dialog" aria-modal="true" aria-labelledby="focuswhale-title">
-      <section class="panel">
-        <div class="meta">${escapeHtml(siteList.name)} · ${escapeHtml(hostname)}</div>
-        <h1 id="focuswhale-title">잠시 멈춤</h1>
-        <div class="meta">이 세션에서는 이 사이트를 열기 전에 짧은 확인 시간을 둡니다.</div>
-        <div class="actions">
-          <button class="primary" id="back-button" type="button">되돌아가기</button>
-          <button id="continue-button" type="button" disabled>계속하기 10</button>
+    <style>${runtimeOverlayStyles()}</style>
+    <div data-theme="${theme}" class="fixed inset-0 z-[2147483647] grid min-h-screen w-screen place-items-center bg-base-200/80 p-7 text-base-content" role="dialog" aria-modal="true" aria-labelledby="focuswhale-title">
+      <section class="card w-full max-w-md bg-base-100 shadow-xl">
+        <div class="card-body gap-4">
+          <p class="text-sm text-base-content/60">${escapeHtml(siteList.name)} · ${escapeHtml(hostname)}</p>
+          <h1 id="focuswhale-title" class="text-2xl font-extrabold">잠시 멈춤</h1>
+          <p class="text-sm text-base-content/60">이 세션에서는 이 사이트를 열기 전에 짧은 확인 시간을 둡니다.</p>
+          <div class="card-actions justify-center gap-2">
+            <button class="btn btn-primary" id="back-button" type="button">되돌아가기</button>
+            <button class="btn btn-soft shadow-sm" id="continue-button" type="button" disabled>계속하기 10</button>
+          </div>
         </div>
       </section>
     </div>
@@ -174,6 +110,13 @@ function showOverlay(session: Session, siteList: SiteList, hostname: string): vo
   });
 
   startCountdown(continueButton, 10);
+}
+
+function runtimeOverlayStyles(): string {
+  return overlayStyles.replace(
+    /url\((?:"|')?(?:\.\.\/\.\.\/assets\/fonts\/PretendardVariable\.woff2|\/assets\/PretendardVariable-[^)'" ]+\.woff2)(?:"|')?\)/g,
+    `url("${PRETENDARD_FONT_URL}")`
+  );
 }
 
 function startCountdown(button: HTMLButtonElement, seconds: number): void {

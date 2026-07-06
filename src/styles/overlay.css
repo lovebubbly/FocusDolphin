@@ -1,0 +1,7 @@
+@import "./app.css";
+
+@source "../content/index.ts";
+
+:host {
+  all: initial;
+}
