@@ -1,0 +1,69 @@
+:root {
+  background: #f6f8f4;
+}
+
+body {
+  width: auto;
+  min-width: 0;
+}
+
+.dev-shell {
+  display: grid;
+  gap: 24px;
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.dev-shell h1 {
+  margin: 0 0 12px;
+  font-size: 18px;
+}
+
+.stage-preview {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(120px, 1fr));
+  gap: 12px;
+}
+
+.stage-card {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  border: 1px solid #d9e1dd;
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 16px 8px;
+}
+
+.stage-card p {
+  margin: 0;
+  color: #526268;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.popup-preview {
+  width: 340px;
+  border: 1px solid #d9e1dd;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.manual-checklist {
+  border-top: 1px solid #d9e1dd;
+  padding-top: 16px;
+}
+
+.manual-checklist ul {
+  margin: 0;
+  padding-left: 20px;
+  color: #526268;
+  line-height: 1.55;
+}
+
+@media (max-width: 760px) {
+  .stage-preview {
+    grid-template-columns: repeat(2, minmax(120px, 1fr));
+  }
+}
