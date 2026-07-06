@@ -60,3 +60,19 @@ Use a local Chromium or Naver Whale profile with the unpacked `dist/` extension 
    - Start a soft session for a blocklisted domain.
    - Visit that domain.
    - Expected: a full-page shadow DOM overlay appears, `계속하기` enables after 10 seconds, and `되돌아가기` is available immediately.
+
+## Whale Result Recording
+
+Codex did not execute real Whale checks. Fill this section after running the checklist in Naver Whale.
+
+| Area | Command / Flow | Expected | Actual | Pass |
+| --- | --- | --- | --- | --- |
+| DNR | `chrome.declarativeNetRequest.getDynamicRules()` | session rules use `main_frame` and expected id ranges |  |  |
+| Alarms | `chrome.alarms.getAll()` | session, schedule, temp allow alarms appear as applicable |  |  |
+| Storage | `chrome.storage.local.get(...)` / `chrome.storage.sync.get(...)` | sessions, stats, settings, pet state remain local |  |  |
+| History | `chrome.history.search({ text: \"\", maxResults: 10 })` | Whale browsing history is returned |  |  |
+| Options | hard session then options edit attempt | options UI read-only; SW rejects list/schedule changes |  |  |
+
+## Chromium-Reproducible Checks
+
+Codex did not launch Chromium because manual browser checks are out of scope for this run. Use the same rows above in Chromium to separate extension defects from Whale compatibility issues.

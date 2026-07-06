@@ -1,6 +1,7 @@
 import { STORAGE_KEYS, getTyped, setTyped } from "../shared/storage";
 import type { EndSessionReason } from "../shared/messaging";
 import type { DailyStats, Intensity, Session, SiteList } from "../shared/types";
+import { settleCompletedSessionXp } from "../pet/xpEngine";
 import {
   type DynamicRuleClient,
   applySessionRules,
@@ -270,6 +271,9 @@ export class SessionManager {
 
     const finalizedSession: Session = { ...activeSession, status };
     await this.logSession(finalizedSession);
+    if (finalizedSession.status === "completed") {
+      await settleCompletedSessionXp();
+    }
     await addFocusMinutes(activeSession, now);
     await this.clearActiveState();
     await this.publisher.publishSessionCompleted(finalizedSession);

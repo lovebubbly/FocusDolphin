@@ -1,6 +1,8 @@
 import { STORAGE_KEYS, getTyped, setTyped } from "../../shared/storage";
 import type { DailyStats, Session } from "../../shared/types";
 import { normalizeDomain } from "../../background/rules";
+import { normalizePetState } from "../../pet/defaultState";
+import { mountPet } from "../../pet/renderer";
 
 type RuntimeResponse<T = unknown> = { ok: true } & T | { ok: false; error?: string };
 
@@ -19,6 +21,7 @@ async function render(): Promise<void> {
   const session = state.ok ? state.state.activeSession : null;
 
   app.innerHTML = baseMarkup(session);
+  await mountBlockedPet();
   wireRemainingTime(session);
 
   if (!session || session.status !== "active") {
@@ -37,6 +40,20 @@ async function render(): Promise<void> {
   }
 
   renderSoftFallback();
+}
+
+async function mountBlockedPet(): Promise<void> {
+  const slot = document.getElementById("pet-slot");
+  if (!slot) {
+    return;
+  }
+
+  try {
+    const petState = normalizePetState(await getTyped("sync", STORAGE_KEYS.sync.petState));
+    mountPet(slot, petState, "idle");
+  } catch {
+    slot.replaceChildren();
+  }
 }
 
 function baseMarkup(session: Session | null): string {
