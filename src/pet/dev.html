@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FocusWhale Pet Preview</title>
+    <link rel="stylesheet" href="../pages/popup/style.css" />
+    <link rel="stylesheet" href="./dev.css" />
+    <script type="module" src="./dev.ts"></script>
+  </head>
+  <body>
+    <main class="dev-shell">
+      <section>
+        <h1>Pet stages</h1>
+        <div id="stage-preview" class="stage-preview" aria-label="Five animated pet stages"></div>
+      </section>
+      <section>
+        <h1>Popup preview</h1>
+        <div id="popup-preview" class="popup-preview"></div>
+      </section>
+      <section class="manual-checklist">
+        <h1>Manual preview checklist</h1>
+        <ul>
+          <li>All five pet stages animate with CSS steps frames.</li>
+          <li>Only idle and happy moods are visible; no regression, death, or sad state appears.</li>
+          <li>The popup preview shows streak, freezes, badges, and one post-session XP summary only.</li>
+          <li>The session form defaults to medium intensity and shows the hard-mode note only when hard is selected.</li>
+          <li>Running session UI exposes only higher-intensity actions when tested with a fake active session.</li>
+        </ul>
+      </section>
+    </main>
+  </body>
+</html>
