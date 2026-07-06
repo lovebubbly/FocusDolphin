@@ -4,9 +4,11 @@ Per orchestration protocol, real Whale/manual browser checks are not executed by
 
 ## Build Gate
 
-- [ ] `npm run build`
-- [ ] `npm run typecheck`
-- [ ] `npm test`
+- [x] `npm run build`
+- [x] `npm run typecheck`
+- [x] `npm test`
+
+Run note, 2026-07-06 KST: Codex rebuilt `dist/`, reloaded FocusWhale in Naver Whale, and performed a live medium-session smoke test.
 
 ## Scenario 1: Schedule Auto Start
 
@@ -48,7 +50,7 @@ Result notes:
 Result notes:
 
 ```text
-
+2026-07-06 KST: PASS. Options page opened in Whale. Local history analysis completed and rendered domain-only recommendations with categories and visit counts. No raw URLs or titles were displayed in the recommendation list.
 ```
 
 ## Restore And Cleanup
@@ -63,7 +65,7 @@ Result notes:
 Result notes:
 
 ```text
-
+2026-07-06 KST: PASS for session completion cleanup. A 1-minute medium session blocked youtube.com, then after completion the popup returned to the start screen with streak/badge state updated. A fresh navigation to youtube.com loaded normally after completion.
 ```
 
 ## Streak Freeze Scenario

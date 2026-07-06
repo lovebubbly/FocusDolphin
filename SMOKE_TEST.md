@@ -73,6 +73,17 @@ Codex did not execute real Whale checks. Fill this section after running the che
 | History | `chrome.history.search({ text: \"\", maxResults: 10 })` | Whale browsing history is returned |  |  |
 | Options | hard session then options edit attempt | options UI read-only; SW rejects list/schedule changes |  |  |
 
+Live run, 2026-07-06 KST:
+
+| Area | Result |
+| --- | --- |
+| Popup | PASS: FocusWhale popup rendered, default list seeded, 1-minute medium session started and showed active-session UI. |
+| DNR redirect | PASS: navigating to `youtube.com` during the session redirected to `blocked/index.html?d=youtube.com`. |
+| Blocked page | PASS: blocked page showed target domain, remaining time, neutral copy, pet slot, and medium actions. |
+| Completion cleanup | PASS: after the 1-minute session completed, popup showed start UI with streak/badge update and fresh YouTube navigation loaded normally. |
+| Options | PASS: options page rendered settings, lists, dashboard metrics, and local history recommendations. |
+| History | PASS: Whale history analysis completed and produced domain-level recommendation rows. |
+
 ## Chromium-Reproducible Checks
 
 Codex did not launch Chromium because manual browser checks are out of scope for this run. Use the same rows above in Chromium to separate extension defects from Whale compatibility issues.

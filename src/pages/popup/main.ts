@@ -63,22 +63,6 @@ function formatRemaining(session: Session): string {
   return hours > 0 ? `${hours}시간 ${minutes}분` : `${minutes}분`;
 }
 
-function makeSession(listId: string, intensity: Intensity, durationMinutes: number): Session {
-  const startedAt = Date.now();
-
-  return {
-    id: `popup-dev-${startedAt}`,
-    source: "manual",
-    listId,
-    intensity,
-    startedAt,
-    endsAt: startedAt + durationMinutes * 60_000,
-    status: "active",
-    snoozeCount: 0,
-    nextSnoozeDelayMin: 5
-  };
-}
-
 function appendText(parent: HTMLElement, tagName: keyof HTMLElementTagNameMap, text: string, className?: string): HTMLElement {
   const child = document.createElement(tagName);
   child.textContent = text;
@@ -256,13 +240,16 @@ async function getActiveSession(): Promise<Session | null> {
 
 async function loadPopupModel(notice?: string): Promise<PopupModel> {
   const settlement = await settleCompletedSessionXp();
-  const [siteListsValue = DEFAULT_SITE_LISTS, sessionLog = [], streakLedgerValue] = await Promise.all([
+  const [storedSiteLists, sessionLog = [], streakLedgerValue] = await Promise.all([
     getTyped("sync", STORAGE_KEYS.sync.siteLists),
     getTyped("local", STORAGE_KEYS.local.sessionLog),
     getTyped<StreakRecoveryState>("local", STREAK_LEDGER_KEY)
   ]);
 
-  const siteLists = siteListsValue.length > 0 ? siteListsValue : DEFAULT_SITE_LISTS;
+  const siteLists = storedSiteLists && storedSiteLists.length > 0 ? storedSiteLists : DEFAULT_SITE_LISTS;
+  if (!storedSiteLists || storedSiteLists.length === 0) {
+    await setTyped("sync", STORAGE_KEYS.sync.siteLists, DEFAULT_SITE_LISTS);
+  }
   const streakResult = reconcileStreakFromSessions(settlement.petState, sessionLog, {
     now: new Date(),
     recovery: streakLedgerValue
@@ -313,7 +300,7 @@ export async function bootstrapPopup(root: HTMLElement): Promise<void> {
       },
       startSession: async () => {
         try {
-          await sendMessage({
+          const response = await sendMessage({
             type: "START_SESSION",
             payload: {
               listId: selection.listId,
@@ -322,10 +309,11 @@ export async function bootstrapPopup(root: HTMLElement): Promise<void> {
               source: "manual"
             }
           });
-        } catch {
-          await setTyped("local", STORAGE_KEYS.local.activeSession, makeSession(selection.listId, selection.intensity, selection.durationMinutes));
+          assertOkResponse(response);
+          model = await loadPopupModel("세션을 시작했습니다.");
+        } catch (error) {
+          model = await loadPopupModel(error instanceof Error ? error.message : "세션을 시작하지 못했습니다.");
         }
-        model = await loadPopupModel("세션을 시작했습니다.");
         rerender();
       },
       upgradeIntensity: async (intensity) => {
@@ -335,7 +323,7 @@ export async function bootstrapPopup(root: HTMLElement): Promise<void> {
 
         const remaining = Math.max(1, minutesRemaining(model.activeSession));
         try {
-          await sendMessage({
+          const response = await sendMessage({
             type: "START_SESSION",
             payload: {
               listId: model.activeSession.listId,
@@ -344,13 +332,11 @@ export async function bootstrapPopup(root: HTMLElement): Promise<void> {
               source: model.activeSession.source
             }
           });
-        } catch {
-          await setTyped("local", STORAGE_KEYS.local.activeSession, {
-            ...model.activeSession,
-            intensity
-          });
+          assertOkResponse(response);
+          model = await loadPopupModel("강도를 상향했습니다.");
+        } catch (error) {
+          model = await loadPopupModel(error instanceof Error ? error.message : "강도를 상향하지 못했습니다.");
         }
-        model = await loadPopupModel("강도를 상향했습니다.");
         rerender();
       }
     });
@@ -388,6 +374,17 @@ export function renderPopupPreview(root: HTMLElement, petState: PetState, siteLi
   };
 
   renderPopup(root, previewModel, previewSelection, noopHandlers);
+}
+
+function assertOkResponse(response: unknown): void {
+  if (!response || typeof response !== "object" || !("ok" in response)) {
+    return;
+  }
+
+  const candidate = response as { ok: boolean; error?: string };
+  if (!candidate.ok) {
+    throw new Error(candidate.error ?? "요청을 처리하지 못했습니다.");
+  }
 }
 
 const root = document.querySelector<HTMLElement>("#app");
