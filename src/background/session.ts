@@ -16,7 +16,9 @@ export const EMERGENCY_END_ALARM = "focuswhale:emergency-end";
 export const TEMP_ALLOW_ALARM_PREFIX = "focuswhale:temp-allow:";
 
 const PENDING_EMERGENCY_KEY = "pendingEmergency";
+const EMERGENCY_USAGE_KEY = "emergencyUsage";
 const EMERGENCY_DELAY_MINUTES = 5;
+const EMERGENCY_WEEKLY_LIMIT = 1;
 const SESSION_LOCKED_SYNC_KEYS = [
   STORAGE_KEYS.sync.settings,
   STORAGE_KEYS.sync.siteLists,
@@ -25,6 +27,7 @@ const SESSION_LOCKED_SYNC_KEYS = [
 
 type ActiveStatus = Session["status"];
 type PendingEmergency = { sessionId: string; dueAt: number };
+type EmergencyUsage = { weekKey: string; sessionIds: string[]; usedAt: number[] };
 
 export interface AlarmClient {
   create(name: string, info: chrome.alarms.AlarmCreateInfo): Promise<void>;
@@ -254,8 +257,23 @@ export class SessionManager {
       return activeSession;
     }
 
+    const pending = await this.getPendingEmergency();
+    if (pending?.sessionId === activeSession.id && pending.dueAt > now) {
+      return activeSession;
+    }
+
+    const usage = await this.getEmergencyUsage(now);
+    if (!usage.sessionIds.includes(activeSession.id) && usage.sessionIds.length >= EMERGENCY_WEEKLY_LIMIT) {
+      throw new Error("이번 주 비상 종료 요청은 이미 사용했습니다.");
+    }
+
     const dueAt = now + EMERGENCY_DELAY_MINUTES * 60_000;
     await setTyped("local", PENDING_EMERGENCY_KEY, { sessionId: activeSession.id, dueAt });
+    await setTyped<EmergencyUsage>("local", EMERGENCY_USAGE_KEY, {
+      weekKey: usage.weekKey,
+      sessionIds: Array.from(new Set([...usage.sessionIds, activeSession.id])),
+      usedAt: usage.sessionIds.includes(activeSession.id) ? usage.usedAt : [...usage.usedAt, now]
+    });
     await this.alarms.create(EMERGENCY_END_ALARM, { when: dueAt });
     return activeSession;
   }
@@ -317,6 +335,24 @@ export class SessionManager {
 
   private async getPendingEmergency(): Promise<PendingEmergency | null> {
     return (await getTyped<PendingEmergency | null>("local", PENDING_EMERGENCY_KEY)) ?? null;
+  }
+
+  private async getEmergencyUsage(now: number): Promise<EmergencyUsage> {
+    const weekKey = localWeekKey(now);
+    const usage = await getTyped<EmergencyUsage>("local", EMERGENCY_USAGE_KEY);
+    if (usage?.weekKey === weekKey) {
+      return {
+        weekKey,
+        sessionIds: Array.from(new Set(usage.sessionIds ?? [])),
+        usedAt: usage.usedAt ?? []
+      };
+    }
+
+    return {
+      weekKey,
+      sessionIds: [],
+      usedAt: []
+    };
   }
 
   private async hasLoggedSession(sessionId: string): Promise<boolean> {
@@ -384,4 +420,13 @@ function localDateKey(now: number): string {
   const month = `${date.getMonth() + 1}`.padStart(2, "0");
   const day = `${date.getDate()}`.padStart(2, "0");
   return `${year}-${month}-${day}`;
+}
+
+function localWeekKey(now: number): string {
+  const date = new Date(now);
+  const day = date.getDay();
+  const diffToMonday = day === 0 ? -6 : 1 - day;
+  date.setHours(0, 0, 0, 0);
+  date.setDate(date.getDate() + diffToMonday);
+  return localDateKey(date.getTime());
 }

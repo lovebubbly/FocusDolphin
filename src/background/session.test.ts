@@ -22,6 +22,7 @@ describe("snooze delay", () => {
   let localStore: Store;
   let syncStore: Store;
   let manager: SessionManager;
+  let alarms: AlarmClient;
 
   beforeEach(() => {
     localStore = {};
@@ -35,7 +36,7 @@ describe("snooze delay", () => {
     });
 
     const dnrClient: DynamicRuleClient = { updateDynamicRules: vi.fn(async () => undefined) };
-    const alarms: AlarmClient = {
+    alarms = {
       create: vi.fn(async () => undefined),
       clear: vi.fn(async () => true)
     };
@@ -133,4 +134,51 @@ describe("snooze delay", () => {
     expect(chrome.storage.sync.set).not.toHaveBeenCalled();
     expect(chrome.storage.sync.remove).not.toHaveBeenCalled();
   });
+
+  it("requires hard emergency ends to stay within one request per local week", async () => {
+    const now = Date.parse("2026-07-06T10:00:00+09:00");
+    localStore[STORAGE_KEYS.local.activeSession] = hardSession("hard-1", now);
+
+    await expect(manager.endSession("emergency", now)).resolves.toMatchObject({ id: "hard-1" });
+    await expect(manager.endSession("emergency", now + 60_000)).resolves.toMatchObject({ id: "hard-1" });
+
+    localStore[STORAGE_KEYS.local.activeSession] = hardSession("hard-2", now + 24 * 60 * 60_000);
+
+    await expect(manager.endSession("emergency", now + 24 * 60 * 60_000)).rejects.toThrow("이번 주 비상 종료 요청은 이미 사용했습니다.");
+    expect(localStore.emergencyUsage).toMatchObject({
+      weekKey: "2026-07-06",
+      sessionIds: ["hard-1"]
+    });
+    expect(alarms.create).toHaveBeenCalledTimes(1);
+  });
+
+  it("resets hard emergency allowance on the next local week", async () => {
+    const firstWeek = Date.parse("2026-07-12T10:00:00+09:00");
+    const nextWeek = Date.parse("2026-07-13T10:00:00+09:00");
+    localStore[STORAGE_KEYS.local.activeSession] = hardSession("hard-1", firstWeek);
+
+    await manager.endSession("emergency", firstWeek);
+    localStore[STORAGE_KEYS.local.activeSession] = hardSession("hard-2", nextWeek);
+    localStore.pendingEmergency = null;
+
+    await expect(manager.endSession("emergency", nextWeek)).resolves.toMatchObject({ id: "hard-2" });
+    expect(localStore.emergencyUsage).toMatchObject({
+      weekKey: "2026-07-13",
+      sessionIds: ["hard-2"]
+    });
+  });
 });
+
+function hardSession(id: string, now: number): Session {
+  return {
+    id,
+    source: "manual",
+    listId: "list-1",
+    intensity: "hard",
+    startedAt: now - 60_000,
+    endsAt: now + 60 * 60_000,
+    status: "active",
+    snoozeCount: 0,
+    nextSnoozeDelayMin: 15
+  };
+}

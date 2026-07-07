@@ -145,14 +145,30 @@ function renderMediumFriction(session: Session): void {
 function renderHard(): void {
   setActionArea(`
     <div class="alert"><span>hard 세션에서는 임시 허용을 제공하지 않습니다.</span></div>
+    <p class="text-sm text-base-content/60">비상 종료는 5분 뒤 적용되며, 이번 주 1회만 사용할 수 있습니다.</p>
     <div class="card-actions justify-center">
       <button id="emergency-button" type="button" class="btn btn-error btn-soft shadow-sm">비상 종료 요청</button>
     </div>
   `);
 
   document.getElementById("emergency-button")?.addEventListener("click", () => {
+    renderEmergencyConfirmation();
+  });
+}
+
+function renderEmergencyConfirmation(): void {
+  setActionArea(`
+    <div class="alert alert-warning"><span>한 번 더 누르면 비상 종료가 예약됩니다. 잘못 눌렀다면 되돌아가세요.</span></div>
+    <div class="card-actions justify-center">
+      <button id="confirm-emergency-button" type="button" class="btn btn-error shadow-md">5분 뒤 종료 예약</button>
+      <button id="cancel-emergency-button" type="button" class="btn btn-soft shadow-sm">되돌아가기</button>
+    </div>
+  `);
+
+  document.getElementById("confirm-emergency-button")?.addEventListener("click", () => {
     void requestEmergencyEnd();
   });
+  document.getElementById("cancel-emergency-button")?.addEventListener("click", renderHard);
 }
 
 async function submitTemporaryAllow(intent: string): Promise<void> {
@@ -188,7 +204,13 @@ async function submitTemporaryAllow(intent: string): Promise<void> {
 async function requestEmergencyEnd(): Promise<void> {
   const response = await sendRuntime({ type: "END_SESSION", payload: { reason: "emergency" } });
   if (!response.ok) {
-    setActionArea(`<div class="alert alert-error"><span>요청을 저장하지 못했습니다. 다시 시도해 주세요.</span></div>`);
+    setActionArea(`
+      <div class="alert alert-warning"><span>${escapeHtml(response.error ?? "요청을 저장하지 못했습니다. 다시 시도해 주세요.")}</span></div>
+      <div class="card-actions justify-center">
+        <button id="back-button" type="button" class="btn btn-soft shadow-sm">되돌아가기</button>
+      </div>
+    `);
+    document.getElementById("back-button")?.addEventListener("click", goBack);
     return;
   }
 
