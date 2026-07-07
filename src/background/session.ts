@@ -17,6 +17,11 @@ export const TEMP_ALLOW_ALARM_PREFIX = "focuswhale:temp-allow:";
 
 const PENDING_EMERGENCY_KEY = "pendingEmergency";
 const EMERGENCY_DELAY_MINUTES = 5;
+const SESSION_LOCKED_SYNC_KEYS = [
+  STORAGE_KEYS.sync.settings,
+  STORAGE_KEYS.sync.siteLists,
+  STORAGE_KEYS.sync.schedules
+];
 
 type ActiveStatus = Session["status"];
 type PendingEmergency = { sessionId: string; dueAt: number };
@@ -223,11 +228,11 @@ export class SessionManager {
     revertingKeys: Set<string>
   ): Promise<void> {
     const activeSession = await this.getActiveSession();
-    if (!isRunning(activeSession) || activeSession.intensity !== "hard") {
+    if (!isRunning(activeSession)) {
       return;
     }
 
-    for (const key of [STORAGE_KEYS.sync.siteLists, STORAGE_KEYS.sync.schedules]) {
+    for (const key of SESSION_LOCKED_SYNC_KEYS) {
       const change = changes[key];
       if (!change || revertingKeys.has(key)) {
         revertingKeys.delete(key);

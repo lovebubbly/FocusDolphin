@@ -5,7 +5,7 @@ import {
   addRecommendationToBlocklist,
   blockedDomainsFromLists,
   collectDailyStats,
-  isHardLocked,
+  isOptionsLocked,
   normalizeDomainList,
   normalizeOptionsSettings
 } from "./model";
@@ -43,22 +43,36 @@ describe("options model helpers", () => {
     ]);
   });
 
-  it("dedupes blocked domains and detects hard lock", () => {
+  it("dedupes blocked domains and locks options during any active session", () => {
     expect(blockedDomainsFromLists([
       { id: "a", name: "A", mode: "blocklist", domains: ["youtube.com", "www.youtube.com"] },
       { id: "b", name: "B", mode: "allowlist", domains: ["docs.google.com"] }
     ])).toEqual(["youtube.com"]);
 
-    expect(isHardLocked({
-      id: "s",
+    for (const intensity of ["soft", "medium", "hard"] as const) {
+      expect(isOptionsLocked({
+        id: `s-${intensity}`,
+        source: "manual",
+        listId: "a",
+        intensity,
+        startedAt: 0,
+        endsAt: Date.now() + 60_000,
+        status: "active",
+        snoozeCount: 0,
+        nextSnoozeDelayMin: 15
+      })).toBe(true);
+    }
+
+    expect(isOptionsLocked({
+      id: "ended",
       source: "manual",
       listId: "a",
       intensity: "hard",
       startedAt: 0,
-      endsAt: Date.now() + 60_000,
+      endsAt: Date.now() - 1,
       status: "active",
       snoozeCount: 0,
       nextSnoozeDelayMin: 15
-    })).toBe(true);
+    })).toBe(false);
   });
 });

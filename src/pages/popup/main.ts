@@ -2,8 +2,16 @@ import { sendMessage } from "../../shared/messaging";
 import { getTyped, setTyped, STORAGE_KEYS } from "../../shared/storage";
 import { DEFAULT_SITE_LISTS, migrateSiteListsForCurrentDefaults } from "../../shared/siteLists";
 import type { Intensity, PetState, Session, SiteList } from "../../shared/types";
-import { awardBadges } from "../../pet/badges";
+import { awardBadges, badgeName } from "../../pet/badges";
 import { normalizePetState } from "../../pet/defaultState";
+import {
+  appendGrowthEvents,
+  createGrowthEvent,
+  drainPendingCelebrations,
+  growthProgress,
+  readGrowthLog,
+  type GrowthEvent
+} from "../../pet/growth";
 import { mountPet } from "../../pet/renderer";
 import { reconcileStreakFromSessions, type StreakRecoveryState } from "../../pet/streak";
 import { settleCompletedSessionXp } from "../../pet/xpEngine";
@@ -20,7 +28,9 @@ interface PopupModel {
   activeSession: Session | null;
   siteLists: SiteList[];
   awardedXp: number;
-  streakStatus: "active" | "recoveryPending";
+  streakStatus: "active" | "resting" | "fresh";
+  celebrations: GrowthEvent[];
+  growthLog: GrowthEvent[];
   notice?: string;
 }
 
@@ -56,6 +66,38 @@ function progressValue(session: Session, now = Date.now()): number {
   return Math.round((elapsedMs / totalMs) * 100);
 }
 
+function petStateLine(petState: PetState): string {
+  const stageLabels: Record<PetState["stage"], string> = {
+    0: "알이 깨어날 준비 중",
+    1: "새끼 고래로 자라는 중",
+    2: "어린 고래가 항해 중",
+    3: "푸른 고래가 깊어지는 중",
+    4: "별고래와 항해 중"
+  };
+
+  return stageLabels[petState.stage];
+}
+
+function streakChipText(model: PopupModel): string {
+  if (model.streakStatus === "resting") {
+    return "쉬는 중";
+  }
+
+  if (model.streakStatus === "fresh") {
+    return "새 출발";
+  }
+
+  return `${model.petState.streakDays}일째`;
+}
+
+function recentBadgeText(petState: PetState): string {
+  const recentBadge = [...petState.badges].sort((left, right) =>
+    (petState.badgeAwards[right]?.earnedAt ?? 0) - (petState.badgeAwards[left]?.earnedAt ?? 0)
+  )[0];
+
+  return recentBadge ? `최근 징표 · ${badgeName(recentBadge)}` : "첫 징표를 기다리는 중";
+}
+
 function appendText(parent: HTMLElement, tagName: keyof HTMLElementTagNameMap, text: string, className?: string): HTMLElement {
   const child = document.createElement(tagName);
   child.textContent = text;
@@ -89,24 +131,110 @@ function renderPetPanel(root: HTMLElement, model: PopupModel): void {
 
   const stats = document.createElement("div");
   stats.className = "space-y-2";
+  appendText(stats, "p", model.petState.name ?? "미로", "text-sm font-semibold text-base-content/60");
+  appendText(stats, "h1", petStateLine(model.petState), "text-xl font-extrabold");
+  appendText(stats, "p", "집중 세션을 완료하면 자라요.", "text-xs text-base-content/60");
   const badges = document.createElement("div");
   badges.className = "flex flex-wrap gap-1.5";
-  appendText(badges, "span", model.streakStatus === "recoveryPending" ? "복원 대기" : `${model.petState.streakDays}일 스트릭`, "badge badge-soft badge-primary shadow-sm");
-  appendText(badges, "span", `프리즈 ${model.petState.streakFreezes}/2`, "badge badge-soft shadow-sm");
+  appendText(badges, "span", streakChipText(model), "badge badge-soft badge-primary shadow-sm");
+  appendText(badges, "span", `보호막 ${model.petState.streakFreezes}/2`, "badge badge-soft shadow-sm");
   stats.append(badges);
-  appendText(stats, "p", `징표 ${model.petState.badges.length}개`, "text-sm text-base-content/70");
-
-  if (model.awardedXp > 0) {
-    appendText(stats, "p", `방금 집중 보상 +${model.awardedXp} XP`, "text-sm font-semibold text-success");
-  }
+  appendText(stats, "p", recentBadgeText(model.petState), "text-sm text-base-content/70");
 
   if (model.notice) {
     appendText(stats, "p", model.notice, "text-sm text-base-content/70");
   }
 
   body.append(stats);
+  panel.append(body, renderPetDetails(model));
+  root.append(panel);
+}
+
+function renderCelebrations(root: HTMLElement, model: PopupModel): void {
+  if (model.celebrations.length === 0) {
+    return;
+  }
+
+  const panel = document.createElement("section");
+  panel.className = "card border border-primary/20 bg-base-100 shadow-sm";
+  const body = document.createElement("div");
+  body.className = "card-body gap-3 p-4";
+  appendText(body, "p", "방금 만든 변화", "text-sm font-semibold text-primary");
+  for (const event of model.celebrations.slice(0, 3)) {
+    appendText(body, "p", event.text, "text-sm text-base-content/80");
+  }
+  if (model.celebrations.length > 3) {
+    appendText(body, "p", `그리고 ${model.celebrations.length - 3}개의 기록이 성장 로그에 남았어요.`, "text-xs text-base-content/60");
+  }
+  if (!model.petState.name && model.celebrations.some((event) => event.type === "stage_up")) {
+    body.append(renderNamePrompt(model.petState));
+  }
+  const actions = document.createElement("div");
+  actions.className = "card-actions justify-end";
+  actions.append(createButton("확인", "btn btn-soft btn-sm shadow-sm", () => panel.remove()));
+  body.append(actions);
   panel.append(body);
   root.append(panel);
+}
+
+function renderNamePrompt(petState: PetState): HTMLElement {
+  const form = document.createElement("form");
+  form.className = "grid gap-2 rounded-box bg-base-200 p-3";
+  appendText(form, "p", "이 고래를 뭐라고 부를까요?", "text-sm font-semibold");
+  const input = document.createElement("input");
+  input.className = "input input-sm w-full";
+  input.placeholder = "미로";
+  const submit = document.createElement("button");
+  submit.type = "submit";
+  submit.className = "btn btn-primary btn-sm";
+  submit.textContent = "이름 붙이기";
+  form.append(input, submit);
+  form.addEventListener("submit", (event) => {
+    event.preventDefault();
+    const name = input.value.trim() || "미로";
+    void setTyped("sync", STORAGE_KEYS.sync.petState, { ...petState, name }).then(() => {
+      form.replaceChildren();
+      appendText(form, "p", `${name}와 함께 항해합니다.`, "text-sm font-semibold");
+    });
+  });
+  return form;
+}
+
+function renderPetDetails(model: PopupModel): HTMLElement {
+  const details = document.createElement("details");
+  details.className = "collapse collapse-arrow border-t border-base-200";
+  const summary = document.createElement("summary");
+  summary.className = "collapse-title min-h-10 text-sm font-semibold";
+  summary.textContent = "성장 자세히 보기";
+  const content = document.createElement("div");
+  content.className = "collapse-content grid gap-3 text-sm";
+
+  const progress = growthProgress(model.petState.xp, model.petState.stage);
+  appendText(content, "p", `누적 집중 ${model.petState.totalFocusMinutes}분 · ${model.petState.xp} XP`, "text-base-content/70");
+  if (progress.nextStageName) {
+    appendText(content, "p", `${progress.nextStageName}까지 ${progress.remainingXp} XP`, "text-base-content/70");
+    const bar = document.createElement("progress");
+    bar.className = "progress progress-primary w-full";
+    bar.max = 100;
+    bar.value = progress.percentToNext;
+    content.append(bar);
+  } else {
+    appendText(content, "p", "지금은 가장 깊은 바다를 항해 중이에요.", "text-base-content/70");
+  }
+  appendText(content, "p", "고래는 아프거나 돌아가지 않아요.", "text-xs text-base-content/50");
+
+  const recent = model.growthLog.slice(0, 3);
+  if (recent.length > 0) {
+    const list = document.createElement("ul");
+    list.className = "grid gap-1";
+    for (const event of recent) {
+      appendText(list, "li", event.text, "text-xs text-base-content/60");
+    }
+    content.append(list);
+  }
+
+  details.append(summary, content);
+  return details;
 }
 
 function renderActiveHero(root: HTMLElement, model: PopupModel): void {
@@ -137,10 +265,10 @@ function renderActiveHero(root: HTMLElement, model: PopupModel): void {
   stats.className = "space-y-2";
   const badges = document.createElement("div");
   badges.className = "flex flex-wrap gap-1.5";
-  appendText(badges, "span", model.streakStatus === "recoveryPending" ? "복원 대기" : `${model.petState.streakDays}일 스트릭`, "badge badge-soft badge-primary shadow-sm");
+  appendText(badges, "span", streakChipText(model), "badge badge-soft badge-primary shadow-sm");
   appendText(badges, "span", session.intensity, "badge badge-soft shadow-sm");
   stats.append(badges);
-  appendText(stats, "p", model.notice ?? `프리즈 ${model.petState.streakFreezes}/2`, "text-sm text-base-content/70");
+  appendText(stats, "p", model.notice ?? `보호막 ${model.petState.streakFreezes}/2`, "text-sm text-base-content/70");
   body.append(stats);
   panel.append(body);
   root.append(panel);
@@ -309,6 +437,7 @@ export function renderPopup(root: HTMLElement, model: PopupModel, selection: Sel
     renderActiveHero(root, model);
     renderActiveSession(root, model, handlers);
   } else {
+    renderCelebrations(root, model);
     renderPetPanel(root, model);
     renderSessionForm(root, model, selection, handlers);
   }
@@ -340,12 +469,49 @@ async function loadPopupModel(notice?: string): Promise<PopupModel> {
     now: new Date(),
     recovery: streakLedgerValue
   });
-  const petState = awardBadges(streakResult.state, sessionLog, siteLists);
+  const beforeBadges = new Set(streakResult.state.badges);
+  const petState = awardBadges(streakResult.state, sessionLog, siteLists, {
+    comebackEligible: streakResult.streakRestored,
+    now: Date.now()
+  });
   const normalizedPetState = normalizePetState(petState);
+  const growthEvents: GrowthEvent[] = [];
+  const now = Date.now();
+
+  if (streakResult.freezeAwarded) {
+    growthEvents.push(createGrowthEvent("freeze_granted", now, {}));
+  }
+  if (streakResult.freezeConsumed) {
+    growthEvents.push(createGrowthEvent("freeze_used", now, {}));
+  }
+  if (streakResult.restStarted) {
+    growthEvents.push(createGrowthEvent("streak_rest", now, { streakFrom: streakResult.recovery.previousStreakDays }));
+  }
+  if (streakResult.streakRestored) {
+    growthEvents.push(createGrowthEvent("streak_restored", now, {
+      streakFrom: streakLedgerValue?.previousStreakDays,
+      streakTo: normalizedPetState.streakDays
+    }));
+  }
+  if (streakResult.freshStarted) {
+    growthEvents.push(createGrowthEvent("streak_fresh_start", now, {}));
+  }
+
+  for (const badge of normalizedPetState.badges) {
+    if (!beforeBadges.has(badge)) {
+      growthEvents.push(createGrowthEvent("badge_earned", normalizedPetState.badgeAwards[badge]?.earnedAt ?? now, { badgeId: badge }));
+    }
+  }
+
+  await appendGrowthEvents(growthEvents, true);
 
   await Promise.all([
     setTyped("sync", STORAGE_KEYS.sync.petState, normalizedPetState),
     setTyped<StreakRecoveryState>("local", STREAK_LEDGER_KEY, streakResult.recovery)
+  ]);
+  const [celebrations, growthLog] = await Promise.all([
+    drainPendingCelebrations(),
+    readGrowthLog(10)
   ]);
 
   return {
@@ -354,6 +520,8 @@ async function loadPopupModel(notice?: string): Promise<PopupModel> {
     siteLists,
     awardedXp: settlement.awardedXp,
     streakStatus: streakResult.status,
+    celebrations,
+    growthLog,
     notice
   };
 }
@@ -445,6 +613,8 @@ export function renderPopupPreview(root: HTMLElement, petState: PetState, siteLi
     siteLists,
     awardedXp: 36,
     streakStatus: streak.status,
+    celebrations: [],
+    growthLog: [],
     notice: "개발 프리뷰"
   };
   const previewSelection: SelectionState = {

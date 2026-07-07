@@ -1,5 +1,6 @@
 import type { PetState, Session, SiteList } from "../shared/types";
 import { dateKeyInKst, addDays } from "./streak";
+import { BADGE_DEFINITIONS, type BadgeId } from "../shared/gamification";
 
 export const BADGE_IDS = {
   firstSession: "first-session",
@@ -9,10 +10,13 @@ export const BADGE_IDS = {
   fiveDayWeek: "five-day-week",
   allowlist10: "allowlist-10",
   streak7: "streak-7",
-  streak30: "streak-30"
+  streak30: "streak-30",
+  comeback: "comeback",
+  firstSchedule: "first-schedule",
+  steady4w: "steady-4w"
 } as const;
 
-export type BadgeId = (typeof BADGE_IDS)[keyof typeof BADGE_IDS];
+export type { BadgeId };
 
 function completedSessions(sessions: Session[]): Session[] {
   return sessions.filter((session) => session.status === "completed");
@@ -42,6 +46,27 @@ function hasFiveDayWeek(sessions: Session[]): boolean {
   return Array.from(weeks.values()).some((week) => week.size >= 5);
 }
 
+function hasSteadyFourWeeks(sessions: Session[]): boolean {
+  const weeks = new Map<string, Set<string>>();
+  for (const session of sessions) {
+    const dateKey = dateKeyInKst(session.endsAt);
+    const weekStart = weekStartForDateKey(dateKey);
+    const week = weeks.get(weekStart) ?? new Set<string>();
+    week.add(dateKey);
+    weeks.set(weekStart, week);
+  }
+
+  const starts = Array.from(weeks.keys()).sort();
+  for (const start of starts) {
+    const chain = [0, 1, 2, 3].map((offset) => weeks.get(addDays(start, offset * 7))?.size ?? 0);
+    if (chain.every((days) => days >= 3)) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
 function withBadge(badges: string[], badge: BadgeId, earned: boolean): string[] {
   if (!earned || badges.includes(badge)) {
     return badges;
@@ -50,7 +75,12 @@ function withBadge(badges: string[], badge: BadgeId, earned: boolean): string[] 
   return [...badges, badge];
 }
 
-export function awardBadges(state: PetState, sessions: Session[], siteLists: SiteList[] = []): PetState {
+export function awardBadges(
+  state: PetState,
+  sessions: Session[],
+  siteLists: SiteList[] = [],
+  options: { comebackEligible?: boolean; now?: number } = {}
+): PetState {
   const completed = completedSessions(sessions);
   const listModes = new Map(siteLists.map((list) => [list.id, list.mode]));
   const totalMinutes = completed.reduce((sum, session) => sum + minutesForSession(session), 0);
@@ -65,9 +95,24 @@ export function awardBadges(state: PetState, sessions: Session[], siteLists: Sit
   badges = withBadge(badges, BADGE_IDS.allowlist10, allowlistSessions.length >= 10);
   badges = withBadge(badges, BADGE_IDS.streak7, state.streakDays >= 7);
   badges = withBadge(badges, BADGE_IDS.streak30, state.streakDays >= 30);
+  badges = withBadge(badges, BADGE_IDS.comeback, Boolean(options.comebackEligible));
+  badges = withBadge(badges, BADGE_IDS.firstSchedule, completed.some((session) => session.source === "schedule"));
+  badges = withBadge(badges, BADGE_IDS.steady4w, hasSteadyFourWeeks(completed));
+
+  const earnedAt = options.now ?? Date.now();
+  const existingAwards = state.badgeAwards ?? {};
+  const badgeAwards = badges.reduce<Record<string, { earnedAt: number }>>((awards, badge) => {
+    awards[badge] = existingAwards[badge] ?? { earnedAt };
+    return awards;
+  }, {});
 
   return {
     ...state,
-    badges
+    badges,
+    badgeAwards
   };
+}
+
+export function badgeName(id: string): string {
+  return BADGE_DEFINITIONS[id as BadgeId]?.name ?? id;
 }

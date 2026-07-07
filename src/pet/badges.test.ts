@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { PetState, Session, SiteList } from "../shared/types";
 import { awardBadges, BADGE_IDS } from "./badges";
+import { normalizePetState } from "./defaultState";
 
 const SITE_LISTS: SiteList[] = [
   { id: "allow", name: "Allow", mode: "allowlist", domains: ["docs.google.com"] },
@@ -8,7 +9,7 @@ const SITE_LISTS: SiteList[] = [
 ];
 
 function petState(overrides: Partial<PetState> = {}): PetState {
-  return {
+  return normalizePetState({
     stage: 0,
     xp: 0,
     streakDays: 0,
@@ -16,7 +17,7 @@ function petState(overrides: Partial<PetState> = {}): PetState {
     lastActiveDate: "",
     badges: [],
     ...overrides
-  };
+  });
 }
 
 function completedSession(id: string, listId: string, start: string, minutes: number, hard = false): Session {

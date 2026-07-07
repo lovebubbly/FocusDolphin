@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { PetState, Session } from "../shared/types";
+import { normalizePetState } from "./defaultState";
 import { PET_LEDGER_KEY, settleCompletedSessionXp } from "./xpEngine";
 
 type Store = Record<string, unknown>;
@@ -17,7 +18,7 @@ function makeArea(store: Store) {
 }
 
 function petState(overrides: Partial<PetState> = {}): PetState {
-  return {
+  return normalizePetState({
     stage: 0,
     xp: 0,
     streakDays: 0,
@@ -25,7 +26,7 @@ function petState(overrides: Partial<PetState> = {}): PetState {
     lastActiveDate: "",
     badges: [],
     ...overrides
-  };
+  });
 }
 
 function session(overrides: Partial<Session> = {}): Session {
@@ -97,13 +98,42 @@ describe("settleCompletedSessionXp", () => {
   });
 
   it("links XP settlement to stageForXp thresholds", async () => {
-    syncStore.petState = petState({ xp: 290 });
+    syncStore.petState = petState({ xp: 590 });
     localStore.sessionLog = [session({ intensity: "soft", endsAt: Date.parse("2026-07-06T09:10:00+09:00") })];
 
     const result = await settleCompletedSessionXp();
 
     expect(result.awardedXp).toBe(10);
-    expect(result.petState).toMatchObject({ xp: 300, stage: 1 });
-    expect(syncStore.petState).toMatchObject({ xp: 300, stage: 1 });
+    expect(result.petState).toMatchObject({ xp: 600, stage: 2 });
+    expect(result.events.some((event) => event.type === "stage_up")).toBe(true);
+    expect(syncStore.petState).toMatchObject({ xp: 600, stage: 2 });
+  });
+
+  it("records growth ledger and pending celebration events", async () => {
+    syncStore.petState = petState({ xp: 40 });
+    localStore.sessionLog = [session({ id: "half", intensity: "soft", endsAt: Date.parse("2026-07-06T09:20:00+09:00") })];
+
+    const result = await settleCompletedSessionXp(new Date("2026-07-06T09:30:00+09:00"));
+
+    expect(result.events.map((event) => event.type)).toContain("session_completed");
+    expect(result.events.map((event) => event.type)).toContain("half_way");
+    expect(localStore.growthLog).toEqual(expect.arrayContaining([
+      expect.objectContaining({ type: "session_completed", xpDelta: 20 }),
+      expect.objectContaining({ type: "half_way" })
+    ]));
+    expect(localStore.pendingCelebrations).toEqual(expect.arrayContaining([
+      expect.objectContaining({ type: "session_completed" }),
+      expect.objectContaining({ type: "half_way" })
+    ]));
+  });
+
+  it("does not lower an already higher stored stage during settlement", async () => {
+    syncStore.petState = petState({ stage: 4, xp: 1_000 });
+    localStore.sessionLog = [session({ id: "keep-stage", intensity: "soft" })];
+
+    const result = await settleCompletedSessionXp();
+
+    expect(result.petState.stage).toBe(4);
+    expect(syncStore.petState).toMatchObject({ stage: 4 });
   });
 });

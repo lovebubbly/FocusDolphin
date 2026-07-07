@@ -73,8 +73,8 @@ export function addRecommendationToBlocklist(siteLists: readonly SiteList[], rec
   });
 }
 
-export function isHardLocked(session: Session | null | undefined, now = Date.now()): boolean {
-  return Boolean(session?.status === "active" && session.intensity === "hard" && session.endsAt > now);
+export function isOptionsLocked(session: Session | null | undefined, now = Date.now()): boolean {
+  return Boolean(session?.status === "active" && session.endsAt > now);
 }
 
 export function normalizeDomainList(value: string): string[] {

@@ -70,4 +70,67 @@ describe("snooze delay", () => {
       nextSnoozeDelayMin: 30
     });
   });
+
+  it("reverts sync option changes while any session is active", async () => {
+    localStore[STORAGE_KEYS.local.activeSession] = {
+      id: "session-1",
+      source: "manual",
+      listId: "list-1",
+      intensity: "medium",
+      startedAt: Date.now() - 1_000,
+      endsAt: Date.now() + 60_000,
+      status: "active",
+      snoozeCount: 0,
+      nextSnoozeDelayMin: 15
+    } satisfies Session;
+
+    await manager.rejectLockedSettingChanges({
+      [STORAGE_KEYS.sync.settings]: {
+        oldValue: { softOverlaySeconds: 10 },
+        newValue: { softOverlaySeconds: 3 }
+      },
+      [STORAGE_KEYS.sync.siteLists]: {
+        oldValue: [{ id: "list-1", name: "Focus", mode: "blocklist", domains: ["x.com"] }],
+        newValue: []
+      },
+      [STORAGE_KEYS.sync.schedules]: {
+        oldValue: [{ id: "schedule-1", enabled: true }],
+        newValue: []
+      }
+    }, new Set());
+
+    expect(chrome.storage.sync.set).toHaveBeenCalledWith({
+      [STORAGE_KEYS.sync.settings]: { softOverlaySeconds: 10 }
+    });
+    expect(chrome.storage.sync.set).toHaveBeenCalledWith({
+      [STORAGE_KEYS.sync.siteLists]: [{ id: "list-1", name: "Focus", mode: "blocklist", domains: ["x.com"] }]
+    });
+    expect(chrome.storage.sync.set).toHaveBeenCalledWith({
+      [STORAGE_KEYS.sync.schedules]: [{ id: "schedule-1", enabled: true }]
+    });
+  });
+
+  it("allows sync option changes after the session ends", async () => {
+    localStore[STORAGE_KEYS.local.activeSession] = {
+      id: "session-1",
+      source: "manual",
+      listId: "list-1",
+      intensity: "medium",
+      startedAt: Date.now() - 120_000,
+      endsAt: Date.now() - 60_000,
+      status: "active",
+      snoozeCount: 0,
+      nextSnoozeDelayMin: 15
+    } satisfies Session;
+
+    await manager.rejectLockedSettingChanges({
+      [STORAGE_KEYS.sync.siteLists]: {
+        oldValue: [{ id: "list-1", name: "Focus", mode: "blocklist", domains: ["x.com"] }],
+        newValue: []
+      }
+    }, new Set());
+
+    expect(chrome.storage.sync.set).not.toHaveBeenCalled();
+    expect(chrome.storage.sync.remove).not.toHaveBeenCalled();
+  });
 });

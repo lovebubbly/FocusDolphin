@@ -1,13 +1,17 @@
 import { aggregateDashboard } from "../../analytics/aggregate";
 import { chromeHistoryClient, runRecommendationPipeline } from "../../analytics/history";
 import { RECOMMENDATIONS_KEY, type Recommendation } from "../../analytics/recommend";
+import { badgeName } from "../../pet/badges";
+import { normalizePetState } from "../../pet/defaultState";
+import { growthProgress, readGrowthLog, type GrowthEvent } from "../../pet/growth";
+import { BADGE_DEFINITIONS } from "../../shared/gamification";
 import { getTyped, setTyped, STORAGE_KEYS } from "../../shared/storage";
-import type { Intensity, Schedule, Session, SiteList } from "../../shared/types";
+import type { Intensity, PetState, Schedule, Session, SiteList } from "../../shared/types";
 import {
   addRecommendationToBlocklist,
   blockedDomainsFromLists,
   collectDailyStats,
-  isHardLocked,
+  isOptionsLocked,
   makeId,
   normalizeDomainList,
   normalizeOptionsSettings,
@@ -19,6 +23,8 @@ interface OptionsState {
   siteLists: SiteList[];
   schedules: Schedule[];
   activeSession: Session | null;
+  petState: PetState;
+  growthLog: GrowthEvent[];
   recommendations: Recommendation[];
   sessionLog: Session[];
   dailyStats: ReturnType<typeof collectDailyStats>;
@@ -37,14 +43,22 @@ if (root && document.body.dataset.page === "focuswhale-options") {
 async function bootstrapOptions(container: HTMLElement): Promise<void> {
   let state = await loadState();
 
+  const reload = async (notice?: string) => {
+    state = await loadState(notice);
+    rerender();
+  };
+
   const rerender = () => {
     renderOptions(container, state, {
-      reload: async (notice?: string) => {
-        state = await loadState(notice);
-        rerender();
-      }
+      reload
     });
   };
+
+  chrome.storage.onChanged.addListener((changes, areaName) => {
+    if (areaName === "local" && hasStorageChange(changes, STORAGE_KEYS.local.activeSession)) {
+      void reload();
+    }
+  });
 
   rerender();
 }
@@ -58,6 +72,8 @@ async function loadState(notice?: string): Promise<OptionsState> {
     siteLists: (await getTyped("sync", STORAGE_KEYS.sync.siteLists)) ?? [],
     schedules: (await getTyped("sync", STORAGE_KEYS.sync.schedules)) ?? [],
     activeSession: (await getTyped("local", STORAGE_KEYS.local.activeSession)) ?? null,
+    petState: normalizePetState(await getTyped("sync", STORAGE_KEYS.sync.petState)),
+    growthLog: await readGrowthLog(30),
     recommendations: (localSnapshot[RECOMMENDATIONS_KEY] as Recommendation[] | undefined) ?? [],
     sessionLog: (await getTyped("local", STORAGE_KEYS.local.sessionLog)) ?? [],
     dailyStats: collectDailyStats(localSnapshot),
@@ -70,8 +86,14 @@ function renderOptions(
   state: OptionsState,
   handlers: { reload: (notice?: string) => Promise<void> }
 ): void {
-  const locked = isHardLocked(state.activeSession);
+  const locked = isOptionsLocked(state.activeSession);
   container.replaceChildren();
+
+  if (locked) {
+    renderLockedOptions(container, state);
+    return;
+  }
+
   container.className = "mx-auto grid w-full max-w-[720px] gap-8 bg-base-200 px-5 py-8 text-base-content";
 
   const header = document.createElement("header");
@@ -81,21 +103,140 @@ function renderOptions(
   appendText(header, "p", "설정은 조용하게, 행동은 한 번에 끝나게 정리합니다.", "text-sm text-base-content/60");
   container.append(header);
 
-  if (locked) {
-    appendBanner(container, "hard 세션이 진행 중입니다. 목록과 스케줄은 세션 종료 후 변경할 수 있습니다.");
-  }
-
   if (state.notice) {
     appendBanner(container, state.notice);
   }
 
   container.append(
     renderDashboard(state),
+    renderGrowth(state, handlers),
     renderSettings(state, locked, handlers),
     renderSiteLists(state, locked, handlers),
     renderSchedules(state, locked, handlers),
     renderRecommendations(state, locked, handlers)
   );
+}
+
+function renderGrowth(
+  state: OptionsState,
+  handlers: { reload: (notice?: string) => Promise<void> }
+): HTMLElement {
+  const section = card("성장");
+  const progress = growthProgress(state.petState.xp, state.petState.stage);
+
+  const nameForm = document.createElement("form");
+  nameForm.className = "grid gap-3 md:grid-cols-[1fr_auto] md:items-end";
+  const name = input("text", "고래 이름", state.petState.name ?? "미로", false);
+  const save = submitButton("이름 저장", false, "soft");
+  nameForm.append(name.label, save);
+  nameForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+    const nextName = name.control.value.trim() || "미로";
+    void setTyped("sync", STORAGE_KEYS.sync.petState, {
+      ...state.petState,
+      name: nextName
+    }).then(() => handlers.reload("고래 이름을 저장했습니다."));
+  });
+
+  const stats = document.createElement("div");
+  stats.className = "stats stats-vertical overflow-hidden bg-base-100 shadow-sm md:stats-horizontal";
+  metric(stats, "현재 단계", progress.currentStageName);
+  metric(stats, "누적 집중", `${state.petState.totalFocusMinutes}분`);
+  metric(stats, "다음 단계", progress.nextStageName ?? "완성");
+  metric(stats, "남은 XP", String(progress.remainingXp));
+
+  const barWrap = document.createElement("div");
+  barWrap.className = "grid gap-2";
+  const bar = document.createElement("progress");
+  bar.className = "progress progress-primary w-full";
+  bar.max = 100;
+  bar.value = progress.percentToNext;
+  barWrap.append(bar);
+  appendText(barWrap, "p", progress.nextStageName
+    ? `${progress.nextStageName}까지 ${progress.percentToNext}%`
+    : "지금은 가장 깊은 바다를 항해 중입니다.", "text-sm text-base-content/60");
+
+  const badgeGrid = document.createElement("div");
+  badgeGrid.className = "grid gap-2 md:grid-cols-2";
+  for (const [id, definition] of Object.entries(BADGE_DEFINITIONS)) {
+    const earned = state.petState.badges.includes(id);
+    const item = document.createElement("div");
+    item.className = earned
+      ? "rounded-box border border-base-300 bg-base-100 p-3 shadow-sm"
+      : "rounded-box border border-base-300 bg-base-200 p-3 opacity-70";
+    appendText(item, "p", earned ? definition.name : definition.kind === "surprise" ? "숨은 징표" : definition.name, "font-semibold");
+    appendText(item, "p", earned ? definition.description : "조건이 맞으면 조용히 열립니다.", "text-sm text-base-content/60");
+    badgeGrid.append(item);
+  }
+
+  const log = document.createElement("div");
+  log.className = "overflow-hidden rounded-box border border-base-300 bg-base-100";
+  const table = document.createElement("table");
+  table.className = "table table-sm";
+  table.innerHTML = `
+    <thead>
+      <tr>
+        <th>날짜</th>
+        <th>기록</th>
+        <th class="text-right">XP</th>
+      </tr>
+    </thead>
+  `;
+  const tbody = document.createElement("tbody");
+  if (state.growthLog.length === 0) {
+    const row = document.createElement("tr");
+    const cell = document.createElement("td");
+    cell.colSpan = 3;
+    cell.className = "text-base-content/60";
+    cell.textContent = "아직 성장 기록이 없습니다.";
+    row.append(cell);
+    tbody.append(row);
+  }
+  for (const event of state.growthLog) {
+    const row = document.createElement("tr");
+    appendText(row, "td", formatDate(event.ts), "text-xs text-base-content/60");
+    appendText(row, "td", event.badgeId ? `징표 획득 - ${badgeName(event.badgeId)}` : event.text);
+    appendText(row, "td", event.xpDelta ? `+${event.xpDelta}` : "-", "text-right tabular-nums");
+    tbody.append(row);
+  }
+  table.append(tbody);
+  log.append(table);
+
+  section.append(nameForm, stats, barWrap, badgeGrid, log);
+  return section;
+}
+
+function renderLockedOptions(container: HTMLElement, state: OptionsState): void {
+  const session = state.activeSession;
+  container.className = "mx-auto grid min-h-screen w-full max-w-[520px] place-items-center bg-base-200 px-5 py-8 text-base-content";
+
+  const panel = document.createElement("section");
+  panel.className = "card w-full border border-base-300 bg-base-100 shadow-xl";
+  const body = document.createElement("div");
+  body.className = "card-body gap-5";
+  appendText(body, "p", "FocusWhale", "text-sm font-semibold text-base-content/50");
+  appendText(body, "h1", "세션 중에는 설정을 잠가둡니다", "text-2xl font-extrabold");
+  appendText(body, "p", "집중 세션이 끝나면 목록, 스케줄, 추천 분석을 다시 열 수 있습니다.", "text-sm text-base-content/60");
+
+  const stats = document.createElement("div");
+  stats.className = "stats stats-vertical overflow-hidden bg-base-200 shadow-sm";
+  metric(stats, "남은 시간", formatRemainingMs((session?.endsAt ?? Date.now()) - Date.now()));
+  metric(stats, "현재 강도", formatIntensity(session?.intensity));
+  body.append(stats);
+
+  const actions = document.createElement("div");
+  actions.className = "card-actions justify-end";
+  actions.append(button("되돌아가기", "primary", () => {
+    if (window.history.length > 1) {
+      window.history.back();
+      return;
+    }
+
+    window.close();
+  }));
+  body.append(actions);
+  panel.append(body);
+  container.append(panel);
 }
 
 function renderSettings(
@@ -497,6 +638,7 @@ function card(title: string): HTMLElement {
   appendText(heading, "h2", title, "text-xl font-bold");
   const descriptions: Record<string, string> = {
     "설정": "집중 시간대와 soft 대기 시간을 조정합니다.",
+    "성장": "XP는 사용자가 열어볼 때만 자세히 보여줍니다.",
     "목록": "도메인 목록은 필요한 행만 펼쳐서 수정합니다.",
     "스케줄": "자동으로 시작할 집중 시간을 정합니다.",
     "추천": "방문 기록은 로컬에서만 분석합니다."
@@ -582,4 +724,42 @@ function appendText(parent: HTMLElement, tagName: keyof HTMLElementTagNameMap, t
   }
   parent.append(child);
   return child;
+}
+
+function hasStorageChange(changes: Record<string, chrome.storage.StorageChange>, key: string): boolean {
+  return Object.prototype.hasOwnProperty.call(changes, key);
+}
+
+function formatRemainingMs(ms: number): string {
+  const totalSeconds = Math.max(0, Math.ceil(ms / 1_000));
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+  if (minutes >= 60) {
+    const hours = Math.floor(minutes / 60);
+    const remainingMinutes = minutes % 60;
+    return `${hours}시간 ${remainingMinutes}분`;
+  }
+
+  return `${minutes}:${String(seconds).padStart(2, "0")}`;
+}
+
+function formatIntensity(intensity: Intensity | undefined): string {
+  if (intensity === "soft") {
+    return "soft";
+  }
+
+  if (intensity === "medium") {
+    return "medium";
+  }
+
+  return intensity === "hard" ? "hard" : "-";
+}
+
+function formatDate(timestamp: number): string {
+  return new Intl.DateTimeFormat("ko-KR", {
+    month: "numeric",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit"
+  }).format(new Date(timestamp));
 }

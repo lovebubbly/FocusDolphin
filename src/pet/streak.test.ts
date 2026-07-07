@@ -1,9 +1,10 @@
 import { describe, expect, it } from "vitest";
 import type { PetState, Session } from "../shared/types";
+import { normalizePetState } from "./defaultState";
 import { dateKeyInKst, reconcileStreakFromSessions, transitionStreakDay } from "./streak";
 
 function petState(overrides: Partial<PetState> = {}): PetState {
-  return {
+  return normalizePetState({
     stage: 0,
     xp: 0,
     streakDays: 0,
@@ -11,7 +12,7 @@ function petState(overrides: Partial<PetState> = {}): PetState {
     lastActiveDate: "",
     badges: [],
     ...overrides
-  };
+  });
 }
 
 function completedSession(id: string, endsAt: string): Session {
@@ -55,7 +56,7 @@ describe("streak transitions", () => {
     expect(recovered.state).toMatchObject({ streakDays: 6, lastActiveDate: "2026-07-07" });
   });
 
-  it("keeps recovery pending visible and restarts at rounded 50 percent", () => {
+  it("keeps resting visible and restores half plus today", () => {
     const missed = transitionStreakDay(
       petState({ streakDays: 9, streakFreezes: 0, lastActiveDate: "2026-07-05" }),
       false,
@@ -63,10 +64,24 @@ describe("streak transitions", () => {
     );
     const recovered = transitionStreakDay(missed.state, true, "2026-07-07", missed.recovery);
 
-    expect(missed.status).toBe("recoveryPending");
+    expect(missed.status).toBe("resting");
     expect(missed.state.streakDays).toBe(9);
     expect(missed.recovery).toMatchObject({ pending: true, previousStreakDays: 9 });
     expect(recovered.state.streakDays).toBe(5);
+    expect(recovered.streakRestored).toBe(true);
+  });
+
+  it("turns a long rest into a fresh start without deleting history", () => {
+    const result = transitionStreakDay(
+      petState({ streakDays: 9, streakFreezes: 0, lastActiveDate: "2026-07-05" }),
+      false,
+      "2026-07-13",
+      { pending: true, previousStreakDays: 9, missedDate: "2026-07-06", processedThroughDate: "2026-07-12" }
+    );
+
+    expect(result.status).toBe("fresh");
+    expect(result.state.streakDays).toBe(0);
+    expect(result.freshStarted).toBe(true);
   });
 
   it("awards one freeze per seven-day milestone with a maximum of two", () => {

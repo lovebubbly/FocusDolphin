@@ -16,12 +16,23 @@ export const DEV_SITE_LISTS: SiteList[] = [
 ];
 
 export const DEV_PET_STATE: PetState = {
+  version: 2,
   stage: 2,
   xp: 1_680,
+  totalFocusMinutes: 1_400,
+  streak: {
+    days: 6,
+    state: "active",
+    freezes: 1
+  },
   streakDays: 6,
   streakFreezes: 1,
   lastActiveDate: "2026-07-05",
-  badges: ["first-session", "first-hard"]
+  badges: ["first-session", "first-hard"],
+  badgeAwards: {
+    "first-session": { earnedAt: timestamp("2026-07-01T09:00:00+09:00") },
+    "first-hard": { earnedAt: timestamp("2026-07-02T10:00:00+09:00") }
+  }
 };
 
 function timestamp(value: string): number {
