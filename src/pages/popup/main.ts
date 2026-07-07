@@ -1,4 +1,5 @@
 import { sendMessage } from "../../shared/messaging";
+import { stageName } from "../../shared/gamification";
 import { getTyped, setTyped, STORAGE_KEYS } from "../../shared/storage";
 import { DEFAULT_SITE_LISTS, migrateSiteListsForCurrentDefaults } from "../../shared/siteLists";
 import type { Intensity, PetState, Session, SiteList } from "../../shared/types";
@@ -155,16 +156,26 @@ function renderCelebrations(root: HTMLElement, model: PopupModel): void {
     return;
   }
 
+  const animationTasks: Array<() => void> = [];
+  const sessionEvent = model.celebrations.find((event) => event.type === "session_completed");
+  const milestoneEvents = model.celebrations.filter((event) => event.type !== "session_completed");
   const panel = document.createElement("section");
   panel.className = "card border border-primary/20 bg-base-100 shadow-sm";
   const body = document.createElement("div");
   body.className = "card-body gap-3 p-4";
-  appendText(body, "p", "방금 만든 변화", "text-sm font-semibold text-primary");
-  for (const event of model.celebrations.slice(0, 3)) {
-    appendText(body, "p", event.text, "text-sm text-base-content/80");
+
+  if (sessionEvent) {
+    body.append(renderSessionGrowthOverview(model, sessionEvent, animationTasks));
+  } else {
+    appendText(body, "p", "방금 만든 변화", "text-sm font-semibold text-primary");
   }
-  if (model.celebrations.length > 3) {
-    appendText(body, "p", `그리고 ${model.celebrations.length - 3}개의 기록이 성장 로그에 남았어요.`, "text-xs text-base-content/60");
+
+  if (milestoneEvents.length > 0) {
+    body.append(renderMilestoneOverview(milestoneEvents, animationTasks));
+  }
+
+  if (model.celebrations.length > 4) {
+    appendText(body, "p", `그리고 ${model.celebrations.length - 4}개의 기록이 성장 로그에 남았어요.`, "text-xs text-base-content/60");
   }
   if (!model.petState.name && model.celebrations.some((event) => event.type === "stage_up")) {
     body.append(renderNamePrompt(model.petState));
@@ -175,6 +186,107 @@ function renderCelebrations(root: HTMLElement, model: PopupModel): void {
   body.append(actions);
   panel.append(body);
   root.append(panel);
+  runAnimationTasks(animationTasks);
+}
+
+function renderSessionGrowthOverview(
+  model: PopupModel,
+  event: GrowthEvent,
+  animationTasks: Array<() => void>
+): HTMLElement {
+  const xpDelta = event.xpDelta ?? model.awardedXp;
+  const xpAfter = event.xpAfter ?? model.petState.xp;
+  const xpBefore = event.xpBefore ?? Math.max(0, xpAfter - xpDelta);
+  const stageFrom = event.stageFrom ?? model.petState.stage;
+  const stageTo = event.stageTo ?? model.petState.stage;
+  const progressBefore = event.progressBefore ?? growthProgress(xpBefore, stageFrom).percentToNext;
+  const progressAfter = event.progressAfter ?? growthProgress(xpAfter, stageTo).percentToNext;
+
+  const wrap = document.createElement("div");
+  wrap.className = "grid gap-3";
+
+  const hero = document.createElement("div");
+  hero.className = "grid grid-cols-[72px_1fr] items-center gap-3";
+  const petSlot = document.createElement("div");
+  petSlot.className = "grid scale-75 place-items-center";
+  mountPet(petSlot, model.petState, "happy");
+  const copy = document.createElement("div");
+  copy.className = "space-y-1";
+  appendText(copy, "p", "세션 완료", "text-xs font-bold uppercase tracking-wide text-primary");
+  appendText(copy, "h2", "집중이 고래를 키웠어요", "text-xl font-extrabold");
+  appendText(copy, "p", event.text, "text-sm text-base-content/70");
+  hero.append(petSlot, copy);
+  wrap.append(hero);
+
+  const stats = document.createElement("div");
+  stats.className = "stats stats-vertical overflow-hidden bg-base-200 shadow-sm";
+  const gained = document.createElement("div");
+  gained.className = "stat py-3";
+  appendText(gained, "div", "이번 세션", "stat-title");
+  appendText(gained, "div", `+${xpDelta} XP`, "stat-value text-2xl text-primary tabular-nums");
+  appendText(gained, "div", `${event.minutes ?? 0}분 × ${event.intensity ?? "medium"}`, "stat-desc");
+  const total = document.createElement("div");
+  total.className = "stat py-3";
+  appendText(total, "div", "누적 XP", "stat-title");
+  const totalValue = appendText(total, "div", String(xpAfter), "stat-value text-2xl tabular-nums");
+  appendText(total, "div", `${xpBefore} → ${xpAfter}`, "stat-desc");
+  const stage = document.createElement("div");
+  stage.className = "stat py-3";
+  appendText(stage, "div", "현재 단계", "stat-title");
+  appendText(stage, "div", stageName(stageTo), "stat-value text-2xl");
+  appendText(stage, "div", stageFrom === stageTo ? "차근차근 자라는 중" : `${stageName(stageFrom)}에서 성장`, "stat-desc");
+  stats.append(gained, total, stage);
+  wrap.append(stats);
+
+  const progress = document.createElement("div");
+  progress.className = "grid gap-2 rounded-box bg-base-200 p-3";
+  appendText(progress, "p", stageFrom === stageTo ? "다음 성장까지" : "새 단계로 넘어갔어요", "text-sm font-semibold");
+  const track = document.createElement("div");
+  track.className = "h-3 overflow-hidden rounded-full bg-base-300";
+  const fill = document.createElement("div");
+  fill.className = "h-full rounded-full bg-primary";
+  fill.style.width = `${clampPercent(progressBefore)}%`;
+  fill.style.transition = prefersReducedMotion() ? "none" : "width 900ms ease";
+  track.append(fill);
+  appendText(progress, "p", `${clampPercent(progressBefore)}% → ${clampPercent(progressAfter)}%`, "text-xs text-base-content/60");
+  progress.append(track);
+  wrap.append(progress);
+
+  animationTasks.push(() => {
+    animateCount(totalValue, xpBefore, xpAfter, 900);
+    animateWidth(fill, progressAfter);
+  });
+
+  return wrap;
+}
+
+function renderMilestoneOverview(events: readonly GrowthEvent[], animationTasks: Array<() => void>): HTMLElement {
+  const wrap = document.createElement("div");
+  wrap.className = "grid gap-2";
+
+  events.slice(0, 4).forEach((event, index) => {
+    const row = document.createElement("div");
+    row.className = "rounded-box border border-base-300 bg-base-100 p-3 text-sm shadow-sm";
+    row.style.opacity = "0";
+    row.style.transform = "translateY(6px)";
+    row.style.transition = prefersReducedMotion() ? "none" : "opacity 360ms ease, transform 360ms ease";
+    appendText(row, "p", milestoneTitle(event), "font-semibold");
+    appendText(row, "p", event.text, "text-base-content/60");
+    wrap.append(row);
+    animationTasks.push(() => {
+      if (prefersReducedMotion()) {
+        row.style.opacity = "1";
+        row.style.transform = "translateY(0)";
+        return;
+      }
+      window.setTimeout(() => {
+        row.style.opacity = "1";
+        row.style.transform = "translateY(0)";
+      }, 160 + index * 120);
+    });
+  });
+
+  return wrap;
 }
 
 function renderNamePrompt(petState: PetState): HTMLElement {
@@ -235,6 +347,81 @@ function renderPetDetails(model: PopupModel): HTMLElement {
 
   details.append(summary, content);
   return details;
+}
+
+function milestoneTitle(event: GrowthEvent): string {
+  if (event.type === "stage_up") {
+    return "성장";
+  }
+  if (event.type === "half_way") {
+    return "절반 지점";
+  }
+  if (event.type === "badge_earned") {
+    return "새 징표";
+  }
+  if (event.type === "freeze_granted") {
+    return "보호막";
+  }
+  if (event.type === "freeze_used") {
+    return "스트릭 보호";
+  }
+  if (event.type === "streak_restored") {
+    return "이어받기";
+  }
+  if (event.type === "streak_fresh_start") {
+    return "새 출발";
+  }
+
+  return "성장 로그";
+}
+
+function runAnimationTasks(tasks: Array<() => void>): void {
+  if (prefersReducedMotion()) {
+    tasks.forEach((task) => task());
+    return;
+  }
+
+  window.requestAnimationFrame(() => {
+    tasks.forEach((task) => task());
+  });
+}
+
+function animateCount(element: HTMLElement, from: number, to: number, durationMs: number): void {
+  if (prefersReducedMotion() || from === to) {
+    element.textContent = String(to);
+    return;
+  }
+
+  const startedAt = performance.now();
+  const step = (now: number) => {
+    const progress = Math.min(1, (now - startedAt) / durationMs);
+    const eased = 1 - Math.pow(1 - progress, 3);
+    element.textContent = String(Math.round(from + (to - from) * eased));
+    if (progress < 1) {
+      window.requestAnimationFrame(step);
+    }
+  };
+
+  window.requestAnimationFrame(step);
+}
+
+function animateWidth(element: HTMLElement, targetPercent: number): void {
+  if (prefersReducedMotion()) {
+    element.style.width = `${clampPercent(targetPercent)}%`;
+    return;
+  }
+
+  window.requestAnimationFrame(() => {
+    element.style.width = `${clampPercent(targetPercent)}%`;
+  });
+}
+
+function clampPercent(value: number): number {
+  return Math.max(0, Math.min(100, Math.round(value)));
+}
+
+function prefersReducedMotion(): boolean {
+  return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }
 
 function renderActiveHero(root: HTMLElement, model: PopupModel): void {

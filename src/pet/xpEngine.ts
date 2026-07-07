@@ -1,7 +1,7 @@
 import { getTyped, setTyped, STORAGE_KEYS } from "../shared/storage";
 import type { PetState, Session } from "../shared/types";
 import { stageForXp, xpForSession } from "../shared/xp";
-import { appendGrowthEvents, createGrowthEvent, crossedHalfWay, type GrowthEvent } from "./growth";
+import { appendGrowthEvents, createGrowthEvent, crossedHalfWay, growthTransition, type GrowthEvent } from "./growth";
 import { normalizePetState } from "./defaultState";
 
 export const PET_LEDGER_KEY = "petLedger";
@@ -72,10 +72,11 @@ export async function settleCompletedSessionXp(now: Date = new Date()): Promise<
     awardedXp += sessionXp;
     nextXp += sessionXp;
     totalFocusMinutes += minutes;
-    nextStage = stageForXp(nextXp);
+    nextStage = Math.max(previousStage, stageForXp(nextXp)) as PetState["stage"];
     events.push(createGrowthEvent("session_completed", session.endsAt, {
       sessionId: session.id,
       xpDelta: sessionXp,
+      ...growthTransition(previousXp, nextXp, previousStage, nextStage),
       minutes,
       intensity: session.intensity
     }));

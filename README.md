@@ -14,9 +14,9 @@ Current implementation status: MVP complete for local development.
 - `soft`, `medium`, and `hard` session intensity modes
 - Blocklist and allowlist modes
 - Temporary allow flow for medium sessions
-- Emergency end valve for hard sessions
+- Two-step emergency end valve for hard sessions with a one-request-per-week limit
 - Popup, options page, blocked page, and soft overlay
-- Pet XP, stages, streaks, streak freezes, and badges
+- Pet XP v2, animated post-session growth overview, stages, streaks, streak freezes, and badges
 - Local history aggregation and domain-level recommendations
 - daisyUI/Tailwind UI redesign with light, dark, and extra color themes
 - Character-based extension toolbar icons
@@ -52,6 +52,14 @@ Medium mode redirects matching navigation to the FocusWhale blocked page. The us
 
 Hard mode redirects matching navigation and does not offer a temporary allow. It still keeps an emergency end request, because the extension is a self-control tool rather than a trap.
 
+The emergency end flow is intentionally harder than a normal button click:
+
+- First click changes the blocked page into a warning/confirmation state.
+- The user must press the second confirmation button to schedule the emergency end.
+- The emergency end is delayed by 5 minutes.
+- The request is limited to one hard-session emergency request per local week.
+- Re-clicking the same already scheduled request does not spend another weekly allowance.
+
 ## Site Lists
 
 FocusWhale supports two list modes.
@@ -65,12 +73,18 @@ Domain matching is normalized and handled through Declarative Net Request dynami
 
 The pet system rewards completed focus without punishment.
 
-- Completed sessions grant XP.
-- XP advances the whale through stages.
+- Completed sessions grant XP with the v2 formula: `floor(minutes * intensity multiplier)`.
+- Multipliers are `soft = 1.0`, `medium = 1.2`, and `hard = 1.5`.
+- XP advances the whale through v2 stages at `100`, `600`, `2,000`, and `6,000` XP.
+- After a completed session, the popup shows a post-session growth overview with animated XP count-up, progress fill, pet celebration, and milestone reveal.
+- XP is shown by default only in the post-session overview or when the user opens `성장 자세히 보기`.
+- Growth events are written to a local growth ledger so the UI can explain why the pet changed.
 - Streaks record recent focus continuity.
 - Streak freezes provide a forgiveness mechanism.
 - Badges are additive only.
 - Missed sessions do not harm or kill the pet.
+
+See `docs/GAMIFICATION_V2.md` for the GrowthEvent schema, storage keys, animation behavior, and regression tests.
 
 The runtime sprite atlas is stored in `assets/sprites/focuswhale-atlas.png`, with source and license notes in `assets/sprites/LICENSE.md`.
 
@@ -139,7 +153,7 @@ src/
     options/       settings, lists, schedules, analytics, recommendations
     blocked/       redirect target and medium/hard flows
   analytics/       local history aggregation and recommendation scoring
-  pet/             pet state, XP settlement, streaks, badges, renderer
+  pet/             pet state, XP settlement, growth ledger, streaks, badges, renderer
   shared/          shared types, storage wrapper, messaging, XP helpers
   styles/          Tailwind/daisyUI app and overlay CSS entries
 ```
@@ -162,7 +176,7 @@ npm run typecheck
 npm test
 ```
 
-The test suite currently covers background rules/sessions/schedules, shared storage and XP helpers, pet rewards/streaks/badges, local analytics, history recommendation flow, and options model behavior.
+The test suite currently covers background rules/sessions/schedules, emergency end limits, shared storage and XP helpers, pet rewards/streaks/badges/growth ledger, local analytics, history recommendation flow, options model behavior, and wellness copy guardrails.
 
 ## Load In Whale Or Chrome
 

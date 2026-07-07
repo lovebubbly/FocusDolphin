@@ -24,6 +24,10 @@ export interface GrowthEvent {
   ts: number;
   type: GrowthEventType;
   xpDelta?: number;
+  xpBefore?: number;
+  xpAfter?: number;
+  progressBefore?: number;
+  progressAfter?: number;
   minutes?: number;
   intensity?: Intensity;
   sessionId?: string;
@@ -169,6 +173,22 @@ export function growthProgress(xp: number, stage: PetStage): GrowthProgress {
     nextStageXp: next.xp,
     percentToNext: Math.round(progress * 100),
     remainingXp: Math.max(0, next.xp - xp)
+  };
+}
+
+export function growthTransition(
+  xpBefore: number,
+  xpAfter: number,
+  stageFrom: PetStage,
+  stageTo: PetStage
+): Pick<GrowthEvent, "xpBefore" | "xpAfter" | "progressBefore" | "progressAfter" | "stageFrom" | "stageTo"> {
+  return {
+    xpBefore,
+    xpAfter,
+    progressBefore: growthProgress(xpBefore, stageFrom).percentToNext,
+    progressAfter: growthProgress(xpAfter, stageTo).percentToNext,
+    stageFrom,
+    stageTo
   };
 }
 

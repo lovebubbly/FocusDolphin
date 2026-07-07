@@ -118,7 +118,14 @@ describe("settleCompletedSessionXp", () => {
     expect(result.events.map((event) => event.type)).toContain("session_completed");
     expect(result.events.map((event) => event.type)).toContain("half_way");
     expect(localStore.growthLog).toEqual(expect.arrayContaining([
-      expect.objectContaining({ type: "session_completed", xpDelta: 20 }),
+      expect.objectContaining({
+        type: "session_completed",
+        xpDelta: 20,
+        xpBefore: 40,
+        xpAfter: 60,
+        progressBefore: 40,
+        progressAfter: 60
+      }),
       expect.objectContaining({ type: "half_way" })
     ]));
     expect(localStore.pendingCelebrations).toEqual(expect.arrayContaining([
