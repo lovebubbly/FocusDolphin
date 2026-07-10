@@ -5,7 +5,7 @@
 > - Product owner and requester: **Choi Yunseong (최윤성)**
 > - Prepared and consolidated by: **OpenAI Codex (GPT-5)**
 > - Original document created: **2026-07-09 21:11:44 KST**
-> - Current release-candidate refresh: **2026-07-11 01:33 KST**
+> - Current release-candidate refresh: **2026-07-11 01:43 KST**
 > - Time zone: **Asia/Seoul (UTC+09:00)**
 > - Evidence basis: local source, current automated/static gates, exact-final disposable-profile Whale/Chrome-for-Testing runs, and the clean-profile extracted-archive smoke test recorded in `QA.md`
 > - Approval caveat: this handoff does not claim product-owner approval, store review, or publication
@@ -24,7 +24,7 @@ Automated release gates are green:
 
 The exact final bundle passed isolated Whale 4.38 checks for soft, medium, hard, popup emergency, Options, all 20 pet states, adversarial `x.com.`, and pre-deadline browser-process restart continuity. Headed Whale additionally passed list-rerender dismissal, blank intent, Options keyboard/modal focus, normal/reduced completion motion, and a 13-state accessibility matrix with 68 contrast checks (minimum 4.94:1), 40 px minimum targets, 19 screenshots, and no page errors. Headed Chrome for Testing 147 accepted the real optional-history prompt, verified domain-only results and extension-URL exclusion, revoked permission, and started a medium session afterward. A clean profile loaded the extracted release archive and fetched the exact content bundle. Visual assertions use local `/tmp` screenshots; no recording or external upload occurred.
 
-The candidate is **not store-published**. The exact current `dist/` is packaged at `release/FocusWhale-1.0.0.zip` (2,693,022 bytes; SHA-256 `4d766244997647161b63a6d7f5018970e5ab7df94a99af82cecfd6aa7469af0f`). Its checksum passes; 32 entries / 24 files extract byte-equal to `dist/`; the extracted copy passes a clean-profile smoke load as extension ID `codbhopmpipbogplaofkgndjeoemjbck`; and the archive token/path/email scan found no findings. GitHub Issues is the selected support/privacy channel and the repository `PRIVACY.md` path is the intended policy URL, but the current policy edits are uncommitted and not verified as publicly published. No store listing or product-owner sign-off is documented.
+The candidate is **not store-published**. The exact current `dist/` is packaged at `release/FocusWhale-1.0.0.zip` (2,693,022 bytes; SHA-256 `4d766244997647161b63a6d7f5018970e5ab7df94a99af82cecfd6aa7469af0f`). Its checksum passes; 32 entries / 24 files extract byte-equal to `dist/`; the extracted copy passes a clean-profile smoke load as extension ID `codbhopmpipbogplaofkgndjeoemjbck`; and the archive token/path/email scan found no findings. The reviewed source is committed locally as `acb45b6`; a fresh `git archive` plus `npm ci` reproduced the same build byte-for-byte. GitHub Issues is the selected support/privacy channel and the repository `PRIVACY.md` path is the intended policy URL, but the local commits are not pushed and the URL is not verified as publicly published. No store listing or product-owner sign-off is documented.
 
 ## Evidence Discipline
 
@@ -252,11 +252,11 @@ Consumer Google Chrome 148 rejects command-line unpacked-extension loading befor
 
 ## Release Handoff Sequence
 
-1. Preserve and review the current dirty working tree; do not discard user/agent changes.
+1. Preserve the reviewed `acb45b6` release-candidate commit and this evidence-only documentation follow-up.
 2. Run `npm run typecheck`, `npm test`, and `npm run build` again after any change.
 3. Complete the remaining overdue-start and destructive recovery-journal checks against the exact rebuilt artifact.
 4. Complete every unchecked publication-blocking row in `QA.md`.
-5. Commit the reconciled `PRIVACY.md`, verify the intended GitHub URL is publicly reachable, and use GitHub Issues as the support/privacy channel.
+5. Push the committed `PRIVACY.md` only when requested, verify the intended GitHub URL is publicly reachable, and use GitHub Issues as the support/privacy channel.
 6. Run a final secret/privacy scan against the exact release diff and archive.
 7. Re-verify the current ZIP/checksum and repeat the clean-profile archive load after the release commit if the build changes.
 8. Prepare store listing copy, icons/screenshots, permission justifications, support URL, privacy URL, and reviewer instructions.

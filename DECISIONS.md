@@ -1,6 +1,6 @@
 # FocusWhale Decisions
 
-Last refreshed: **2026-07-11 01:33 KST** by **OpenAI Codex (GPT-5)**, for requester and product owner **Choi Yunseong (최윤성)**.
+Last refreshed: **2026-07-11 01:43 KST** by **OpenAI Codex (GPT-5)**, for requester and product owner **Choi Yunseong (최윤성)**.
 
 This file records durable choices that are easy to accidentally undo. New undocumented choices should be added here with rationale.
 
@@ -110,7 +110,7 @@ This file records durable choices that are easy to accidentally undo. New undocu
 
 **Decision:** Use [GitHub Issues](https://github.com/lovebubbly/FocusWhale/issues) as the support/privacy contact channel. Use `https://github.com/lovebubbly/FocusWhale/blob/main/PRIVACY.md` as the intended stable policy URL only after the policy is committed and publicly reachable.
 
-**Why:** This provides one centralized repository channel and a stable, reviewable policy target without claiming that an uncommitted working-tree file is already published.
+**Why:** This provides one centralized repository channel and a stable, reviewable policy target without claiming that a local, unpushed commit is already publicly reachable.
 
 ## D-019: Two Production Themes
 
@@ -147,3 +147,9 @@ This file records durable choices that are easy to accidentally undo. New undocu
 **Decision:** Destructive Options dialogs move focus into the modal, trap keyboard focus while open, close on Escape where cancellation is available, and restore focus to the invoking control.
 
 **Why:** A visible modal without focus containment leaves keyboard users operating obscured controls and makes destructive confirmation ambiguous.
+
+## D-025: Measured Accessibility Overrides Theme Defaults
+
+**Decision:** Small semantic labels use the full theme content token, the initial hard-emergency soft button keeps its error tint with readable content text, and every disclosure summary has a theme-primary two-pixel `focus-visible` outline with a two-pixel offset.
+
+**Why:** The headed matrix measured the default small-label contrast at 4.22:1 and the initial emergency action at 4.11:1, while disclosure summaries had no visible ring. The corrected exact build passes 68 contrast checks with a 4.94:1 minimum and exposes visible focus on all seven popup keyboard stops.

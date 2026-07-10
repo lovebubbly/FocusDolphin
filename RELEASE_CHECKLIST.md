@@ -1,6 +1,6 @@
 # FocusWhale v1.0.0 Release Checklist
 
-Last refreshed: **2026-07-11 01:33 KST** by **OpenAI Codex (GPT-5)**, for requester and product owner **Choi Yunseong (최윤성)**.
+Last refreshed: **2026-07-11 01:43 KST** by **OpenAI Codex (GPT-5)**, for requester and product owner **Choi Yunseong (최윤성)**.
 
 The source version is 1.0.0, but this checklist is the publication gate. Unchecked blocking rows mean the product is not ready to submit.
 
@@ -51,7 +51,7 @@ The core matrix passed in Whale. The exact headed pass additionally covered list
 - [ ] Publish `PRIVACY.md` at a stable public HTTPS URL.
 - [ ] Add the public privacy URL to store metadata.
 - [x] Secret/privacy scan passes against the exact current candidate and release archive; archive token/path/email scan has no findings.
-- [ ] Repeat the scan against the exact release commit if it differs from the current artifact.
+- [x] Repeat the scan against the exact release commit if it differs from the current artifact. **`acb45b6` source and extracted archive: no secret/token/private-key/machine-path findings**
 - [x] Confirm no real browsing exports, browser profiles, extension storage, or personal screenshots are included.
 - [x] Sanitize machine-specific `/Users/...` paths from `docs/SNSLOCK_CORE_CONCEPT_PORT_PLAN.md`.
 - [ ] Review all permissions/host permissions and write store justifications.
@@ -60,8 +60,8 @@ The core matrix passed in Whale. The exact headed pass additionally covered list
 ## Package
 
 - [x] Review `git status` and final diff; preserve intentional user changes.
-- [ ] Commit the exact reviewed candidate.
-- [ ] Rebuild from the release commit in a clean dependency environment.
+- [x] Commit the exact reviewed candidate. **`acb45b6` (`Finalize FocusWhale v1.0 release candidate`) on `main`**
+- [x] Rebuild from the release commit in a clean dependency environment. **Fresh `git archive` + `npm ci`; typecheck, 30/196 tests, build/verifier pass; both rebuilt `dist/` trees are byte-equal to the reviewed artifact**
 - [x] Create `release/FocusWhale-1.0.0.zip` from the exact final `dist/` with the manifest at archive root.
 - [x] Load the extracted ZIP into a clean profile and smoke test it. **MV3 v1.0.0 popup and exact 116,276-byte content bundle passed under extension ID `codbhopmpipbogplaofkgndjeoemjbck`**
 - [x] Record archive size: 2,693,022 bytes.
@@ -95,4 +95,4 @@ The core matrix passed in Whale. The exact headed pass additionally covered list
 
 ## Current Decision
 
-**Not ready for store submission yet.** Automated gates, headed usability/accessibility/history checks, the core browser matrix, the clean-profile extracted-archive smoke test, and the archive audit pass. Overdue-start and destructive recovery-journal checks remain open, as do public policy verification, permission justifications, store materials, the exact reviewed commit/rebuild/tag decision, top-level license decision, and owner approval.
+**Not ready for store submission yet.** Automated gates, headed usability/accessibility/history checks, the core browser matrix, the clean-profile extracted-archive smoke test, the exact reviewed commit/clean rebuild, and the archive audit pass. Overdue-start and destructive recovery-journal checks remain open, as do public policy verification, permission justifications, store materials, the tag decision, top-level license decision, and owner approval.

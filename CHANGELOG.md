@@ -91,10 +91,11 @@ All notable FocusWhale changes are documented here. The project has not yet reco
 - Headed Whale exact-build checks pass list-rerender dismissal, blank-intent rejection, Options keyboard/modal focus, normal and reduced completion motion, 13 visual states, 68 contrast checks with a 4.94:1 minimum, 40 px minimum inspected targets, 19 screenshots, and zero page errors.
 - Headed Chrome for Testing 147 accepts the real optional-history prompt, renders controlled domain-only results with extension URLs excluded, revokes permission, and starts a medium session afterward.
 - The extracted release archive loads in a clean profile under ID `codbhopmpipbogplaofkgndjeoemjbck` and fetches the exact 116,276-byte content script.
+- Release-candidate commit `acb45b6` reproduces the reviewed `dist/` byte-for-byte from a fresh `git archive` plus `npm ci`; the exact commit and archive secret scan passes.
 
 ### Not Yet Released
 
 - A verified local release ZIP exists; no store submission or publication is recorded.
-- GitHub Issues is the selected support/privacy contact. The repository `PRIVACY.md` URL is the intended policy target, but the uncommitted policy is not yet verified as publicly published.
+- GitHub Issues is the selected support/privacy contact. The repository `PRIVACY.md` URL is the intended policy target, but the local commit is not pushed and the policy is not yet verified as publicly published.
 - Goal 5 opt-in LLM analysis is not included.
 - Mobile/SNSLOCK implementation is outside this repository/version.
