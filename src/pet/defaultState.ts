@@ -19,6 +19,7 @@ export const DEFAULT_PET_STATE: PetState = {
 };
 
 export function normalizePetState(state?: Partial<PetState> | null): PetState {
+  const name = state?.name?.trim().slice(0, 24);
   const xp = Math.max(0, Math.round(state?.xp ?? DEFAULT_PET_STATE.xp));
   const stage = Math.min(4, Math.max(state?.stage ?? DEFAULT_PET_STATE.stage, stageForXp(xp))) as PetState["stage"];
   const streakDays = Math.max(0, Math.round(state?.streak?.days ?? state?.streakDays ?? DEFAULT_PET_STATE.streakDays));
@@ -32,6 +33,7 @@ export function normalizePetState(state?: Partial<PetState> | null): PetState {
 
   return {
     version: 2,
+    ...(name ? { name } : {}),
     stage,
     xp,
     totalFocusMinutes: Math.max(0, Math.round(state?.totalFocusMinutes ?? xp)),

@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { getTyped, setTyped, STORAGE_KEYS, subscribeTyped } from "./storage";
+import { getTyped, normalizeSettings, setTyped, STORAGE_KEYS, subscribeTyped } from "./storage";
 
 type Store = Record<string, unknown>;
 
@@ -44,6 +44,20 @@ describe("storage helpers", () => {
 
     await expect(getTyped("sync", STORAGE_KEYS.sync.settings)).resolves.toEqual({
       softOverlaySeconds: 10
+    });
+  });
+
+  it("resolves missing or malformed settings to one shared product default", () => {
+    expect(normalizeSettings(undefined)).toEqual({
+      focusHours: { startHHMM: "09:00", endHHMM: "12:00" },
+      softOverlaySeconds: 10
+    });
+    expect(normalizeSettings({
+      softOverlaySeconds: 100,
+      focusHours: { startHHMM: "12:00", endHHMM: "12:00" }
+    })).toEqual({
+      focusHours: { startHHMM: "12:00", endHHMM: "09:00" },
+      softOverlaySeconds: 60
     });
   });
 

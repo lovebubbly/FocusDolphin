@@ -5,6 +5,18 @@ import { appendGrowthEvents, createGrowthEvent, crossedHalfWay, growthTransition
 import { normalizePetState } from "./defaultState";
 
 export const PET_LEDGER_KEY = "petLedger";
+export const PET_SETTLEMENT_JOURNAL_KEY = "petSettlementJournal";
+const MAX_SETTLED_SESSION_IDS = 5_000;
+
+interface PetSettlementJournal {
+  petState: PetState;
+  ledger: PetLedger;
+  events: GrowthEvent[];
+  persistPetState: boolean;
+  createdAt: number;
+}
+
+let petMutationQueue: Promise<void> = Promise.resolve();
 
 export interface PetLedger {
   settledSessionIds: string[];
@@ -30,7 +42,18 @@ function defaultLedger(): PetLedger {
   };
 }
 
-export async function settleCompletedSessionXp(now: Date = new Date()): Promise<XpSettlementResult> {
+export function settleCompletedSessionXp(now: Date = new Date()): Promise<XpSettlementResult> {
+  return runPetStateMutation(() => settleCompletedSessionXpWithinMutation(now));
+}
+
+export function runPetStateMutation<T>(operationFactory: () => Promise<T>): Promise<T> {
+  const operation = petMutationQueue.then(operationFactory);
+  petMutationQueue = operation.then(() => undefined, () => undefined);
+  return operation;
+}
+
+export async function settleCompletedSessionXpWithinMutation(now: Date = new Date()): Promise<XpSettlementResult> {
+  await recoverSettlementJournal();
   const [sessionLog = [], ledgerValue, storedPetState] = await Promise.all([
     getTyped("local", STORAGE_KEYS.local.sessionLog),
     getTyped<PetLedger>("local", PET_LEDGER_KEY),
@@ -108,24 +131,29 @@ export async function settleCompletedSessionXp(now: Date = new Date()): Promise<
     stage: Math.max(normalized.stage, stageForXp(nextXp)) as PetState["stage"]
   };
 
-  if (storedPetState === undefined || storedPetState.version !== 2) {
+  const needsMigration = storedPetState === undefined || storedPetState.version !== 2;
+  if (needsMigration) {
     events.push(createGrowthEvent("migration", eventTs, { text: "성장 시스템이 새로워졌어요." }));
   }
 
-  if (awardedXp > 0 || normalized.stage !== petState.stage || storedPetState === undefined || storedPetState.version !== 2) {
-    await setTyped("sync", STORAGE_KEYS.sync.petState, petState);
-  }
+  const persistPetState = awardedXp > 0 || normalized.stage !== petState.stage || needsMigration;
+  const persistLedger = newlySettled.length > 0 || newlySettledEarly.length > 0 || ledgerValue === undefined;
+  const nextLedger: PetLedger = {
+    settledSessionIds: Array.from(settled).slice(-MAX_SETTLED_SESSION_IDS),
+    settledEarlySessionIds: Array.from(settledEarly).slice(-MAX_SETTLED_SESSION_IDS),
+    updatedAt: now.getTime()
+  };
 
-  if (events.length > 0) {
-    await appendGrowthEvents(events, true);
-  }
-
-  if (newlySettled.length > 0 || newlySettledEarly.length > 0 || ledgerValue === undefined) {
-    await setTyped<PetLedger>("local", PET_LEDGER_KEY, {
-      settledSessionIds: Array.from(settled),
-      settledEarlySessionIds: Array.from(settledEarly),
-      updatedAt: now.getTime()
-    });
+  if (persistPetState || persistLedger || events.length > 0) {
+    const journal: PetSettlementJournal = {
+      petState,
+      ledger: nextLedger,
+      events,
+      persistPetState,
+      createdAt: now.getTime()
+    };
+    await setTyped<PetSettlementJournal>("local", PET_SETTLEMENT_JOURNAL_KEY, journal);
+    await applySettlementJournal(journal);
   }
 
   return {
@@ -133,5 +161,73 @@ export async function settleCompletedSessionXp(now: Date = new Date()): Promise<
     settledSessionIds: newlySettled,
     events,
     petState
+  };
+}
+
+async function recoverSettlementJournal(): Promise<void> {
+  const journal = await getTyped<PetSettlementJournal>("local", PET_SETTLEMENT_JOURNAL_KEY);
+  if (!journal) {
+    return;
+  }
+
+  await applySettlementJournal(journal);
+}
+
+async function applySettlementJournal(journal: PetSettlementJournal): Promise<void> {
+  if (journal.persistPetState) {
+    const current = await getTyped("sync", STORAGE_KEYS.sync.petState);
+    const petState = mergeSettlementPetProgress(current, journal.petState);
+    await setTyped("sync", STORAGE_KEYS.sync.petState, petState);
+  }
+
+  if (journal.events.length > 0) {
+    await appendGrowthEvents(journal.events, true);
+  }
+
+  const currentLedger = await getTyped<PetLedger>("local", PET_LEDGER_KEY);
+  await setTyped<PetLedger>("local", PET_LEDGER_KEY, mergeSettlementLedger(currentLedger, journal.ledger));
+  await chrome.storage.local.remove(PET_SETTLEMENT_JOURNAL_KEY);
+}
+
+function mergeSettlementPetProgress(currentValue: PetState | undefined, targetValue: PetState): PetState {
+  const target = normalizePetState(targetValue);
+  if (!currentValue) {
+    return target;
+  }
+
+  const current = normalizePetState(currentValue);
+  const badges = Array.from(new Set([
+    ...current.badges,
+    ...target.badges,
+    ...Object.keys(current.badgeAwards),
+    ...Object.keys(target.badgeAwards)
+  ]));
+  const badgeAwards = Object.fromEntries(badges.map((badge) => [
+    badge,
+    current.badgeAwards[badge] ?? target.badgeAwards[badge] ?? { earnedAt: 0 }
+  ]));
+
+  return normalizePetState({
+    ...current,
+    name: current.name ?? target.name,
+    xp: Math.max(current.xp, target.xp),
+    totalFocusMinutes: Math.max(current.totalFocusMinutes, target.totalFocusMinutes),
+    stage: Math.max(current.stage, target.stage) as PetState["stage"],
+    badges,
+    badgeAwards
+  });
+}
+
+function mergeSettlementLedger(current: PetLedger | undefined, target: PetLedger): PetLedger {
+  return {
+    settledSessionIds: Array.from(new Set([
+      ...(current?.settledSessionIds ?? []),
+      ...target.settledSessionIds
+    ])).slice(-MAX_SETTLED_SESSION_IDS),
+    settledEarlySessionIds: Array.from(new Set([
+      ...(current?.settledEarlySessionIds ?? []),
+      ...(target.settledEarlySessionIds ?? [])
+    ])).slice(-MAX_SETTLED_SESSION_IDS),
+    updatedAt: Math.max(current?.updatedAt ?? 0, target.updatedAt)
   };
 }

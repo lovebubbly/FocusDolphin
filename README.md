@@ -1,242 +1,177 @@
 # FocusWhale
 
-FocusWhale is a local-first Manifest V3 browser extension for Naver Whale and Chromium browsers. It helps you start bounded focus sessions, add humane friction before distracting sites, and reward completed focus with a small whale companion.
+FocusWhale is a local-first Manifest V3 extension for Naver Whale and Chromium browsers. It creates bounded focus sessions, adds humane friction before distracting sites, and rewards completed focus with a growing whale companion.
 
-The project is intentionally not a punishment system. It keeps autonomy visible: the user chooses the session strength, the pet never dies or regresses, and browsing data is not sent to an external server.
+The product is deliberately non-punitive: users choose the intensity, the hard-mode emergency valve remains available, pets never die or regress, and FocusWhale does not send browsing data to an external service.
 
-## Status
+## Release Status
 
-Current implementation status: MVP complete for local development.
+The current source and production build identify as **version 1.0.0**. This is a local release candidate, not a claim of store publication.
 
-- Manifest V3 extension scaffold with Vite and strict TypeScript
-- Declarative Net Request based blocking and redirects
-- Manual focus sessions and scheduled sessions
-- `soft`, `medium`, and `hard` session intensity modes
-- Blocklist and allowlist modes
-- Temporary allow flow for medium sessions
-- Two-step emergency end valve for hard sessions with a one-request-per-week limit
-- Popup, options page, blocked page, and soft overlay
-- Pet XP v2, animated post-session growth overview, stages, streaks, streak freezes, and badges
-- Local history aggregation and domain-level recommendations
-- daisyUI/Tailwind UI redesign with light, dark, and extra color themes
-- Character-based extension toolbar icons
+Verified on the 2026-07-11 01:33 KST release-candidate tree:
 
-Not implemented yet:
+- `npm run typecheck`: pass.
+- `npm test`: pass, **30 test files / 196 tests**.
+- `npm run build`: pass, including the two-stage extension/content build and release verifier.
+- `assets/content.js`: classic IIFE, **116,276 bytes**; no module imports/exports.
+- Production output: no source maps and no unexpected external network URLs.
+- Manifest web-accessible resources: exactly four allowlisted files.
+- Pretendard Variable and its SIL Open Font License are packaged locally.
 
-- Goal 5 LLM analysis. This is intentionally reserved for a later opt-in version.
-- Store packaging and Chrome Web Store / Whale distribution review.
-- Full manual QA matrix across every Whale/browser restart scenario.
+The rebuilt bundle passed the isolated Whale 4.38 core matrix for soft, medium, hard, popup emergency, Options, all 20 pet states, adversarial `x.com.`, pre-deadline browser-process restart continuity, and clean-profile extracted-archive loading. Exact headed Whale checks additionally passed completion dismissal across list rerenders, blank-intent rejection, Options keyboard/modal focus, normal and reduced-motion completion, and a 13-state visual matrix with 68 contrast checks (minimum 4.94:1), 40 px minimum targets, 19 screenshots, and no page errors. Headed Chrome for Testing 147 accepted the real optional-history prompt, showed controlled domain-only results with extension URLs excluded, revoked the permission, and then started a medium session successfully. See [QA.md](QA.md) for the exact evidence boundary.
 
-## Product Principles
+Still pending before publication:
 
-FocusWhale follows a few non-negotiable wellness rules.
+- Exercise restart after a session is already overdue and destructive interruption during each recovery journal.
+- Prepare store listing assets/metadata, permission justifications, reviewer notes, and submission materials.
+- Commit and verify the intended public privacy-policy URL; GitHub Issues is already selected as the support/privacy channel.
+
+Goal 5 opt-in LLM analysis remains intentionally out of scope and is not a v1.0.0 publication blocker.
+
+## Features
+
+- Manual and scheduled focus sessions.
+- User-selected `soft`, `medium`, or `hard` intensity; never automatically escalated.
+- Blocklist and allowlist site modes.
+- DNR-based main-frame redirects for medium/hard sessions.
+- Shadow-DOM soft overlay for soft sessions.
+- Medium-mode countdown, required intent entry, and five-minute temporary allow.
+- Two-step hard-mode emergency end, delayed five minutes and limited to one request per local week.
+- Exact scheduled-session deadlines and abort suppression so an emergency-ended occurrence does not restart until its true schedule window has passed.
+- Popup, options, blocked page, and soft overlay with active-session state updates.
+- Pet XP v2, five non-regressing stages, streak forgiveness, additive badges, and post-session growth overview.
+- Four pet moods: `idle`, `happy`, `focus`, and `celebrate`.
+- Local dashboard statistics and optional domain-only browser-history recommendations.
+- History analysis computes off the session-operation queue so long scans cannot delay alarms; the final write re-enters the queue and is discarded if local data was cleared meanwhile.
+- Local data deletion and optional-history permission revocation from Options.
+
+## Wellness Rules
 
 - No automatic intensity escalation.
-- No shame, guilt, punishment, pet death, or pet regression copy.
-- Hard mode keeps an emergency valve.
-- XP is not shown as a constant pressure loop.
-- Recommendations are suggestions only; domains are never auto-blocked.
-- Browsing history analysis stays local and works on domain-level data.
+- No shame, guilt, punishment, pet death, sickness, or regression.
+- Hard mode always retains an emergency valve.
+- XP is not a persistent pressure HUD; it appears in the post-session overview and user-opened growth details.
+- Recommendations never auto-block a domain.
+- Browsing analysis stays on-device and reduces history to domain-level summaries.
 
 ## Session Modes
 
 ### Soft
 
-Soft mode does not hard-block the page. Instead, it injects a shadow DOM overlay with a short countdown and an immediate `go back` action. This is for gentle interruption and awareness.
+The page is not redirected. A compiled, isolated shadow-DOM overlay presents a short pause, an immediate return-to-focus action, and a delayed continue action.
 
 ### Medium
 
-Medium mode redirects matching navigation to the FocusWhale blocked page. The user can request a temporary allow after a countdown and a short intent entry. Temporary allows expire automatically.
+Matching main-frame navigation redirects to the extension blocked page. The original destination is carried in the URL fragment after removing credentials, query parameters, and fragments. After the countdown and a non-empty intent entry, a five-minute temporary allow can return to that sanitized HTTP(S) destination.
 
 ### Hard
 
-Hard mode redirects matching navigation and does not offer a temporary allow. It still keeps an emergency end request, because the extension is a self-control tool rather than a trap.
-
-The emergency end flow is intentionally harder than a normal button click:
-
-- First click changes the blocked page into a warning/confirmation state.
-- The user must press the second confirmation button to schedule the emergency end.
-- The emergency end is delayed by 5 minutes.
-- The request is limited to one hard-session emergency request per local week.
-- Re-clicking the same already scheduled request does not spend another weekly allowance.
-
-## Site Lists
-
-FocusWhale supports two list modes.
-
-- `blocklist`: block only the listed domains during a session.
-- `allowlist`: allow only the listed domains during a session and redirect everything else.
-
-Domain matching is normalized and handled through Declarative Net Request dynamic rules. The allowlist implementation uses higher-priority allow rules over a catch-all redirect rule.
+Matching navigation redirects to the blocked page without a temporary allow. Emergency end requires an initial request, a second confirmation, and a five-minute delay. Only one unique hard-session emergency request is accepted per local week; repeats for the same pending session are idempotent.
 
 ## Pet System
 
-The pet system rewards completed focus without punishment.
+Completed sessions grant XP once:
 
-- Completed sessions grant XP with the v2 formula: `floor(minutes * intensity multiplier)`.
-- Multipliers are `soft = 1.0`, `medium = 1.2`, and `hard = 1.5`.
-- XP advances the whale through v2 stages at `100`, `600`, `2,000`, and `6,000` XP.
-- After a completed session, the popup shows a post-session growth overview with animated XP count-up, progress fill, pet celebration, and milestone reveal.
-- XP is shown by default only in the post-session overview or when the user opens `성장 자세히 보기`.
-- Growth events are written to a local growth ledger so the UI can explain why the pet changed.
-- Streaks record recent focus continuity.
-- Streak freezes provide a forgiveness mechanism.
-- Badges are additive only.
-- Missed sessions do not harm or kill the pet.
+```text
+XP = floor(completed_minutes * intensity_multiplier)
+soft = 1.0, medium = 1.2, hard = 1.5
+```
 
-See `docs/GAMIFICATION_V2.md` for the GrowthEvent schema, storage keys, animation behavior, and regression tests.
+Stages begin at `0`, `100`, `600`, `2,000`, and `6,000` XP. Stage 4 is a star-marked adult whale, replacing the earlier clipped crown treatment.
 
-The runtime sprite atlas is stored in `assets/sprites/focuswhale-atlas.png`, with source and license notes in `assets/sprites/LICENSE.md`.
+The production atlas is [assets/sprites/focuswhale-atlas.png](assets/sprites/focuswhale-atlas.png): **384 x 1,920**, four columns by twenty rows, 96 px frames, eighty validated frames. Rows represent five stages across four moods (`idle`, `happy`, `focus`, `celebrate`). Source, assembly, validation, and asset-license notes are in [assets/sprites/LICENSE.md](assets/sprites/LICENSE.md).
 
-## Analytics And Recommendations
+Growth settlement is service-worker owned and idempotent. Per-session ledgers and recovery journals prevent duplicate XP, preserve newer synced progress during stale-journal recovery, and resume interrupted writes. See [docs/GAMIFICATION_V2.md](docs/GAMIFICATION_V2.md).
 
-The options page can analyze local browsing history to produce domain-level recommendations.
+## Privacy And Data
 
-FocusWhale does not display page titles, raw URLs, or timestamps in the recommendation list. Candidates are shown as compact rows with domain, category, visit count, and a manual `block` action.
+FocusWhale has no backend, telemetry SDK, advertising SDK, remote AI integration, API keys, or external asset loads. The repository policy is [PRIVACY.md](PRIVACY.md); it is a local policy file until a public URL is published.
 
-Recommendations are stored locally and only become blocklist entries after explicit user approval.
+The mandatory manifest permissions are `declarativeNetRequest`, `storage`, and `alarms`. Browser history is an **optional permission** requested only when the user starts recommendation analysis. HTTP(S) host access supports session redirects, already-open-tab handling, and soft overlays.
 
-## Privacy
+Storage summary:
 
-FocusWhale is designed as a local-first extension.
+- `chrome.storage.sync`: settings, site lists, schedules, pet state. Browser-account sync may transmit these fields through the browser vendor when enabled.
+- `chrome.storage.local`: active/past sessions, intent text, daily stats, recommendations, category overrides, temporary allows, emergency usage, growth records, ledgers, acknowledgements, and recovery journals.
+- Raw history URLs and visit records are processed in memory and are not persisted by FocusWhale. Thirty-day metrics use actual `history.getVisits` timestamps rather than lifetime URL counters. Stored recommendations contain domains and aggregate features, not titles, paths, queries, or visit timestamps.
 
-- No backend service is configured.
-- No telemetry endpoint is configured.
-- No API keys or tokens are required.
-- History analysis runs in the extension using browser history permission.
-- Domain recommendations are domain-only and avoid raw URL/title/timestamp display.
-- Settings, lists, schedules, and pet state use Chrome/Whale extension storage.
+Retention and deletion:
 
-Note: `chrome.storage.sync` may sync extension configuration through the browser account if browser sync is enabled. Browsing history records themselves are not uploaded by FocusWhale.
+- Session logs and per-session ledgers keep at most 5,000 entries.
+- Medium-mode intent entries keep at most 200 entries.
+- Daily statistics retain 400 days.
+- Growth events and celebration acknowledgements keep at most 500 records; pending celebrations remain until acknowledged.
+- Temporary allows expire; transaction journals are removed after successful recovery.
+- Options provides `방문 기록 권한 해제` and `로컬 기록 지우기`. Local clearing is rejected while a session is active and preserves sync-backed lists, schedules, settings, and pet progress. It also preserves the current week's emergency-use allowance and any still-active schedule-occurrence suppression so clearing records cannot bypass either commitment rule.
+- Removing the extension/browser sync data remains the path to clearing sync-backed fields.
 
-## Permissions
+Do not enter confidential or identifying information in the medium-mode intent field; it is local, but retained until capped out or cleared.
 
-The manifest currently requests:
+## UI And Assets
 
-- `declarativeNetRequest`: install dynamic redirect and allow rules.
-- `storage`: persist settings, sessions, pet state, and local stats.
-- `alarms`: end sessions, expire temp allows, and reconcile schedules.
-- `history`: build local domain-level recommendations.
-- `tabs`: support blocked-page navigation behavior.
-- `<all_urls>` host permissions: apply rules and soft overlays across user-selected sites.
+Production UI uses Tailwind CSS 4, daisyUI 5, and locally bundled Pretendard Variable. The supported production themes are the default light theme and `focuswhale-dark`.
 
-## UI
-
-The production UI uses Tailwind CSS 4, daisyUI 5, and a local Pretendard Variable font bundle.
-
-Implemented surfaces:
-
-- Popup idle state
-- Popup active session state
-- Options page
-- Blocked page
-- Soft overlay
-- Static mockups in `mockups/`
-
-Themes:
-
-- `focuswhale`
-- `focuswhale-dark`
-- `focuswhale-ocean`
-- `focuswhale-mint`
-- `focuswhale-lavender`
-- `focuswhale-coral`
+The files under `mockups/` are archived Goal 6 Phase-A design references. They document the approved direction but are **not** the current production DOM contract or a substitute for live extension QA.
 
 ## Architecture
 
 ```text
 src/
-  background/      MV3 service worker, sessions, schedules, DNR rules
-  content/         soft overlay injection and navigation hooks
+  background/      MV3 service worker, sessions, schedules, DNR, recovery
+  content/         classic-IIFE soft overlay and active-tab enforcement
   pages/
-    popup/         session start and pet status UI
-    options/       settings, lists, schedules, analytics, recommendations
-    blocked/       redirect target and medium/hard flows
+    popup/         session controls, active state, pet and completion overview
+    options/       lists, schedules, analytics, privacy controls, pet details
+    blocked/       medium/hard friction and safe return flow
   analytics/       local history aggregation and recommendation scoring
-  pet/             pet state, XP settlement, growth ledger, streaks, badges, renderer
-  shared/          shared types, storage wrapper, messaging, XP helpers
-  styles/          Tailwind/daisyUI app and overlay CSS entries
+  pet/             XP, streaks, badges, growth events, renderer and recovery
+  shared/          contracts, storage, messaging and gamification helpers
+  styles/          Tailwind/daisyUI themes and compiled UI styles
 ```
 
-Build inputs are configured in `vite.config.ts`. The extension manifest lives in `public/manifest.json`.
+The build deliberately has two stages:
+
+1. `vite.config.ts` builds the module service worker and extension pages into a clean `dist/`.
+2. `vite.content.config.ts` appends `assets/content.js` as a single classic IIFE, because MV3 manifest content scripts cannot depend on ESM imports.
+3. `scripts/verify-build.mjs` validates manifest targets, the exact four-resource WAR allowlist, content-script format/size, the packaged font license, absence of source maps, and absence of unexpected external URLs.
 
 ## Development
 
-Install dependencies:
-
 ```sh
 npm install
-```
-
-Run the required checks:
-
-```sh
-npm run build
 npm run typecheck
 npm test
+npm run build
 ```
 
-The test suite currently covers background rules/sessions/schedules, emergency end limits, shared storage and XP helpers, pet rewards/streaks/badges/growth ledger, local analytics, history recommendation flow, options model behavior, and wellness copy guardrails.
+Load the result:
 
-## Load In Whale Or Chrome
+1. Open `whale://extensions` or `chrome://extensions`.
+2. Enable developer mode.
+3. Choose **Load unpacked** and select `dist/`.
+4. Rebuild and reload the extension after source changes.
 
-1. Run `npm run build`.
-2. Open `whale://extensions` or `chrome://extensions`.
-3. Enable developer mode.
-4. Choose `Load unpacked`.
-5. Select the generated `dist/` directory.
-6. Pin the extension if you want the whale toolbar icon visible.
+The live Whale development extension used for final-candidate checks had ID `ojojphoncmkplfcinppanpbbhhfjcpgi`. Extension IDs can change with a different unpacked profile/key and must not be hard-coded.
 
-When updating local code, rebuild and reload the unpacked extension.
+## Verification Guides
 
-## Manual QA
+- [QA.md](QA.md): evidence ledger and final manual matrix.
+- [SMOKE_TEST.md](SMOKE_TEST.md): reproducible DNR, alarm, storage, and surface checks.
+- [RELEASE_CHECKLIST.md](RELEASE_CHECKLIST.md): publication gate and remaining work.
+- [docs/SOL_HANDOFF.md](docs/SOL_HANDOFF.md): architecture, risk, and successor handoff.
+- [docs/NOTION_ISSUE_TRIAGE.md](docs/NOTION_ISSUE_TRIAGE.md): current resolution of the Notion issue list.
+- [DECISIONS.md](DECISIONS.md): durable product and engineering decisions.
+- [CHANGELOG.md](CHANGELOG.md): v1.0.0 release-candidate changes.
 
-Automated checks are necessary but not enough for browser extensions. Use:
+## Packaging And Publication
 
-- `SMOKE_TEST.md` for DNR, alarms, storage, history, and basic Whale smoke flows.
-- `QA.md` for schedule, hard allowlist, recommendation, restart restore, and streak freeze scenarios.
+Version 1.0.0 is packaged at `release/FocusWhale-1.0.0.zip` (**2,693,022 bytes**, SHA-256 `4d766244997647161b63a6d7f5018970e5ab7df94a99af82cecfd6aa7469af0f`). Its checksum passes; the 32-entry/24-file extracted tree is byte-for-byte equal to the exact current `dist/`; the extracted copy loaded successfully in a clean profile as extension ID `codbhopmpipbogplaofkgndjeoemjbck`; and the archive token/path/email scan found no findings. This is still not a store submission. GitHub Issues is the selected support/privacy channel. The intended stable policy URL is [the repository `PRIVACY.md`](https://github.com/lovebubbly/FocusWhale/blob/main/PRIVACY.md), but the current policy changes are uncommitted and that URL must not be treated as published evidence yet. Before public release, complete every blocking item in [RELEASE_CHECKLIST.md](RELEASE_CHECKLIST.md), prepare listing/reviewer materials, and obtain owner sign-off.
 
-Already recorded smoke coverage includes popup render, a medium session, DNR redirect to the blocked page, completion cleanup, options render, and local history recommendations.
+No top-level open-source license has been selected. Pretendard remains under SIL OFL; generated sprite provenance is recorded separately.
 
-## Security Scan Notes
+## Documentation Provenance
 
-Before publishing, the tracked repository was scanned for common secret patterns:
-
-- AWS access keys
-- OpenAI-style API keys
-- GitHub tokens
-- Google API keys
-- Slack tokens
-- JWT-like tokens
-- private key blocks
-- obvious `apiKey`, `token`, `secret`, and `password` assignments
-
-Result at the time of this README update: no tracked secrets were found. An additional scan for private Notion/profile strings and common API key environment names also returned no matches in tracked files.
-
-## Repository Hygiene
-
-Generated dependencies and build outputs are ignored:
-
-- `node_modules/`
-- `dist/`
-- `coverage/`
-- `.worktrees/`
-- local `.env*` files
-- private key material such as `*.pem`, `*.key`, and `*.p12`
-
-Do not commit unpacked browser profiles, local extension state, real browsing exports, or screenshots containing personal browser data.
-
-## Known Limitations
-
-- A user can still disable or remove the extension. This is a browser-extension limitation and an explicit product assumption.
-- Whale compatibility can differ from Chrome despite Chromium support; keep using the Whale smoke checklist.
-- The project is not packaged for store distribution yet.
-- The current LLM analysis goal is not implemented.
-
-## License And Assets
-
-The generated whale sprite and extension icons are project assets. Sprite generation and processing notes are recorded in `assets/sprites/LICENSE.md`.
-
-Pretendard Variable is bundled locally under `assets/fonts/` with its SIL Open Font License text in `assets/fonts/Pretendard-LICENSE.txt`.
-
-No top-level open-source license has been selected yet.
+- Product owner and repository maintainer: **Choi Yunseong (최윤성)** (`Yunseong Choi` in Git history).
+- This release/handoff refresh was prepared by **OpenAI Codex (GPT-5)**, at Choi Yunseong's request on **2026-07-11 01:33 KST**.
+- Evidence comes from the local repository, current automated gates, and exact-build disposable-profile browser runs recorded in `QA.md`; remaining recovery, owner, and publication checks are labeled explicitly.
+- Code authorship remains defined by Git history. Documentation attribution does not imply product-owner approval of every Codex assessment.

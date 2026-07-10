@@ -1,89 +1,159 @@
-# FocusWhale Goal 1 Smoke Test
+# FocusWhale Smoke Test
 
-Use a local Chromium or Naver Whale profile with the unpacked `dist/` extension loaded after `npm run build`.
+Documentation refresh: **OpenAI Codex (GPT-5)** for product owner **Choi Yunseong (최윤성)**, **2026-07-11 01:33 KST**.
 
-## Console Checks
+Use a dedicated Naver Whale or Chromium profile with the freshly built `dist/` loaded unpacked. Do not reuse stale build output.
 
-1. DNR rules
-   - Start a medium blocklist session for `example.com`.
-   - In the extension service worker console:
-     ```js
-     await chrome.declarativeNetRequest.getDynamicRules()
-     ```
-   - Expected: one redirect rule in the `1-999` range with `resourceTypes: ["main_frame"]` and `requestDomains: ["example.com"]`.
+## Preconditions
 
-2. Alarms
-   - In the service worker console:
-     ```js
-     await chrome.alarms.getAll()
-     ```
-   - Expected: `focuswhale:session-end` exists while a session is active. Temporary allows add a `focuswhale:temp-allow:<domain>` alarm.
+```sh
+npm run typecheck
+npm test
+npm run build
+```
 
-3. Storage
-   - In the service worker console:
-     ```js
-     await chrome.storage.local.get(["activeSession", "tempAllows", "sessionLog", "intentLog"])
-     ```
-   - Expected: `activeSession` is present during a session, `tempAllows` appears after a medium override, and completed/aborted/interrupted sessions are appended to `sessionLog`.
+Expected automated result for the v1.0.0 candidate: 30 test files / 196 tests; classic `assets/content.js` at 116,276 bytes; exact four-resource WAR allowlist; no source maps or unexpected external URLs.
 
-4. History/back behavior
-   - Open a blocked domain, use the blocked page `되돌아가기` button.
-   - Expected: the tab navigates back when history exists. If there is no prior history, the page attempts to close the tab.
+Release artifact: `release/FocusWhale-1.0.0.zip`, 2,693,022 bytes, SHA-256 `4d766244997647161b63a6d7f5018970e5ab7df94a99af82cecfd6aa7469af0f`. The checksum passes; its 32 entries / 24 files extract byte-for-byte equal to the exact current `dist/`; `manifest.json` is at the root; the extracted copy passes a clean-profile Whale smoke load under extension ID `codbhopmpipbogplaofkgndjeoemjbck`; and the archive token/path/email scan found no findings.
 
-## Manual Scenarios
+## Service-Worker Checks
 
-1. Medium blocklist
-   - Create a blocklist containing `example.com`.
-   - Start a medium session.
-   - Visit `https://example.com`.
-   - Expected: the blocked page shows the domain, remaining time, and an empty `div#pet-slot`.
-   - Click `그래도 열기`, wait for the 30 second countdown, enter one line of intent, and submit.
-   - Expected: `intentLog` records the reason, a 5 minute temp allow rule is installed in the `1000-1999` range, and after the temp allow alarm expires the site is blocked again.
+### DNR
 
-2. Hard allowlist
-   - Create an allowlist with only a known safe domain such as `developer.chrome.com`.
-   - Start a hard session.
-   - Visit a domain outside the list.
-   - Expected: the blocked page shows no temporary allow UI. Only `비상 종료 요청` is available.
+1. Create a blocklist containing `x.com`.
+2. Start a medium session.
+3. In the service-worker console run:
 
-3. Emergency valve
-   - During a hard session, click `비상 종료 요청`.
-   - Expected: the page shows a 5 minute countdown. The service worker has `focuswhale:emergency-end`, and the session finalizes as `aborted` after the alarm.
+```js
+await chrome.declarativeNetRequest.getDynamicRules()
+```
 
-4. Browser restart restore
-   - Start a medium or hard session, close and reopen the browser before `endsAt`.
-   - Expected: `onStartup` reconciles `activeSession`, reinstalls DNR rules, and recreates the session-end alarm.
-   - Repeat with a session whose `endsAt` is already in the past before startup.
-   - Expected: it is recorded in `sessionLog` with `status: "interrupted"` and active rules are removed.
+Expected:
 
-5. Soft overlay
-   - Start a soft session for a blocklisted domain.
-   - Visit that domain.
-   - Expected: a full-page shadow DOM overlay appears, `계속하기` enables after 10 seconds, and `되돌아가기` is available immediately.
+- Session rules use IDs `1-999`, `main_frame`, and redirect actions.
+- `x.com` and `twitter.com` aliases are both covered.
+- Redirect substitution sends the HTTP(S) scheme, host, and path in the blocked-page fragment; userinfo, query, and source fragment are not retained.
+- Temporary allow rules, when present, use IDs `1000-1999` with higher priority.
 
-## Whale Result Recording
+### Alarms
 
-Codex did not execute real Whale checks. Fill this section after running the checklist in Naver Whale.
+```js
+await chrome.alarms.getAll()
+```
 
-| Area | Command / Flow | Expected | Actual | Pass |
-| --- | --- | --- | --- | --- |
-| DNR | `chrome.declarativeNetRequest.getDynamicRules()` | session rules use `main_frame` and expected id ranges |  |  |
-| Alarms | `chrome.alarms.getAll()` | session, schedule, temp allow alarms appear as applicable |  |  |
-| Storage | `chrome.storage.local.get(...)` / `chrome.storage.sync.get(...)` | sessions, stats, settings, pet state remain local |  |  |
-| History | `chrome.history.search({ text: \"\", maxResults: 10 })` | Whale browsing history is returned |  |  |
-| Options | hard session then options edit attempt | options UI read-only; SW rejects list/schedule changes |  |  |
+Expected while applicable:
 
-Live run, 2026-07-06 KST:
+- `focuswhale:session-end` for an active session.
+- `focuswhale:temp-allow:<domain>` for a medium temporary allow.
+- `focuswhale:emergency-end` only after confirmed hard emergency scheduling.
 
-| Area | Result |
-| --- | --- |
-| Popup | PASS: FocusWhale popup rendered, default list seeded, 1-minute medium session started and showed active-session UI. |
-| DNR redirect | PASS: navigating to `youtube.com` during the session redirected to `blocked/index.html?d=youtube.com`. |
-| Blocked page | PASS: blocked page showed target domain, remaining time, neutral copy, pet slot, and medium actions. |
-| Completion cleanup | PASS: after the 1-minute session completed, popup showed start UI with streak/badge update and fresh YouTube navigation loaded normally. |
-| Options | PASS: options page rendered settings, lists, dashboard metrics, and local history recommendations. |
-| History | PASS: Whale history analysis completed and produced domain-level recommendation rows. |
+### Storage
 
-## Chromium-Reproducible Checks
+```js
+await chrome.storage.local.get(null)
+await chrome.storage.sync.get(null)
+```
 
-Codex did not launch Chromium because manual browser checks are out of scope for this run. Use the same rows above in Chromium to separate extension defects from Whale compatibility issues.
+Expected:
+
+- Sync: settings, site lists, schedules, pet state.
+- Local: active/past sessions, intent entries, daily stats, recommendations, temp allows, growth/ack records, ledgers, emergency use, schedule-occurrence suppression, and short-lived journals.
+- Finalization/settlement journals disappear after successful recovery.
+- No raw browser-history export, page title, or page body is persisted.
+
+## Surface Smoke Flows
+
+### Popup Active
+
+1. Start a medium session.
+2. Reopen the popup.
+3. Confirm countdown updates without the layout rerendering or stealing focus.
+4. Confirm the `focus` pet is visible.
+5. Open Options and confirm locked controls cannot mutate settings, lists, or schedules.
+
+### `x.com` Medium Redirect
+
+1. During the matching medium session, navigate to `https://focuswhale-user:focuswhale-pass@x.com./some/path?private=value#section` using dummy credentials only.
+2. Confirm redirect to the extension blocked page.
+3. Confirm remaining time, domain, focus pet, and medium actions render.
+4. Choose `그래도 열기`.
+5. Confirm the first wait is 30 seconds and blank intent cannot submit.
+6. Enter a non-sensitive reason, wait for enablement, and request access.
+7. Confirm the blocked return target is `https://x.com./some/path`: the path and trailing hostname dot remain, while credentials, query, and source fragment are absent. Then verify continue uses that sanitized HTTP(S) target.
+8. After five minutes, confirm navigation blocks again.
+
+### Return To Focus
+
+1. From the blocked page, press the return-to-focus action.
+2. Expected: deterministic navigation to `about:blank`; it must not expose or guess a prior tab-history entry.
+
+### Hard Emergency
+
+1. Start a hard session and visit a blocked site.
+2. Confirm there is no temporary allow.
+3. First emergency click must show confirmation only.
+4. Cancel and verify no request was spent.
+5. Confirm again and verify a five-minute pending countdown plus `pendingEmergency` storage/alarm.
+6. Reload the blocked page; pending state must restore.
+7. Verify a second unique hard-session request in the same local week is rejected.
+
+For a hard session started by an active schedule:
+
+1. Complete the same confirmed five-minute emergency flow.
+2. Confirm the session ends without an immediate replacement session.
+3. Confirm the session's `scheduleWindowEnd` and the resulting `scheduleSuppression.windowEnd` equal the exact schedule boundary, including when reconciliation began after a sub-minute offset.
+4. Reconcile/reload inside the same window and confirm the occurrence stays suppressed.
+5. Advance beyond the window and confirm suppression expires without blocking the next eligible occurrence.
+
+### Soft Overlay
+
+1. Start a soft session for a blocklisted domain.
+2. Visit the domain.
+3. Confirm the overlay renders in a shadow root with compiled local CSS/font and a visible focus pet.
+4. Confirm the host page is inert while the overlay is active.
+5. Confirm keyboard focus remains inside the overlay.
+6. Test return-to-focus and delayed continue; confirm the host page restores afterward.
+
+### Completion And Pet
+
+1. Let a short session finish naturally.
+2. Open the popup and confirm one completion overview.
+3. Confirm awarded XP, count-up, progress, `celebrate` mood, and any milestones.
+4. Dismiss, toggle list mode, and reopen the popup.
+5. Confirm the same overview does not return and XP did not duplicate.
+6. In the pet fixture/options, inspect all five stages across `idle`, `happy`, `focus`, and `celebrate`.
+
+### Optional History And Clear Controls
+
+1. In Options, revoke `history` if already granted.
+2. Confirm core focus controls still work.
+3. Invoke recommendation analysis; only then should Whale request history permission.
+4. Confirm result rows contain domain/category/visit aggregates only.
+5. Revoke permission and confirm stored core configuration remains.
+6. When idle, confirm `로컬 기록 지우기`; local activity should clear while sync settings/lists/schedules/pet remain. The current week's emergency-use allowance and a still-active schedule suppression must also remain.
+7. During a session, confirm the same clear request is rejected.
+8. Start an analysis, allow an idle local clear to succeed before the result commits, and confirm the stale recommendation result is not written back. A due session alarm must remain responsive while analysis computes.
+
+## Recorded Exact-Final Browser Evidence
+
+Headless and headed checks used isolated disposable profiles. Naver Whale 4.38 / Chromium 148 used development-path extension ID `ojojphoncmkplfcinppanpbbhhfjcpgi`; Chrome for Testing 147 exercised the real optional-permission prompt.
+
+- PASS: complete soft overlay shadow/font/pet/focus/inert/countdown/continue/back/reduced-motion/completion flow with no page errors.
+- PASS: medium 0:30 friction, one temporary-allow transaction, sanitized continue, expiry/reblock, one completion log, and sequential reward acknowledgement.
+- PASS: hard confirmation/cancel/pending/reload/weekly rejection and scheduled-occurrence suppression with exact boundary re-arm.
+- PASS: popup emergency valve, Options validation/lock/name/request-denial flow, 20-state pet matrix, adversarial `x.com.`, and browser-process restart recovery.
+- PASS: popup multi-digit input retained focus through `2 -> 24 -> 240`; dark idle theme resolved correctly.
+- PASS: extracted release archive loaded in a clean Whale profile under ID `codbhopmpipbogplaofkgndjeoemjbck` and fetched the exact 116,276-byte content script.
+- PASS: Chrome for Testing 147 repeated the exact-final soft and medium flows.
+- PASS: headed Whale verified Options keyboard tabs/modal focus, blank-intent rejection after the real 30-second friction, completion acknowledgement followed by list rerender, and normal/reduced post-session XP/progress animation.
+- PASS: headed Whale covered 13 light/dark/reduced-motion surface states, 68 measured contrast checks (minimum 4.94:1), all effective targets at least 40px, visible focus rings, no overflow, 19 screenshots, and zero page errors.
+- PASS: headed Chrome for Testing displayed and accepted the real `history` permission sheet, retained domain-only controlled results, excluded extension URLs/path/query/title/timestamps, revoked permission, and started a medium session afterward.
+
+Remaining evidence boundary:
+
+- Restarting only after a session is already overdue and destructive interruption injection for both recovery journals remain pending.
+- The live natural-completion/emergency-alarm race, active locked-field restoration, and next eligible schedule occurrence remain automated-only evidence in `QA.md`.
+- Consumer Google Chrome 148 rejects command-line unpacked-extension loading before FocusWhale runs; Chrome for Testing is the supported headless cross-check channel.
+- Product-owner reward/visual judgment and publication sign-off are not recorded.
+
+Track the remaining recovery and owner/publication rows in [QA.md](QA.md). Do not infer them from unrelated green checks.

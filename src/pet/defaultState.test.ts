@@ -18,4 +18,9 @@ describe("normalizePetState", () => {
       badgeAwards: { "first-session": { earnedAt: 0 } }
     });
   });
+
+  it("preserves and trims a saved whale name", () => {
+    expect(normalizePetState({ name: "  Miro  " })).toMatchObject({ name: "Miro" });
+    expect(normalizePetState({ name: "   " }).name).toBeUndefined();
+  });
 });

@@ -1,13 +1,15 @@
 import { describe, expect, it, vi } from "vitest";
 import type { Recommendation } from "../../analytics/recommend";
-import type { SiteList } from "../../shared/types";
+import type { Schedule, SiteList } from "../../shared/types";
 import {
   addRecommendationToBlocklist,
   blockedDomainsFromLists,
   collectDailyStats,
   isOptionsLocked,
   normalizeDomainList,
-  normalizeOptionsSettings
+  normalizeOptionsSettings,
+  schedulesReferencingSiteList,
+  validateScheduleConfiguration
 } from "./model";
 
 describe("options model helpers", () => {
@@ -26,9 +28,10 @@ describe("options model helpers", () => {
       focusHours: { startHHMM: "09:00", endHHMM: "12:00" },
       softOverlaySeconds: 60
     });
-    expect(normalizeDomainList("https://www.Example.com/a\ninstagram.com, example.com")).toEqual([
+    expect(normalizeDomainList("https://www.Example.com:443/a\ninstagram.com, example.com, x.com:8443/path")).toEqual([
       "example.com",
-      "instagram.com"
+      "instagram.com",
+      "x.com"
     ]);
   });
 
@@ -74,5 +77,69 @@ describe("options model helpers", () => {
       snoozeCount: 0,
       nextSnoozeDelayMin: 15
     })).toBe(false);
+  });
+
+  it("rejects schedule configurations the runtime cannot honor", () => {
+    const valid = {
+      startHHMM: "09:00",
+      endHHMM: "12:00",
+      days: [1, 2, 3],
+      listId: "work"
+    };
+
+    expect(validateScheduleConfiguration(valid)).toEqual({ valid: true });
+    expect(validateScheduleConfiguration({ ...valid, startHHMM: "" })).toMatchObject({
+      valid: false,
+      field: "time"
+    });
+    expect(validateScheduleConfiguration({ ...valid, endHHMM: "09:00" })).toMatchObject({
+      valid: false,
+      field: "time"
+    });
+    expect(validateScheduleConfiguration({ ...valid, days: [] })).toMatchObject({
+      valid: false,
+      field: "days"
+    });
+    expect(validateScheduleConfiguration({ ...valid, listId: "" })).toMatchObject({
+      valid: false,
+      field: "list"
+    });
+  });
+
+  it("finds every schedule that depends on a site list", () => {
+    const schedules: Schedule[] = [
+      {
+        id: "weekday",
+        enabled: true,
+        days: [1],
+        startHHMM: "09:00",
+        endHHMM: "10:00",
+        listId: "work",
+        intensity: "medium"
+      },
+      {
+        id: "disabled-but-retained",
+        enabled: false,
+        days: [6],
+        startHHMM: "12:00",
+        endHHMM: "13:00",
+        listId: "work",
+        intensity: "soft"
+      },
+      {
+        id: "other",
+        enabled: true,
+        days: [0],
+        startHHMM: "18:00",
+        endHHMM: "19:00",
+        listId: "personal",
+        intensity: "hard"
+      }
+    ];
+
+    expect(schedulesReferencingSiteList(schedules, "work").map((schedule) => schedule.id)).toEqual([
+      "weekday",
+      "disabled-but-retained"
+    ]);
   });
 });

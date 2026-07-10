@@ -1,18 +1,28 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { PetState, Session } from "../shared/types";
 import { normalizePetState } from "./defaultState";
-import { PET_LEDGER_KEY, settleCompletedSessionXp } from "./xpEngine";
+import { PET_LEDGER_KEY, PET_SETTLEMENT_JOURNAL_KEY, settleCompletedSessionXp } from "./xpEngine";
 
 type Store = Record<string, unknown>;
 
 function makeArea(store: Store) {
   return {
-    get: vi.fn(async (key: string) => ({ [key]: store[key] })),
+    get: vi.fn(async (key: string | string[] | null) => {
+      if (key === null) {
+        return { ...store };
+      }
+      if (Array.isArray(key)) {
+        return Object.fromEntries(key.map((entry) => [entry, store[entry]]));
+      }
+      return { [key]: store[key] };
+    }),
     set: vi.fn(async (items: Store) => {
       Object.assign(store, items);
     }),
-    remove: vi.fn(async (key: string) => {
-      delete store[key];
+    remove: vi.fn(async (key: string | string[]) => {
+      for (const entry of Array.isArray(key) ? key : [key]) {
+        delete store[entry];
+      }
     })
   };
 }
@@ -49,6 +59,7 @@ function session(overrides: Partial<Session> = {}): Session {
 describe("settleCompletedSessionXp", () => {
   let syncStore: Store;
   let localStore: Store;
+  let localArea: ReturnType<typeof makeArea>;
 
   beforeEach(() => {
     syncStore = {
@@ -58,10 +69,11 @@ describe("settleCompletedSessionXp", () => {
       sessionLog: []
     };
 
+    localArea = makeArea(localStore);
     vi.stubGlobal("chrome", {
       storage: {
         sync: makeArea(syncStore),
-        local: makeArea(localStore)
+        local: localArea
       }
     });
   });
@@ -117,7 +129,7 @@ describe("settleCompletedSessionXp", () => {
 
     expect(result.events.map((event) => event.type)).toContain("session_completed");
     expect(result.events.map((event) => event.type)).toContain("half_way");
-    expect(localStore.growthLog).toEqual(expect.arrayContaining([
+    expect(Object.values(localStore)).toEqual(expect.arrayContaining([
       expect.objectContaining({
         type: "session_completed",
         xpDelta: 20,
@@ -128,7 +140,7 @@ describe("settleCompletedSessionXp", () => {
       }),
       expect.objectContaining({ type: "half_way" })
     ]));
-    expect(localStore.pendingCelebrations).toEqual(expect.arrayContaining([
+    expect(Object.values(localStore)).toEqual(expect.arrayContaining([
       expect.objectContaining({ type: "session_completed" }),
       expect.objectContaining({ type: "half_way" })
     ]));
@@ -142,5 +154,111 @@ describe("settleCompletedSessionXp", () => {
 
     expect(result.petState.stage).toBe(4);
     expect(syncStore.petState).toMatchObject({ stage: 4 });
+  });
+
+  it("recovers a persisted settlement journal without awarding the session twice", async () => {
+    const completed = session({ id: "journal-session" });
+    const recoveredPet = petState({ xp: 30, totalFocusMinutes: 25 });
+    localStore.sessionLog = [completed];
+    localStore[PET_SETTLEMENT_JOURNAL_KEY] = {
+      petState: recoveredPet,
+      ledger: { settledSessionIds: [completed.id], settledEarlySessionIds: [], updatedAt: completed.endsAt },
+      events: [],
+      persistPetState: true,
+      createdAt: completed.endsAt
+    };
+
+    const result = await settleCompletedSessionXp(new Date(completed.endsAt + 1_000));
+
+    expect(result.awardedXp).toBe(0);
+    expect(syncStore.petState).toMatchObject({ xp: 30, totalFocusMinutes: 25 });
+    expect(localStore[PET_LEDGER_KEY]).toMatchObject({ settledSessionIds: [completed.id] });
+    expect(localStore[PET_SETTLEMENT_JOURNAL_KEY]).toBeUndefined();
+  });
+
+  it("replays an older journal without reducing newer progress or forgetting settled sessions", async () => {
+    const journalSession = session({ id: "journal-session" });
+    const newerSession = session({ id: "newer-session", endsAt: journalSession.endsAt + 60_000 });
+    const newerPet = petState({
+      name: "Nova",
+      xp: 900,
+      stage: 3,
+      totalFocusMinutes: 800,
+      streak: { days: 12, state: "resting", restingSince: "2026-07-10", freezes: 2 },
+      streakDays: 12,
+      streakFreezes: 2,
+      lastActiveDate: "2026-07-10",
+      badges: ["journal-badge", "newer-badge"],
+      badgeAwards: {
+        "journal-badge": { earnedAt: 200 },
+        "newer-badge": { earnedAt: 300 }
+      }
+    });
+    syncStore.petState = newerPet;
+    localStore.sessionLog = [journalSession, newerSession];
+    localStore[PET_LEDGER_KEY] = {
+      settledSessionIds: [journalSession.id, newerSession.id],
+      settledEarlySessionIds: ["newer-early"],
+      updatedAt: newerSession.endsAt
+    };
+    localStore[PET_SETTLEMENT_JOURNAL_KEY] = {
+      petState: petState({
+        name: "Miro",
+        xp: 30,
+        totalFocusMinutes: 25,
+        streak: { days: 1, state: "active", freezes: 0 },
+        streakDays: 1,
+        lastActiveDate: "2026-07-06",
+        badges: ["journal-badge"],
+        badgeAwards: { "journal-badge": { earnedAt: 100 } }
+      }),
+      ledger: {
+        settledSessionIds: [journalSession.id],
+        settledEarlySessionIds: ["journal-early"],
+        updatedAt: journalSession.endsAt
+      },
+      events: [],
+      persistPetState: true,
+      createdAt: journalSession.endsAt
+    };
+
+    const result = await settleCompletedSessionXp(new Date(newerSession.endsAt + 1_000));
+
+    expect(result.awardedXp).toBe(0);
+    expect(result.settledSessionIds).toEqual([]);
+    expect(syncStore.petState).toEqual(newerPet);
+    expect(localStore[PET_LEDGER_KEY]).toEqual({
+      settledSessionIds: [journalSession.id, newerSession.id],
+      settledEarlySessionIds: ["newer-early", "journal-early"],
+      updatedAt: newerSession.endsAt
+    });
+    expect(localStore[PET_SETTLEMENT_JOURNAL_KEY]).toBeUndefined();
+  });
+
+  it("recovers a fault between sync XP and local ledger writes exactly once", async () => {
+    localStore.sessionLog = [session({ id: "cross-area-fault" })];
+    let failGrowthWrite = true;
+    localArea.set.mockImplementation(async (items: Store) => {
+      if (failGrowthWrite && Object.keys(items).some((key) => key.startsWith("growthEvent:"))) {
+        failGrowthWrite = false;
+        throw new Error("growth storage unavailable");
+      }
+      Object.assign(localStore, items);
+    });
+    const now = new Date("2026-07-06T10:00:00+09:00");
+
+    await expect(settleCompletedSessionXp(now)).rejects.toThrow("growth storage unavailable");
+    expect(syncStore.petState).toMatchObject({ xp: 30, totalFocusMinutes: 25 });
+    expect(localStore[PET_SETTLEMENT_JOURNAL_KEY]).toBeDefined();
+
+    const recovered = await settleCompletedSessionXp(now);
+
+    expect(recovered.awardedXp).toBe(0);
+    expect(syncStore.petState).toMatchObject({ xp: 30, totalFocusMinutes: 25 });
+    expect(localStore[PET_LEDGER_KEY]).toMatchObject({ settledSessionIds: ["cross-area-fault"] });
+    expect(localStore[PET_SETTLEMENT_JOURNAL_KEY]).toBeUndefined();
+    const completionEvents = Object.entries(localStore)
+      .filter(([key]) => key.startsWith("growthEvent:session_completed"));
+    expect(completionEvents).toHaveLength(1);
   });
 });

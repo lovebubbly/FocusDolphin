@@ -10,12 +10,15 @@ export class ChromeDynamicRuleClient implements DynamicRuleClient {
   }
 }
 
+const MAX_ACTIVE_REGEX_RULES = 1_000;
+export const TEMP_ALLOW_RULE_CAPACITY = 100;
+export const SESSION_RULE_CAPACITY = MAX_ACTIVE_REGEX_RULES - TEMP_ALLOW_RULE_CAPACITY;
+// Removal ranges retain every ID used by pre-1.0 builds; add capacities are smaller.
 export const SESSION_RULE_IDS = Array.from({ length: 999 }, (_, index) => index + 1);
-export const TEMP_ALLOW_RULE_IDS = Array.from({ length: 1000 }, (_, index) => index + 1000);
+export const TEMP_ALLOW_RULE_IDS = Array.from({ length: 1_000 }, (_, index) => index + 1_000);
 
 const MAIN_FRAME: chrome.declarativeNetRequest.RuleCondition["resourceTypes"] = ["main_frame"];
-const BLOCKED_PAGE_PATH = "/src/pages/blocked/index.html";
-const REGEX_FILTER_DOMAINS = new Set(["x.com"]);
+const BLOCKED_PAGE_PATH = "src/pages/blocked/index.html";
 const DOMAIN_ALIASES: Record<string, string[]> = {
   "twitter.com": ["twitter.com", "x.com"],
   "x.com": ["x.com", "twitter.com"]
@@ -27,12 +30,19 @@ export function normalizeDomain(domain: string): string {
     return "";
   }
 
-  const withoutProtocol = trimmed.includes("://") ? new URL(trimmed).hostname : trimmed;
-  return withoutProtocol
-    .split("/")[0]
-    .replace(/^\*\./, "")
-    .replace(/^\./, "")
-    .replace(/\.$/, "");
+  const candidate = trimmed
+    .replace(/^([a-z][a-z0-9+.-]*:\/\/)\*\./u, "$1")
+    .replace(/^([a-z][a-z0-9+.-]*:\/\/)\./u, "$1")
+    .replace(/^\*?\./u, "");
+  try {
+    const parsed = new URL(candidate.includes("://") ? candidate : `https://${candidate}`);
+    return parsed.hostname
+      .toLowerCase()
+      .replace(/^\.+|\.+$/gu, "")
+      .replace(/^www\./u, "");
+  } catch {
+    return "";
+  }
 }
 
 export function domainMatches(hostname: string, domain: string): boolean {
@@ -51,16 +61,21 @@ export function shouldBlockDomain(hostname: string, list: SiteList): boolean {
   return list.mode === "blocklist" ? listed : !listed;
 }
 
-export function compileRules(list: SiteList, intensity: Intensity): chrome.declarativeNetRequest.Rule[] {
+export function compileRules(
+  list: SiteList,
+  intensity: Intensity,
+  blockedPageUrl?: string
+): chrome.declarativeNetRequest.Rule[] {
   if (intensity === "soft") {
     return [];
   }
 
+  const redirectUrl = blockedPageUrl ?? chrome.runtime.getURL(BLOCKED_PAGE_PATH);
   const domains = uniqueDomains(list.domains);
   const domainFilters = domainFilterTargets(domains);
   if (list.mode === "blocklist") {
     ensureSessionRuleCapacity(domainFilters.length);
-    return domainFilters.map((target, index) => redirectRule(index + 1, 10, target.domain, target.visibleDomain));
+    return domainFilters.map((target, index) => redirectRule(index + 1, 10, target.domain, redirectUrl));
   }
 
   ensureSessionRuleCapacity(domainFilters.length + 1);
@@ -68,9 +83,9 @@ export function compileRules(list: SiteList, intensity: Intensity): chrome.decla
     {
       id: 1,
       priority: 1,
-      action: redirectAction(),
+      action: redirectAction(redirectUrl),
       condition: {
-        urlFilter: "*",
+        regexFilter: "^(https?)://(?:[^/?#@]*@)?([^/?#@]+)(/[^?#]*)?(?:[?#].*)?$",
         resourceTypes: MAIN_FRAME
       }
     },
@@ -90,7 +105,7 @@ export function compileTempAllowRules(
 
   const domainFilters = domainFilterTargets(activeDomains);
 
-  if (domainFilters.length > TEMP_ALLOW_RULE_IDS.length) {
+  if (domainFilters.length > TEMP_ALLOW_RULE_CAPACITY) {
     throw new Error("Too many temporary allow domains for the reserved DNR rule range.");
   }
 
@@ -149,7 +164,7 @@ function domainFilterTargets(domains: string[]): Array<{ visibleDomain: string; 
 }
 
 function ensureSessionRuleCapacity(ruleCount: number): void {
-  if (ruleCount > SESSION_RULE_IDS.length) {
+  if (ruleCount > SESSION_RULE_CAPACITY) {
     throw new Error("Too many domains for the reserved session DNR rule range.");
   }
 }
@@ -158,13 +173,13 @@ function redirectRule(
   id: number,
   priority: number,
   domain: string,
-  visibleDomain?: string
+  blockedPageUrl: string
 ): chrome.declarativeNetRequest.Rule {
   return {
     id,
     priority,
-    action: redirectAction(visibleDomain),
-    condition: domainCondition(domain)
+    action: redirectAction(blockedPageUrl),
+    condition: redirectDomainCondition(domain)
   };
 }
 
@@ -180,34 +195,49 @@ function allowRule(id: number, priority: number, domain: string): chrome.declara
 }
 
 function domainCondition(domain: string): chrome.declarativeNetRequest.RuleCondition {
-  if (REGEX_FILTER_DOMAINS.has(domain)) {
-    return {
-      regexFilter: domainRegexFilter(domain),
-      resourceTypes: MAIN_FRAME
-    };
-  }
-
   return {
-    urlFilter: domainUrlFilter(domain),
+    regexFilter: domainRegexFilter(domain),
     resourceTypes: MAIN_FRAME
   };
 }
 
-function domainUrlFilter(domain: string): string {
-  return `||${domain}^`;
+function redirectDomainCondition(domain: string): chrome.declarativeNetRequest.RuleCondition {
+  return {
+    regexFilter: domainRegexFilter(domain),
+    resourceTypes: MAIN_FRAME
+  };
 }
 
 function domainRegexFilter(domain: string): string {
   const escapedDomain = domain.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  return `^https?://([^/?#]+\\.)?${escapedDomain}(:[0-9]+)?([/?#]|$)`;
+  return `^(https?)://(?:[^/?#@]*@)?((?:[^/?#@]+\\.)?${escapedDomain}\\.?(?::[0-9]+)?)(/[^?#]*)?(?:[?#].*)?$`;
 }
 
-function redirectAction(domain?: string): chrome.declarativeNetRequest.RuleAction {
-  const query = domain ? `?d=${encodeURIComponent(domain)}` : "";
+function redirectAction(blockedPageUrl: string): chrome.declarativeNetRequest.RuleAction {
   return {
     type: "redirect",
     redirect: {
-      extensionPath: `${BLOCKED_PAGE_PATH}${query}`
+      regexSubstitution: `${blockedPageUrl}#\\1://\\2\\3`
     }
   };
+}
+
+export function sanitizeHttpReturnUrl(value: string | undefined): string | null {
+  if (!value) {
+    return null;
+  }
+
+  try {
+    const parsed = new URL(value);
+    if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
+      return null;
+    }
+    parsed.username = "";
+    parsed.password = "";
+    parsed.search = "";
+    parsed.hash = "";
+    return parsed.toString();
+  } catch {
+    return null;
+  }
 }

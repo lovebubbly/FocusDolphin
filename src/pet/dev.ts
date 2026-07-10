@@ -2,7 +2,7 @@ import type { PetState } from "../shared/types";
 import { stageForXp } from "../shared/xp";
 import { renderPopupPreview } from "../pages/popup/main";
 import { DEV_PET_STATE, DEV_SESSION_LOG, DEV_SITE_LISTS } from "./devFixture";
-import { mountPet } from "./renderer";
+import { mountPet, PET_MOODS } from "./renderer";
 
 const stagePreview = document.querySelector<HTMLElement>("#stage-preview");
 const popupPreview = document.querySelector<HTMLElement>("#popup-preview");
@@ -19,17 +19,19 @@ function stateForStage(stage: PetState["stage"]): PetState {
 
 if (stagePreview) {
   for (const stage of [0, 1, 2, 3, 4] as PetState["stage"][]) {
-    const card = document.createElement("article");
-    card.className = "stage-card";
-
-    const petMount = document.createElement("div");
     const state = stateForStage(stage);
-    mountPet(petMount, { ...state, stage: stageForXp(state.xp) }, stage === 4 ? "happy" : "idle");
+    for (const mood of PET_MOODS) {
+      const card = document.createElement("article");
+      card.className = "stage-card";
 
-    const label = document.createElement("p");
-    label.textContent = `Stage ${stage}`;
-    card.append(petMount, label);
-    stagePreview.append(card);
+      const petMount = document.createElement("div");
+      mountPet(petMount, { ...state, stage: stageForXp(state.xp) }, mood);
+
+      const label = document.createElement("p");
+      label.textContent = `Stage ${stage} · ${mood}`;
+      card.append(petMount, label);
+      stagePreview.append(card);
+    }
   }
 }
 

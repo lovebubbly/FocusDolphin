@@ -10,24 +10,19 @@ describe("default site list migration", () => {
     });
   });
 
-  it("adds X/Twitter domains to an existing default blocklist", () => {
+  it("does not restore defaults that a user removed from the default blocklist", () => {
     const existing: SiteList[] = [
       {
         id: "default-blocklist",
         name: "기본 차단 목록",
         mode: "blocklist",
-        domains: ["youtube.com", "instagram.com"]
+        domains: ["youtube.com"]
       }
     ];
 
     expect(migrateSiteListsForCurrentDefaults(existing)).toEqual({
-      siteLists: [
-        {
-          ...existing[0],
-          domains: ["youtube.com", "instagram.com", "x.com", "twitter.com"]
-        }
-      ],
-      changed: true
+      siteLists: existing,
+      changed: false
     });
   });
 

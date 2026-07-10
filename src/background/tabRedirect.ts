@@ -1,6 +1,6 @@
 import { STORAGE_KEYS, getTyped } from "../shared/storage";
 import type { Session, SiteList, TempAllow } from "../shared/types";
-import { domainMatches, normalizeDomain, shouldBlockDomain } from "./rules";
+import { domainMatches, normalizeDomain, sanitizeHttpReturnUrl, shouldBlockDomain } from "./rules";
 import { isRunning } from "./session";
 
 const BLOCKED_PAGE_PATH = "src/pages/blocked/index.html";
@@ -27,7 +27,7 @@ export function getBlockedTabRedirectUrl(
   }
 
   const hostname = normalizeDomain(parsedUrl.hostname);
-  if (!hostname || hasActiveTempAllow(hostname, context.tempAllows, context.now)) {
+  if (!hostname || hasActiveTempAllow(hostname, context.tempAllows, context.now, context.session.id)) {
     return null;
   }
 
@@ -35,18 +35,29 @@ export function getBlockedTabRedirectUrl(
     return null;
   }
 
-  return `${context.blockedPageUrl}?d=${encodeURIComponent(hostname)}`;
+  const returnUrl = sanitizeHttpReturnUrl(pageUrl);
+  return returnUrl ? `${context.blockedPageUrl}#${returnUrl}` : null;
 }
 
 export async function redirectTabIfBlocked(tabId: number, pageUrl: string | undefined, now = Date.now()): Promise<void> {
-  const redirectUrl = await resolveBlockedTabRedirectUrl(pageUrl, now);
-  if (redirectUrl) {
-    await chrome.tabs.update(tabId, { url: redirectUrl });
+  try {
+    const redirectUrl = await resolveBlockedTabRedirectUrl(pageUrl, now);
+    if (redirectUrl) {
+      await chrome.tabs.update(tabId, { url: redirectUrl });
+    }
+  } catch {
+    // Tab sweeps are best-effort; DNR remains the enforcement boundary.
   }
 }
 
 export async function redirectOpenBlockedTabs(now = Date.now()): Promise<void> {
-  const tabs = await chrome.tabs.query({});
+  let tabs: chrome.tabs.Tab[];
+  try {
+    tabs = await chrome.tabs.query({});
+  } catch {
+    return;
+  }
+
   await Promise.all(
     tabs.map((tab) => {
       if (tab.id === undefined) {
@@ -91,6 +102,10 @@ function parseHttpUrl(pageUrl: string | undefined): URL | null {
   }
 }
 
-function hasActiveTempAllow(hostname: string, tempAllows: TempAllow[], now: number): boolean {
-  return tempAllows.some((entry) => entry.until > now && domainMatches(hostname, entry.domain));
+function hasActiveTempAllow(hostname: string, tempAllows: TempAllow[], now: number, sessionId: string): boolean {
+  return tempAllows.some((entry) => (
+    entry.sessionId === sessionId
+    && entry.until > now
+    && domainMatches(hostname, entry.domain)
+  ));
 }

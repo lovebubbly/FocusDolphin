@@ -1,10 +1,13 @@
-import { BADGE_DEFINITIONS, currentStageThreshold, nextStageThreshold, stageName } from "../shared/gamification";
-import { getTyped, setTyped } from "../shared/storage";
+import { BADGE_DEFINITIONS, currentStageThreshold, stageName } from "../shared/gamification";
 import type { Intensity, PetStage } from "../shared/types";
 
 export const GROWTH_LOG_KEY = "growthLog";
 export const PENDING_CELEBRATIONS_KEY = "pendingCelebrations";
+export const GROWTH_EVENT_PREFIX = "growthEvent:";
+export const PENDING_CELEBRATION_PREFIX = "pendingCelebration:";
+export const CELEBRATION_ACK_PREFIX = "celebrationAck:";
 const MAX_GROWTH_EVENTS = 500;
+const MAX_CELEBRATION_ACKS = 500;
 
 export type GrowthEventType =
   | "session_completed"
@@ -53,37 +56,146 @@ export async function appendGrowthEvents(events: readonly GrowthEvent[], celebra
     return;
   }
 
-  const [existingLog = [], existingPending = []] = await Promise.all([
-    getTyped<GrowthEvent[]>("local", GROWTH_LOG_KEY),
-    getTyped<GrowthEvent[]>("local", PENDING_CELEBRATIONS_KEY)
-  ]);
-
+  const snapshot = await chrome.storage.local.get(null);
+  const existingLog = readEventSnapshot(snapshot, GROWTH_EVENT_PREFIX, GROWTH_LOG_KEY);
   const knownIds = new Set(existingLog.map((event) => event.id));
   const freshEvents = events.filter((event) => !knownIds.has(event.id));
-  if (freshEvents.length === 0) {
-    return;
+  const acknowledgedIds = idsForPrefix(snapshot, CELEBRATION_ACK_PREFIX);
+  const writes: Record<string, GrowthEvent> = {};
+
+  for (const event of freshEvents) {
+    writes[`${GROWTH_EVENT_PREFIX}${event.id}`] = event;
   }
 
-  await setTyped("local", GROWTH_LOG_KEY, [...freshEvents, ...existingLog].slice(0, MAX_GROWTH_EVENTS));
+  if (celebrate) {
+    for (const event of events.filter(isCelebratoryEvent)) {
+      const pendingKey = `${PENDING_CELEBRATION_PREFIX}${event.id}`;
+      if (!acknowledgedIds.has(event.id) && snapshot[pendingKey] === undefined) {
+        writes[pendingKey] = event;
+      }
+    }
+  }
 
-  const celebratory = freshEvents.filter(isCelebratoryEvent);
-  if (celebrate && celebratory.length > 0) {
-    await setTyped("local", PENDING_CELEBRATIONS_KEY, [...existingPending, ...celebratory]);
+  if (Object.keys(writes).length > 0) {
+    await chrome.storage.local.set(writes);
+  }
+
+  const retained = dedupeEvents([...freshEvents, ...existingLog])
+    .sort((left, right) => right.ts - left.ts)
+    .slice(MAX_GROWTH_EVENTS);
+  const removableKeys = retained
+    .map((event) => `${GROWTH_EVENT_PREFIX}${event.id}`)
+    .filter((key) => snapshot[key] !== undefined || writes[key] !== undefined);
+  if (removableKeys.length > 0) {
+    await chrome.storage.local.remove(removableKeys);
   }
 }
 
 export async function readGrowthLog(limit = 20): Promise<GrowthEvent[]> {
-  const events = (await getTyped<GrowthEvent[]>("local", GROWTH_LOG_KEY)) ?? [];
-  return events.slice(0, Math.max(0, limit));
+  const snapshot = await chrome.storage.local.get(null);
+  return readEventSnapshot(snapshot, GROWTH_EVENT_PREFIX, GROWTH_LOG_KEY)
+    .sort((left, right) => right.ts - left.ts)
+    .slice(0, Math.max(0, limit));
 }
 
 export async function drainPendingCelebrations(): Promise<GrowthEvent[]> {
-  const pending = (await getTyped<GrowthEvent[]>("local", PENDING_CELEBRATIONS_KEY)) ?? [];
-  if (pending.length > 0) {
-    await setTyped<GrowthEvent[]>("local", PENDING_CELEBRATIONS_KEY, []);
+  const fresh = await readPendingCelebrations();
+  await acknowledgeCelebrations(fresh.map((event) => event.id));
+  return fresh;
+}
+
+export async function readPendingCelebrations(): Promise<GrowthEvent[]> {
+  const snapshot = await chrome.storage.local.get(null);
+  const acknowledgedIds = idsForPrefix(snapshot, CELEBRATION_ACK_PREFIX);
+  const pending = readEventSnapshot(snapshot, PENDING_CELEBRATION_PREFIX, PENDING_CELEBRATIONS_KEY);
+  return pending
+    .filter((event) => !acknowledgedIds.has(event.id))
+    .sort((left, right) => left.ts - right.ts);
+}
+
+export async function acknowledgeCelebrations(eventIds: readonly string[]): Promise<void> {
+  if (eventIds.length === 0) {
+    return;
   }
 
-  return pending;
+  const targetIds = new Set(eventIds);
+  const snapshot = await chrome.storage.local.get(null);
+  const pending = readEventSnapshot(snapshot, PENDING_CELEBRATION_PREFIX, PENDING_CELEBRATIONS_KEY);
+  const acknowledge: Record<string, number> = {};
+  for (const id of targetIds) {
+    const event = pending.find((candidate) => candidate.id === id);
+    acknowledge[`${CELEBRATION_ACK_PREFIX}${id}`] = event?.ts ?? Date.now();
+  }
+
+  await chrome.storage.local.set(acknowledge);
+
+  const legacyPending = Array.isArray(snapshot[PENDING_CELEBRATIONS_KEY])
+    ? (snapshot[PENDING_CELEBRATIONS_KEY] as unknown[]).filter(isGrowthEvent)
+    : [];
+  const remainingLegacy = legacyPending.filter((event) => !targetIds.has(event.id));
+  if (remainingLegacy.length > 0) {
+    await chrome.storage.local.set({ [PENDING_CELEBRATIONS_KEY]: remainingLegacy });
+  }
+
+  const pendingKeys = Array.from(targetIds)
+    .map((id) => `${PENDING_CELEBRATION_PREFIX}${id}`)
+    .filter((key) => snapshot[key] !== undefined);
+  if (snapshot[PENDING_CELEBRATIONS_KEY] !== undefined && remainingLegacy.length === 0) {
+    pendingKeys.push(PENDING_CELEBRATIONS_KEY);
+  }
+  if (pendingKeys.length > 0) {
+    await chrome.storage.local.remove(pendingKeys);
+  }
+
+  await pruneCelebrationAcks(snapshot, acknowledge);
+}
+
+function readEventSnapshot(snapshot: Record<string, unknown>, prefix: string, legacyKey: string): GrowthEvent[] {
+  const prefixed = Object.entries(snapshot)
+    .filter(([key]) => key.startsWith(prefix))
+    .map(([, value]) => value)
+    .filter(isGrowthEvent);
+  const legacy = Array.isArray(snapshot[legacyKey])
+    ? (snapshot[legacyKey] as unknown[]).filter(isGrowthEvent)
+    : [];
+
+  return dedupeEvents([...prefixed, ...legacy]);
+}
+
+function dedupeEvents(events: readonly GrowthEvent[]): GrowthEvent[] {
+  return Array.from(new Map(events.map((event) => [event.id, event])).values());
+}
+
+function idsForPrefix(snapshot: Record<string, unknown>, prefix: string): Set<string> {
+  return new Set(Object.keys(snapshot)
+    .filter((key) => key.startsWith(prefix))
+    .map((key) => key.slice(prefix.length)));
+}
+
+function isGrowthEvent(value: unknown): value is GrowthEvent {
+  return Boolean(
+    value
+    && typeof value === "object"
+    && typeof (value as GrowthEvent).id === "string"
+    && typeof (value as GrowthEvent).ts === "number"
+    && typeof (value as GrowthEvent).type === "string"
+  );
+}
+
+async function pruneCelebrationAcks(snapshot: Record<string, unknown>, writes: Record<string, number>): Promise<void> {
+  const byKey = new Map<string, number>();
+  for (const [key, value] of [...Object.entries(snapshot), ...Object.entries(writes)]) {
+    if (!key.startsWith(CELEBRATION_ACK_PREFIX) || typeof value !== "number") {
+      continue;
+    }
+    byKey.set(key, Math.max(byKey.get(key) ?? Number.NEGATIVE_INFINITY, value));
+  }
+  const acknowledgements = Array.from(byKey.entries())
+    .sort((left, right) => right[1] - left[1]);
+  const staleKeys = acknowledgements.slice(MAX_CELEBRATION_ACKS).map(([key]) => key);
+  if (staleKeys.length > 0) {
+    await chrome.storage.local.remove(staleKeys);
+  }
 }
 
 export function createGrowthEvent(
@@ -105,7 +217,7 @@ export function describeGrowthEvent(
   details: Omit<GrowthEvent, "id" | "ts" | "type" | "text">
 ): string {
   if (type === "session_completed") {
-    return `${details.minutes ?? 0}분 집중 완료 · +${details.xpDelta ?? 0} XP (${details.minutes ?? 0}분 × ${details.intensity ?? "medium"})`;
+    return `${details.minutes ?? 0}분 집중 완료 · +${details.xpDelta ?? 0} XP (${details.minutes ?? 0}분 × ${growthIntensityLabel(details.intensity ?? "medium")})`;
   }
 
   if (type === "stage_up") {
@@ -150,7 +262,7 @@ export function describeGrowthEvent(
 
 export function growthProgress(xp: number, stage: PetStage): GrowthProgress {
   const current = currentStageThreshold(stage);
-  const next = nextStageThreshold(xp);
+  const next = stage < 4 ? currentStageThreshold((stage + 1) as PetStage) : null;
 
   if (!next) {
     return {
@@ -194,13 +306,23 @@ export function growthTransition(
 
 export function crossedHalfWay(previousXp: number, nextXp: number, stage: PetStage): boolean {
   const current = currentStageThreshold(stage);
-  const next = nextStageThreshold(previousXp);
-  if (!next || next.stage !== stage + 1) {
+  const next = stage < 4 ? currentStageThreshold((stage + 1) as PetStage) : null;
+  if (!next) {
     return false;
   }
 
   const halfway = current.xp + (next.xp - current.xp) / 2;
   return previousXp < halfway && nextXp >= halfway && nextXp < next.xp;
+}
+
+export function growthIntensityLabel(intensity: Intensity): string {
+  if (intensity === "soft") {
+    return "가벼운 안내";
+  }
+  if (intensity === "hard") {
+    return "완전 차단";
+  }
+  return "확인 후 허용";
 }
 
 function isCelebratoryEvent(event: GrowthEvent): boolean {

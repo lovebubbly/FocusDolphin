@@ -22,7 +22,7 @@ body {
 
 .stage-preview {
   display: grid;
-  grid-template-columns: repeat(5, minmax(120px, 1fr));
+  grid-template-columns: repeat(4, minmax(120px, 1fr));
   gap: 12px;
 }
 

@@ -1,16 +1,16 @@
 import { describe, expect, it } from "vitest";
-import { makeEmptyHourlyVisits, type DomainHistoryStats } from "./history";
+import { makeEmptyMinuteVisits, type DomainHistoryStats } from "./history";
 import { focusHourRatio, isBlockedDomain, rankRecommendations, recommendationScore } from "./recommend";
 
 describe("recommendation scoring", () => {
   it("ranks by weighted score, focus-hour ratio, and excludes blocked/study/dev domains", () => {
     const stats: DomainHistoryStats[] = [
-      makeStats("m.youtube.com", "video", 500, { 10: 500 }),
-      makeStats("instagram.com", "sns", 100, { 10: 100 }),
-      makeStats("dcinside.com", "community", 120, { 23: 120 }),
-      makeStats("namu.wiki", "entertainment", 180, { 10: 90, 23: 90 }),
-      makeStats("github.com", "dev", 1_000, { 10: 1_000 }),
-      makeStats("docs.google.com", "study", 1_000, { 10: 1_000 })
+      makeStats("m.youtube.com", "video", 500, { 600: 500 }),
+      makeStats("instagram.com", "sns", 100, { 600: 100 }),
+      makeStats("dcinside.com", "community", 120, { 1_380: 120 }),
+      makeStats("namu.wiki", "entertainment", 180, { 600: 90, 1_380: 90 }),
+      makeStats("github.com", "dev", 1_000, { 600: 1_000 }),
+      makeStats("docs.google.com", "study", 1_000, { 600: 1_000 })
     ];
 
     const recommendations = rankRecommendations(stats, {
@@ -36,12 +36,22 @@ describe("recommendation scoring", () => {
   });
 
   it("supports overnight focus-hour ranges", () => {
-    const hourlyVisits = makeEmptyHourlyVisits();
-    hourlyVisits[23] = 3;
-    hourlyVisits[1] = 1;
-    hourlyVisits[12] = 4;
+    const minuteVisits = makeEmptyMinuteVisits();
+    minuteVisits[23 * 60 + 30] = 3;
+    minuteVisits[60 + 30] = 1;
+    minuteVisits[12 * 60] = 4;
 
-    expect(focusHourRatio(hourlyVisits, { startHHMM: "22:00", endHHMM: "02:00" })).toBe(0.5);
+    expect(focusHourRatio(minuteVisits, { startHHMM: "22:00", endHHMM: "02:00" })).toBe(0.5);
+  });
+
+  it("honors minute-level focus boundaries", () => {
+    const minuteVisits = makeEmptyMinuteVisits();
+    minuteVisits[9 * 60 + 29] = 1;
+    minuteVisits[9 * 60 + 30] = 2;
+    minuteVisits[10 * 60 + 29] = 3;
+    minuteVisits[10 * 60 + 30] = 4;
+
+    expect(focusHourRatio(minuteVisits, { startHHMM: "09:30", endHHMM: "10:30" })).toBe(0.5);
   });
 
   it("matches blocked root domains against subdomains", () => {
@@ -54,12 +64,12 @@ function makeStats(
   domain: string,
   category: DomainHistoryStats["category"],
   visits: number,
-  hourly: Record<number, number>
+  minuteCounts: Record<number, number>
 ): DomainHistoryStats {
-  const hourlyVisits = makeEmptyHourlyVisits();
-  for (const [hour, value] of Object.entries(hourly)) {
-    hourlyVisits[Number(hour)] = value;
+  const minuteVisits = makeEmptyMinuteVisits();
+  for (const [minute, value] of Object.entries(minuteCounts)) {
+    minuteVisits[Number(minute)] = value;
   }
 
-  return { domain, category, visits, hourlyVisits };
+  return { domain, category, visits, minuteVisits };
 }

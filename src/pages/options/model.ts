@@ -1,27 +1,28 @@
-import type { DailyStats, Session, SiteList } from "../../shared/types";
+import type { DailyStats, Schedule, Session, SiteList } from "../../shared/types";
 import type { Recommendation } from "../../analytics/recommend";
+import { normalizeDomain } from "../../background/rules";
+import { DEFAULT_SETTINGS, normalizeSettings } from "../../shared/storage";
 
 export interface OptionsSettings {
   focusHours: { startHHMM: string; endHHMM: string };
   softOverlaySeconds: number;
 }
 
+export type ScheduleValidationResult =
+  | { valid: true }
+  | {
+      valid: false;
+      field: "time" | "days" | "list";
+      message: string;
+    };
+
 export const DEFAULT_OPTIONS_SETTINGS: OptionsSettings = {
-  focusHours: { startHHMM: "09:00", endHHMM: "12:00" },
-  softOverlaySeconds: 10
+  focusHours: { ...DEFAULT_SETTINGS.focusHours },
+  softOverlaySeconds: DEFAULT_SETTINGS.softOverlaySeconds
 };
 
 export function normalizeOptionsSettings(value: unknown): OptionsSettings {
-  const candidate = value as Partial<OptionsSettings> | undefined;
-  const focusHours = candidate?.focusHours;
-
-  return {
-    focusHours: {
-      startHHMM: isHHMM(focusHours?.startHHMM) ? focusHours.startHHMM : DEFAULT_OPTIONS_SETTINGS.focusHours.startHHMM,
-      endHHMM: isHHMM(focusHours?.endHHMM) ? focusHours.endHHMM : DEFAULT_OPTIONS_SETTINGS.focusHours.endHHMM
-    },
-    softOverlaySeconds: clampInt(candidate?.softOverlaySeconds, 3, 60, DEFAULT_OPTIONS_SETTINGS.softOverlaySeconds)
-  };
+  return normalizeSettings(value);
 }
 
 export function collectDailyStats(snapshot: Record<string, unknown>): DailyStats[] {
@@ -88,6 +89,51 @@ export function normalizeDomainList(value: string): string[] {
   );
 }
 
+export function validateScheduleConfiguration(
+  schedule: Pick<Schedule, "startHHMM" | "endHHMM" | "days" | "listId">
+): ScheduleValidationResult {
+  if (!isHHMM(schedule.startHHMM) || !isHHMM(schedule.endHHMM)) {
+    return {
+      valid: false,
+      field: "time",
+      message: "시작과 종료 시간을 모두 선택해 주세요."
+    };
+  }
+
+  if (schedule.startHHMM === schedule.endHHMM) {
+    return {
+      valid: false,
+      field: "time",
+      message: "시작과 종료 시간을 다르게 선택해 주세요."
+    };
+  }
+
+  if (schedule.days.length === 0 || schedule.days.some((day) => !Number.isInteger(day) || day < 0 || day > 6)) {
+    return {
+      valid: false,
+      field: "days",
+      message: "자동 시작 요일을 하나 이상 선택해 주세요."
+    };
+  }
+
+  if (!schedule.listId.trim()) {
+    return {
+      valid: false,
+      field: "list",
+      message: "자동 시작에 사용할 차단 목록을 선택해 주세요."
+    };
+  }
+
+  return { valid: true };
+}
+
+export function schedulesReferencingSiteList(
+  schedules: readonly Schedule[],
+  listId: string
+): Schedule[] {
+  return schedules.filter((schedule) => schedule.listId === listId);
+}
+
 export function makeId(prefix: string): string {
   return `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
 }
@@ -106,18 +152,7 @@ function isDailyStats(value: unknown): value is DailyStats {
 }
 
 function normalizeDomainInput(value: string): string {
-  return value
-    .trim()
-    .toLowerCase()
-    .replace(/^[a-z][a-z0-9+.-]*:\/\//u, "")
-    .split(/[/?#]/u)[0]
-    ?.replace(/^\.+|\.+$/gu, "")
-    .replace(/^www\./u, "") ?? "";
-}
-
-function clampInt(value: unknown, min: number, max: number, fallback: number): number {
-  const parsed = Number(value);
-  return Number.isFinite(parsed) ? Math.min(max, Math.max(min, Math.round(parsed))) : fallback;
+  return normalizeDomain(value);
 }
 
 function isHHMM(value: unknown): value is string {

@@ -5,6 +5,36 @@ export interface Settings {
   softOverlaySeconds: number;
 }
 
+export interface ResolvedSettings extends Settings {
+  focusHours: { startHHMM: string; endHHMM: string };
+}
+
+export const DEFAULT_SETTINGS: ResolvedSettings = {
+  focusHours: { startHHMM: "09:00", endHHMM: "12:00" },
+  softOverlaySeconds: 10
+};
+
+export function normalizeSettings(value: unknown): ResolvedSettings {
+  const candidate = value as Partial<Settings> | undefined;
+  const startHHMM = isHHMM(candidate?.focusHours?.startHHMM)
+    ? candidate.focusHours.startHHMM
+    : DEFAULT_SETTINGS.focusHours.startHHMM;
+  const candidateEnd = candidate?.focusHours?.endHHMM;
+  const endHHMM = isHHMM(candidateEnd) && candidateEnd !== startHHMM
+    ? candidateEnd
+    : DEFAULT_SETTINGS.focusHours.endHHMM !== startHHMM
+      ? DEFAULT_SETTINGS.focusHours.endHHMM
+      : DEFAULT_SETTINGS.focusHours.startHHMM;
+  const softOverlaySeconds = Number(candidate?.softOverlaySeconds);
+
+  return {
+    focusHours: { startHHMM, endHHMM },
+    softOverlaySeconds: Number.isFinite(softOverlaySeconds)
+      ? Math.min(60, Math.max(3, Math.round(softOverlaySeconds)))
+      : DEFAULT_SETTINGS.softOverlaySeconds
+  };
+}
+
 export interface SyncStorageSchema {
   settings: Settings;
   siteLists: SiteList[];
@@ -112,4 +142,8 @@ export function subscribeTyped(
 
   chrome.storage.onChanged.addListener(listener);
   return () => chrome.storage.onChanged.removeListener(listener);
+}
+
+function isHHMM(value: unknown): value is string {
+  return typeof value === "string" && /^([01]\d|2[0-3]):[0-5]\d$/u.test(value);
 }

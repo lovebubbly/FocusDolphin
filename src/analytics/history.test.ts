@@ -7,77 +7,57 @@ import {
   type HistoryClient
 } from "./history";
 
+const DAY_MS = 24 * 60 * 60 * 1_000;
+
 describe("history collection", () => {
-  it("queries recent history in daily windows with maxResults 5000 and dedupes by URL", async () => {
+  it("queries newest daily windows first, dedupes URLs, and respects the URL cap", async () => {
     const now = new Date(2026, 6, 7, 0, 0, 0, 0).getTime();
     const duplicateUrl = "https://www.youtube.com/watch?v=focus";
-    const firstVisitTime = new Date(2026, 6, 5, 10, 0, 0, 0).getTime();
-    const secondVisitTime = new Date(2026, 6, 6, 10, 0, 0, 0).getTime();
     const client: HistoryClient = {
       search: vi.fn(async (query) => {
-        if (query.startTime === now - 2 * 24 * 60 * 60 * 1_000) {
+        if (query.startTime === now - DAY_MS) {
           return [
-            {
-              id: "first",
-              url: duplicateUrl,
-              title: "Video",
-              visitCount: 2,
-              typedCount: 0,
-              lastVisitTime: firstVisitTime
-            }
+            historyItem("newest", duplicateUrl, 99),
+            historyItem("instagram", "https://m.instagram.com/reel/1", 88)
           ];
         }
 
-        if (query.startTime === now - 24 * 60 * 60 * 1_000) {
+        if (query.startTime === now - 2 * DAY_MS) {
           return [
-            {
-              id: "second",
-              url: duplicateUrl,
-              title: "Video again",
-              visitCount: 4,
-              typedCount: 1,
-              lastVisitTime: secondVisitTime
-            },
-            {
-              id: "third",
-              url: "https://m.instagram.com/reel/1",
-              title: "SNS",
-              visitCount: 3,
-              typedCount: 0,
-              lastVisitTime: secondVisitTime
-            }
+            historyItem("older-duplicate", duplicateUrl, 2),
+            historyItem("github", "https://github.com/openai", 77)
           ];
         }
 
         return [];
-      })
+      }),
+      getVisits: vi.fn(async () => [])
     };
 
-    const items = await collectHistoryItems(client, { now, lookbackDays: 2 });
+    const items = await collectHistoryItems(client, { now, lookbackDays: 30, maxUrls: 3 });
 
     expect(client.search).toHaveBeenCalledTimes(2);
     expect(client.search).toHaveBeenNthCalledWith(1, {
       text: "",
-      startTime: now - 2 * 24 * 60 * 60 * 1_000,
-      endTime: now - 24 * 60 * 60 * 1_000,
+      startTime: now - DAY_MS,
+      endTime: now,
       maxResults: 5_000
     });
     expect(client.search).toHaveBeenNthCalledWith(2, {
       text: "",
-      startTime: now - 24 * 60 * 60 * 1_000,
-      endTime: now,
+      startTime: now - 2 * DAY_MS,
+      endTime: now - DAY_MS,
       maxResults: 5_000
     });
-    expect(items).toHaveLength(2);
-    expect(items.find((item) => item.url === duplicateUrl)).toMatchObject({
-      visitCount: 4,
-      typedCount: 1,
-      lastVisitTime: secondVisitTime
-    });
+    expect(items).toHaveLength(3);
+    expect(items.find((item) => item.url === duplicateUrl)?.id).toBe("newest");
   });
 
   it("uses the 30-day sliding window default", async () => {
-    const client: HistoryClient = { search: vi.fn(async () => []) };
+    const client: HistoryClient = {
+      search: vi.fn(async () => []),
+      getVisits: vi.fn(async () => [])
+    };
 
     await collectHistoryItems(client, { now: 1_000_000 });
 
@@ -86,33 +66,14 @@ describe("history collection", () => {
 });
 
 describe("domain aggregation", () => {
-  it("aggregates visit counts and lastVisitTime hour distribution by normalized domain", async () => {
-    const visitTime = new Date(2026, 6, 6, 14, 0, 0, 0).getTime();
+  it("counts individual visit events in their actual local hours by normalized domain", () => {
+    const fourteen = new Date(2026, 6, 6, 14, 0, 0, 0).getTime();
+    const fifteen = new Date(2026, 6, 6, 15, 0, 0, 0).getTime();
     const summary = summarizeHistoryByDomain([
-      {
-        id: "one",
-        url: "https://www.youtube.com/watch?v=1",
-        title: "Video",
-        visitCount: 2,
-        typedCount: 0,
-        lastVisitTime: visitTime
-      },
-      {
-        id: "two",
-        url: "https://m.youtube.com/watch?v=2",
-        title: "Video",
-        visitCount: 3,
-        typedCount: 0,
-        lastVisitTime: visitTime
-      },
-      {
-        id: "invalid",
-        url: "not a url",
-        title: "Ignored",
-        visitCount: 99,
-        typedCount: 0,
-        lastVisitTime: visitTime
-      }
+      { url: "https://www.youtube.com/watch?v=1", visitTime: fourteen },
+      { url: "https://www.youtube.com/watch?v=1", visitTime: fifteen },
+      { url: "https://m.youtube.com/watch?v=2", visitTime: fourteen },
+      { url: "not a url", visitTime: fourteen }
     ]);
 
     expect(summary).toHaveLength(2);
@@ -120,25 +81,26 @@ describe("domain aggregation", () => {
       visits: 2,
       category: "video"
     });
+    expect(summary.find((entry) => entry.domain === "youtube.com")?.minuteVisits[14 * 60]).toBe(1);
+    expect(summary.find((entry) => entry.domain === "youtube.com")?.minuteVisits[15 * 60]).toBe(1);
     expect(summary.find((entry) => entry.domain === "m.youtube.com")).toMatchObject({
-      visits: 3,
+      visits: 1,
       category: "video"
     });
-    expect(summary.find((entry) => entry.domain === "m.youtube.com")?.hourlyVisits[14]).toBe(3);
   });
 
-  it("collects and categorizes domain history with overrides", async () => {
+  it("uses getVisits timestamps and ignores lifetime counters outside the requested window", async () => {
     const now = new Date(2026, 6, 7, 0, 0, 0, 0).getTime();
+    const startTime = now - DAY_MS;
+    const url = "https://docs.google.com/document/1";
     const client: HistoryClient = {
-      search: vi.fn(async () => [
-        {
-          id: "docs",
-          url: "https://docs.google.com/document/1",
-          title: "Doc",
-          visitCount: 5,
-          typedCount: 0,
-          lastVisitTime: new Date(2026, 6, 6, 9, 0, 0, 0).getTime()
-        }
+      search: vi.fn(async () => [historyItem("docs", url, 999)]),
+      getVisits: vi.fn(async () => [
+        visitItem("window-start", startTime),
+        visitItem("evening", new Date(2026, 6, 6, 21, 0, 0, 0).getTime()),
+        visitItem("old", startTime - 1),
+        visitItem("future", now + 1),
+        visitItem("missing-time")
       ])
     };
 
@@ -148,13 +110,44 @@ describe("domain aggregation", () => {
         lookbackDays: 1,
         categoryOverrides: { "docs.google.com": "tools" }
       })
-    ).resolves.toMatchObject([{ domain: "docs.google.com", visits: 5, category: "tools" }]);
+    ).resolves.toMatchObject([
+      {
+        domain: "docs.google.com",
+        visits: 2,
+        category: "tools"
+      }
+    ]);
+    expect(client.getVisits).toHaveBeenCalledOnce();
+    expect(client.getVisits).toHaveBeenCalledWith({ url });
   });
 
   it("normalizes only valid URLs into domains", () => {
     expect(domainFromUrl("https://www.github.com/openai")).toBe("github.com");
-    expect(domainFromUrl("chrome://extensions")).toBe("extensions");
+    expect(domainFromUrl("http://www.github.com/openai")).toBe("github.com");
+    expect(domainFromUrl("chrome://extensions")).toBeUndefined();
+    expect(domainFromUrl("chrome-extension://abcdefghijklmnop/options.html")).toBeUndefined();
+    expect(domainFromUrl("file:///tmp/focuswhale.html")).toBeUndefined();
     expect(domainFromUrl(undefined)).toBeUndefined();
     expect(domainFromUrl("not a url")).toBeUndefined();
   });
 });
+
+function historyItem(id: string, url: string, lifetimeVisitCount: number): chrome.history.HistoryItem {
+  return {
+    id,
+    url,
+    title: id,
+    visitCount: lifetimeVisitCount,
+    typedCount: lifetimeVisitCount
+  };
+}
+
+function visitItem(id: string, visitTime?: number): chrome.history.VisitItem {
+  return {
+    id,
+    visitId: id,
+    referringVisitId: "0",
+    transition: "link",
+    visitTime
+  };
+}

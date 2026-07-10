@@ -1,191 +1,190 @@
 # FocusWhale Gamification v2
 
-This document describes the current pet growth system implemented on July 7, 2026. It is the code-facing companion to the Notion v2 XP research/spec page.
+> **Document provenance**
+>
+> - Product owner and repository author of record: **Choi Yunseong (최윤성)** (`Yunseong Choi` in Git history)
+> - Introduced in commit: `00c43e5` on **2026-07-07 18:16:28 KST**
+> - Release-candidate accuracy refresh: **OpenAI Codex, GPT-5 coding agent**, on **2026-07-10 20:29 KST**
+> - Time zone: **Asia/Seoul (UTC+09:00)**
+> - Documentation attribution does not imply product-owner approval
 
-## Product Rules
+This is the code-facing contract for pet growth, rewards, celebration delivery, and hard-mode escape in FocusWhale v1.0.0.
 
-- The pet never dies, regresses, becomes sick, or displays a sad state.
-- XP is not a constant HUD. It appears in the post-session overview and in user-opened growth details.
-- Hard mode emergency escape remains available, but it is guarded by confirmation and weekly limits.
-- Growth data stays local in extension storage.
-- Browser history-derived recommendations remain domain-only and user-approved.
-- UI copy must avoid shame, punishment, and loss-framed language.
+## Non-Negotiable Rules
 
-## XP Formula
+- The pet never dies, regresses, becomes sick, or shows punishment/sadness for missed focus.
+- XP is contextual: post-session overview and user-opened growth details, not a constant pressure HUD.
+- Badges are additive only.
+- Hard mode retains a delayed, limited emergency escape.
+- Growth and intent data remain local; browser sync may handle the explicit sync-backed pet state.
+- User-facing copy avoids guilt, shame, punishment, and loss framing.
 
-Completed sessions grant XP only once.
+## XP And Stages
+
+Only completed sessions grant XP, once per session:
 
 ```text
 XP = floor(completed_minutes * intensity_multiplier)
+soft = 1.0
+medium = 1.2
+hard = 1.5
 ```
 
-Intensity multipliers:
+| Stage | Name | Threshold |
+| ---: | --- | ---: |
+| 0 | 알 | 0 XP |
+| 1 | 새끼 고래 | 100 XP |
+| 2 | 어린 고래 | 600 XP |
+| 3 | 푸른 고래 | 2,000 XP |
+| 4 | 별고래 | 6,000 XP |
 
-| Intensity | Multiplier | 25 min example |
-| --- | ---: | ---: |
-| soft | 1.0 | 25 XP |
-| medium | 1.2 | 30 XP |
-| hard | 1.5 | 37 XP |
+`normalizePetState` never lowers an existing stage, even when migrating inconsistent legacy XP. Aborted/interrupted sessions subtract nothing and may add a neutral `session_ended_early` record.
 
-Aborted and interrupted sessions do not subtract XP. They may create a neutral `session_ended_early` growth event for the ledger.
+## Authoritative Mutation Path
 
-## Stage Thresholds
+Pet mutation belongs to the MV3 service worker:
 
-The v2 stage thresholds live in `src/shared/gamification.ts`.
+- `RECONCILE_PET` serializes XP settlement, streak/freeze reconciliation, badge awards, and event generation.
+- `SET_PET_NAME` uses the same serialized mutation queue.
+- `petLedger` prevents duplicate settlement for completed/ended-early session IDs and retains at most 5,000 IDs per category.
+- `petSettlementJournal` is written before multi-key side effects and replayed after interruption.
+- `petReconciliationJournal` and settlement recovery merge with newer synced progress instead of regressing XP, stage, streak, name, badges, focus minutes, or settled-session IDs.
+- `petStreakLedger` holds durable streak/freeze reconciliation state.
 
-| Stage | Name | XP threshold |
-| --- | --- | ---: |
-| 0 | 알 | 0 |
-| 1 | 새끼 고래 | 100 |
-| 2 | 어린 고래 | 600 |
-| 3 | 푸른 고래 | 2,000 |
-| 4 | 별고래 | 6,000 |
+Popup/options must not persist stale whole `petState` snapshots. New pet mutations should extend this authoritative queue and add concurrency/recovery tests.
 
-Migration must never lower an existing pet stage. `normalizePetState` preserves a higher stored stage even if the current XP would calculate a lower stage.
+## Growth Events And Delivery
 
-## Growth Ledger
-
-Growth events are stored locally under `growthLog` as a capped newest-first ring buffer of 500 events. Pending post-session celebrations are stored locally under `pendingCelebrations` until the popup drains them.
-
-Core event type:
+Core event types:
 
 ```ts
-interface GrowthEvent {
-  id: string;
-  ts: number;
-  type:
-    | "session_completed"
-    | "stage_up"
-    | "half_way"
-    | "badge_earned"
-    | "freeze_granted"
-    | "freeze_used"
-    | "streak_restored"
-    | "streak_rest"
-    | "streak_fresh_start"
-    | "session_ended_early"
-    | "migration";
-  xpDelta?: number;
-  xpBefore?: number;
-  xpAfter?: number;
-  progressBefore?: number;
-  progressAfter?: number;
-  minutes?: number;
-  intensity?: "soft" | "medium" | "hard";
-  sessionId?: string;
-  badgeId?: string;
-  stageFrom?: 0 | 1 | 2 | 3 | 4;
-  stageTo?: 0 | 1 | 2 | 3 | 4;
-  streakFrom?: number;
-  streakTo?: number;
-  text: string;
-}
+type GrowthEventType =
+  | "session_completed"
+  | "stage_up"
+  | "half_way"
+  | "badge_earned"
+  | "freeze_granted"
+  | "freeze_used"
+  | "streak_restored"
+  | "streak_rest"
+  | "streak_fresh_start"
+  | "session_ended_early"
+  | "migration";
 ```
 
-`session_completed` events include before/after XP and before/after progress values so the popup can animate growth without recalculating from ambiguous historic state.
+`session_completed` records carry `xpBefore`, `xpAfter`, `progressBefore`, `progressAfter`, minutes, intensity, and session ID. This lets the popup animate the actual transition instead of reconstructing it from ambiguous current state.
 
-## Post-Session Growth Overview
+Storage:
 
-When the popup opens after a completed session, it drains `pendingCelebrations` and renders a post-session overview.
+- `growthEvent:{eventId}`: durable per-event record.
+- `pendingCelebration:{eventId}`: unacknowledged overview event.
+- `celebrationAck:{eventId}`: explicit dismissal receipt.
+- `growthLog` and `pendingCelebrations`: legacy migration compatibility only.
 
-The overview includes:
+Growth events and acknowledgement records retain the newest 500 unique IDs. Pending celebrations remain until acknowledged. Acknowledging selected IDs does not erase a concurrently appended event, and retries are deduplicated before retention pruning.
 
-- Happy pet sprite.
-- Session summary: minutes, intensity, and awarded XP.
-- Animated total XP count-up from `xpBefore` to `xpAfter`.
-- Animated progress bar from `progressBefore` to `progressAfter`.
-- Current stage name.
-- Stage-up, half-way, badge, freeze, and streak milestones revealed as rows.
-- Optional pet naming prompt after a stage-up when the pet has no saved name.
-- A dismiss button that removes the overview from the current popup view.
+## Post-Session Overview
 
-Animation guardrails:
+After natural completion, the next popup reads pending events without deleting them and renders:
 
-- `prefers-reduced-motion: reduce` is respected by jumping to final values.
-- The growth overview is shown after a completed session, not during a blocked-page conflict moment.
-- Blocked page and soft overlay do not show XP.
+- `celebrate` pet mood;
+- minutes, intensity, and XP awarded;
+- animated XP total and progress transition;
+- current stage;
+- stage, half-way, badge, freeze, or streak milestones;
+- optional name prompt when appropriate.
+
+Only one completed-session group is presented and acknowledged at a time; later groups remain pending. Failed acknowledgement remains retryable. An unrelated popup rerender or list-mode toggle must not resurrect an acknowledged overview, and a saved name is merged into the current popup model immediately.
+
+`prefers-reduced-motion: reduce` skips count-up/reveal motion and presents final accessible values immediately.
 
 ## Badges
 
-Badge definitions live in `src/shared/gamification.ts`. Stored IDs remain stable, but user-facing names and descriptions are wellness-oriented.
+Implemented stable IDs:
 
-Implemented badges:
+| ID | Display name |
+| --- | --- |
+| `first-session` | 첫 물결 |
+| `first-hard` | 첫 깊은 잠수 |
+| `focus-10-hours` | 열 시간의 바다 |
+| `focus-50-hours` | 쉰 시간의 대양 |
+| `five-day-week` | 한 주의 리듬 |
+| `allowlist-10` | 등대지기 |
+| `streak-7` | 이레의 물살 |
+| `streak-30` | 서른 날의 해류 |
+| `comeback` | 다시 만난 바다 |
+| `first-schedule` | 물때표 |
+| `steady-4w` | 꾸준한 물결 |
 
-- `first-session` -> 첫 물결
-- `first-hard` -> 첫 깊은 잠수
-- `focus-10-hours` -> 열 시간의 바다
-- `focus-50-hours` -> 쉰 시간의 대양
-- `five-day-week` -> 한 주의 리듬
-- `allowlist-10` -> 등대지기
-- `streak-7` -> 이레의 물살
-- `streak-30` -> 서른 날의 해류
-- `comeback` -> 다시 만난 바다
-- `first-schedule` -> 물때표
-- `steady-4w` -> 꾸준한 물결
-
-Badges are additive-only. They are never removed as punishment.
+Descriptions explain meaning in growth details, and newly awarded badges appear in completion milestones. IDs must remain stable across copy changes.
 
 ## Streak And Freeze Language
-
-User-facing streak states:
 
 - `active`: `N일째`
 - `resting`: `쉬는 중`
 - `fresh`: `새 출발`
 
-The legacy `recoveryPending` label should not appear in UI. Freeze copy uses `보호막`, not penalty language.
+Freeze UI uses `보호막`, not penalty language. A break with protection consumes a freeze without loss/shame copy; a later unprotected return becomes a neutral fresh start.
+
+## Sprite Contract
+
+Production atlas: `assets/sprites/focuswhale-atlas.png`.
+
+- Dimensions: **384 x 1,920**.
+- Grid: four columns x twenty rows.
+- Frame: 96 x 96.
+- Total: eighty frames.
+- Stages: five.
+- Moods: `idle`, `happy`, `focus`, `celebrate`.
+
+Row mapping:
+
+| Mood | Rows |
+| --- | --- |
+| `idle` | 0-4 |
+| `happy` | 5-9 |
+| `focus` | 10-14 |
+| `celebrate` | 15-19 |
+
+Each mood block maps stage 0 through stage 4 in order. Stage 4 is the star-marked adult whale; the earlier crown artwork is retired.
+
+The deterministic assembler normalizes size/baseline, enforces safe margins, and writes `assets/sprites/atlas-report.json`. Renderer tests verify manifest dimensions, all 20 stage/mood mappings, all 80 frame metrics, and the atlas hash/report contract. The renderer injects styles into documents or shadow roots and falls back to the packaged icon on failure.
+
+## Mood Usage
+
+- `idle`: ordinary popup/options/rest state.
+- `happy`: positive growth/detail state.
+- `focus`: active popup, blocked page, soft overlay.
+- `celebrate`: post-session overview and milestones.
+
+Do not add a mood unless a concrete product state uses it. Missing/invalid assets must fall back safely rather than render a blank/black box.
 
 ## Hard Emergency Exit
 
-Hard mode has no temporary allow, but the emergency end valve remains.
+Hard mode has no temporary allow. Emergency behavior:
 
-Current behavior:
+1. Initial click opens confirmation only.
+2. Second click schedules an end five minutes later.
+3. The request is limited to one unique hard session per local week.
+4. Repeated requests for the same pending session are idempotent.
+5. Pending state is bound to that session and cannot abort a newer session.
+6. Natural completion wins when the focus deadline already elapsed.
+7. If the aborted session came from an active schedule occurrence, that occurrence remains suppressed until its exact original window end rather than immediately restarting. The session stores that boundary explicitly instead of deriving it from a rounded minute duration.
 
-- Blocked page first shows `비상 종료 요청`.
-- First click only opens a confirmation state.
-- Second click schedules the emergency end.
-- The session ends after a 5-minute delay.
-- Emergency end requests are limited to one unique hard session per local week.
-- Duplicate clicks for the same already pending hard session are idempotent and do not spend extra allowance.
+Storage uses `pendingEmergency`, `emergencyUsage`, and schedule-occurrence suppression; service-worker alarms and reconciliation restore pending work. Local activity clearing preserves the current week's emergency allowance and any unexpired occurrence suppression, preventing either safeguard from being reset through the clear control.
 
-Storage:
+## Automated Evidence
 
-- `pendingEmergency`: `{ sessionId, dueAt }`
-- `emergencyUsage`: `{ weekKey, sessionIds, usedAt }`
+Release-candidate gates refreshed by OpenAI Codex (GPT-5) for product owner Choi Yunseong on 2026-07-11 01:33 KST:
 
-## Tests
+- Typecheck: pass.
+- Vitest: **30 files / 196 tests**, pass.
+- Two-stage production build and release verifier: pass.
 
-Required checks:
+Gamification coverage includes XP flooring, thresholds, migration non-regression, duplicate settlement, monotonic settlement/reconciliation journal recovery, growth transition values, per-session celebration batching, acknowledgement races/retention, name mutation without progress loss, streak/freeze behavior, badge awards, hard emergency limits/session binding, scheduled-occurrence suppression, atlas geometry/hash, shadow-root rendering, and wellness-copy guards.
 
-```sh
-npm run typecheck
-npm test
-npm run build
-```
+## Live Evidence Boundary
 
-Coverage added for v2:
+The exact-final headless Whale matrix passes natural completion, sequential session/badge acknowledgement, close/reload dismissal, hard two-step/pending/reload/weekly behavior, scheduled-occurrence suppression, popup emergency access, pet-name persistence across a real browser restart, and all 20 stage/mood combinations. Headed Whale additionally passes the list-mode rerender acknowledgement path, normal-motion XP/progress count-up, immediate reduced-motion final values, visible milestone rows, and the surface-wide reduced-motion matrix. Chrome for Testing repeated the soft/medium completion paths and accepted the real optional-history permission prompt.
 
-- XP floors hard 25-minute sessions to 37 XP.
-- Stage thresholds are `100 / 600 / 2,000 / 6,000`.
-- Growth ledger records `xpBefore`, `xpAfter`, `progressBefore`, and `progressAfter`.
-- Pet state migration does not lower existing stage.
-- Streak resting/fresh-start behavior.
-- Hard emergency requests are one per local week.
-- Wellness copy guard blocks shame/loss/punishment terms in UI-facing code.
-
-## Manual QA
-
-Suggested browser check after rebuilding and reloading `dist/`:
-
-1. Start a short medium session.
-2. Let it complete.
-3. Open the popup.
-4. Confirm the post-session growth overview appears.
-5. Confirm total XP counts upward.
-6. Confirm the progress bar fills.
-7. Confirm happy pet animation plays.
-8. Confirm stage-up or badge rows reveal when applicable.
-9. Open `성장 자세히 보기` and confirm XP details are visible only there.
-10. Start a hard session and open a blocked page.
-11. Confirm emergency end requires two clicks.
-12. Confirm a second hard session in the same week cannot schedule another emergency end.
+Product-owner judgment of reward meaning remains explicitly pending in `QA.md`; recovery fault-injection items are tracked separately from gamification presentation.

@@ -6,13 +6,26 @@ describe("deterministic recommendation pipeline fixture", () => {
   it("produces stable domain-only recommendations from 1,000 history items", async () => {
     const now = new Date(2026, 6, 7, 0, 0, 0, 0).getTime();
     const fixture = makeHistoryFixture(now);
+    const fixtureByUrl = new Map(fixture.map((item) => [item.url, item]));
     const client: HistoryClient = {
       search: vi.fn(async (query) =>
         fixture.filter((item) => {
           const lastVisitTime = item.lastVisitTime ?? 0;
           return lastVisitTime >= (query.startTime ?? 0) && lastVisitTime < (query.endTime ?? Number.MAX_SAFE_INTEGER);
         })
-      )
+      ),
+      getVisits: vi.fn(async ({ url }) => {
+        const item = fixtureByUrl.get(url);
+        return item?.lastVisitTime === undefined
+          ? []
+          : [{
+              id: item.id,
+              visitId: item.id,
+              referringVisitId: "0",
+              transition: "link",
+              visitTime: item.lastVisitTime
+            }];
+      })
     };
     const stored: Record<string, unknown> = {};
     const storageArea = {
@@ -29,6 +42,7 @@ describe("deterministic recommendation pipeline fixture", () => {
 
     expect(fixture).toHaveLength(1_000);
     expect(client.search).toHaveBeenCalledTimes(30);
+    expect(client.getVisits).toHaveBeenCalledTimes(1_000);
     expect(recommendations.map((recommendation) => recommendation.domain)).toEqual([
       "dcinside.com",
       "namu.wiki",
@@ -62,7 +76,7 @@ function makeHistoryFixture(now: number): chrome.history.HistoryItem[] {
         id: `${domain}-${index}`,
         url: `https://${domain}/fixture/${index}`,
         title: domain,
-        visitCount: 1,
+        visitCount: 99,
         typedCount: 0,
         lastVisitTime: Math.min(visitTime, now - 1)
       });

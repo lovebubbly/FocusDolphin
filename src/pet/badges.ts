@@ -116,3 +116,7 @@ export function awardBadges(
 export function badgeName(id: string): string {
   return BADGE_DEFINITIONS[id as BadgeId]?.name ?? id;
 }
+
+export function badgeDescription(id: string): string {
+  return BADGE_DEFINITIONS[id as BadgeId]?.description ?? "새로운 항해의 기록이에요.";
+}

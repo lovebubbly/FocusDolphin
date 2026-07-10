@@ -25,59 +25,11 @@ export function migrateSiteListsForCurrentDefaults(storedSiteLists?: readonly Si
     return { siteLists: cloneSiteLists(DEFAULT_SITE_LISTS), changed: true };
   }
 
-  let changed = false;
-  const siteLists = storedSiteLists.map((siteList) => {
-    if (siteList.id !== DEFAULT_BLOCKLIST_ID || siteList.mode !== "blocklist") {
-      return siteList;
-    }
-
-    const domains = mergeDomains(siteList.domains, DEFAULT_SITE_LISTS[0]?.domains ?? []);
-    if (!sameStringArray(domains, siteList.domains)) {
-      changed = true;
-      return { ...siteList, domains };
-    }
-
-    return siteList;
-  });
-
-  return { siteLists, changed };
+  // Existing lists are user-owned. Reapplying product defaults here would
+  // silently undo domains that the user intentionally removed.
+  return { siteLists: cloneSiteLists(storedSiteLists), changed: false };
 }
 
 function cloneSiteLists(siteLists: readonly SiteList[]): SiteList[] {
   return siteLists.map((siteList) => ({ ...siteList, domains: [...siteList.domains] }));
-}
-
-function mergeDomains(domains: readonly string[], defaults: readonly string[]): string[] {
-  const seen = new Set<string>();
-  const merged: string[] = [];
-
-  for (const domain of [...domains, ...defaults]) {
-    const normalized = normalizeDomainForList(domain);
-    if (!normalized || seen.has(normalized)) {
-      continue;
-    }
-
-    seen.add(normalized);
-    merged.push(normalized);
-  }
-
-  return merged;
-}
-
-function normalizeDomainForList(domain: string): string {
-  const trimmed = domain.trim().toLowerCase();
-  if (!trimmed) {
-    return "";
-  }
-
-  try {
-    const hostname = trimmed.includes("://") ? new URL(trimmed).hostname : trimmed.split("/")[0];
-    return hostname.replace(/^\*\./, "").replace(/^\./, "").replace(/\.$/, "");
-  } catch {
-    return "";
-  }
-}
-
-function sameStringArray(left: readonly string[], right: readonly string[]): boolean {
-  return left.length === right.length && left.every((value, index) => value === right[index]);
 }

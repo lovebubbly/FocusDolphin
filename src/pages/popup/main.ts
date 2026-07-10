@@ -1,38 +1,36 @@
-import { sendMessage } from "../../shared/messaging";
+import { sendMessage, type FocusWhaleState } from "../../shared/messaging";
+import { LatestRequestGuard } from "../../shared/latestRequest";
 import { stageName } from "../../shared/gamification";
 import { getTyped, setTyped, STORAGE_KEYS } from "../../shared/storage";
 import { DEFAULT_SITE_LISTS, migrateSiteListsForCurrentDefaults } from "../../shared/siteLists";
 import type { Intensity, PetState, Session, SiteList } from "../../shared/types";
-import { awardBadges, badgeName } from "../../pet/badges";
-import { normalizePetState } from "../../pet/defaultState";
+import { awardBadges, badgeDescription, badgeName } from "../../pet/badges";
 import {
-  appendGrowthEvents,
-  createGrowthEvent,
-  drainPendingCelebrations,
   growthProgress,
+  readPendingCelebrations,
   readGrowthLog,
   type GrowthEvent
 } from "../../pet/growth";
 import { mountPet } from "../../pet/renderer";
-import { reconcileStreakFromSessions, type StreakRecoveryState } from "../../pet/streak";
-import { settleCompletedSessionXp } from "../../pet/xpEngine";
+import { reconcileStreakFromSessions } from "../../pet/streak";
 
-const STREAK_LEDGER_KEY = "petStreakLedger";
 const INTENSITY_ORDER: Record<Intensity, number> = {
   soft: 0,
   medium: 1,
   hard: 2
 };
 
-interface PopupModel {
+export interface PopupModel {
   petState: PetState;
   activeSession: Session | null;
+  pendingEmergency: FocusWhaleState["pendingEmergency"];
   siteLists: SiteList[];
   awardedXp: number;
   streakStatus: "active" | "resting" | "fresh";
   celebrations: GrowthEvent[];
   growthLog: GrowthEvent[];
   notice?: string;
+  celebrationAckError?: string;
 }
 
 interface SelectionState {
@@ -43,21 +41,55 @@ interface SelectionState {
 }
 
 interface PopupHandlers {
-  updateSelection: (patch: Partial<SelectionState>) => void;
+  updateSelection: (patch: Partial<SelectionState>, rerender?: boolean, focusKey?: string) => void;
   startSession: () => Promise<void>;
   upgradeIntensity: (intensity: Intensity) => Promise<void>;
+  dismissCelebrations: (eventIds: readonly string[]) => Promise<void>;
+  setPetName: (name: string) => Promise<void>;
+  requestEmergencyEnd: () => Promise<void>;
+  openOptions: () => void;
 }
 
-function minutesRemaining(session: Session, now = Date.now()): number {
-  return Math.max(0, Math.ceil((session.endsAt - now) / 60_000));
+function formatRemaining(session: Session, now = Date.now()): string {
+  return formatDeadline(session.endsAt, now);
 }
 
-function formatRemaining(session: Session): string {
-  const totalMinutes = minutesRemaining(session);
-  const hours = Math.floor(totalMinutes / 60);
-  const minutes = totalMinutes % 60;
+function formatDeadline(deadline: number, now = Date.now()): string {
+  const totalSeconds = Math.max(0, Math.ceil((deadline - now) / 1_000));
+  const hours = Math.floor(totalSeconds / 3_600);
+  const minutes = Math.floor((totalSeconds % 3_600) / 60);
+  const seconds = totalSeconds % 60;
 
-  return hours > 0 ? `${hours}시간 ${minutes}분` : `${minutes}분`;
+  return hours > 0
+    ? `${hours}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`
+    : `${minutes}:${String(seconds).padStart(2, "0")}`;
+}
+
+export function intensityLabel(intensity: Intensity): string {
+  if (intensity === "soft") {
+    return "가벼운 안내";
+  }
+
+  if (intensity === "medium") {
+    return "확인 후 허용";
+  }
+
+  return "완전 차단";
+}
+
+export function coerceCustomDuration(rawValue: string, fallbackMinutes: number): number {
+  const parsed = Number(rawValue);
+  return Number.isFinite(parsed) && parsed > 0
+    ? Math.min(240, Math.max(1, Math.round(parsed)))
+    : fallbackMinutes;
+}
+
+function renderPopupHeader(root: HTMLElement, handlers: PopupHandlers): void {
+  const header = document.createElement("header");
+  header.className = "sticky top-0 z-20 flex min-h-10 shrink-0 items-center justify-between bg-base-100 py-1";
+  appendText(header, "p", "FocusWhale", "text-sm font-bold");
+  header.append(createButton("설정", "btn btn-ghost min-h-10 px-3", handlers.openOptions));
+  root.append(header);
 }
 
 function progressValue(session: Session, now = Date.now()): number {
@@ -131,19 +163,19 @@ function renderPetPanel(root: HTMLElement, model: PopupModel): void {
   mountPet(petMount, model.petState, model.awardedXp > 0 ? "happy" : "idle");
 
   const stats = document.createElement("div");
-  stats.className = "space-y-2";
-  appendText(stats, "p", model.petState.name ?? "미로", "text-sm font-semibold text-base-content/60");
+  stats.className = "min-w-0 space-y-2";
+  appendText(stats, "p", model.petState.name ?? "미로", "break-all text-sm font-semibold");
   appendText(stats, "h1", petStateLine(model.petState), "text-xl font-extrabold");
-  appendText(stats, "p", "집중 세션을 완료하면 자라요.", "text-xs text-base-content/60");
+  appendText(stats, "p", "집중 세션을 완료하면 자라요.", "text-xs");
   const badges = document.createElement("div");
   badges.className = "flex flex-wrap gap-1.5";
   appendText(badges, "span", streakChipText(model), "badge badge-soft badge-primary shadow-sm");
   appendText(badges, "span", `보호막 ${model.petState.streakFreezes}/2`, "badge badge-soft shadow-sm");
   stats.append(badges);
-  appendText(stats, "p", recentBadgeText(model.petState), "text-sm text-base-content/70");
+  appendText(stats, "p", recentBadgeText(model.petState), "text-sm");
 
   if (model.notice) {
-    appendText(stats, "p", model.notice, "text-sm text-base-content/70");
+    appendText(stats, "p", model.notice, "text-sm");
   }
 
   body.append(stats);
@@ -151,14 +183,15 @@ function renderPetPanel(root: HTMLElement, model: PopupModel): void {
   root.append(panel);
 }
 
-function renderCelebrations(root: HTMLElement, model: PopupModel): void {
+function renderCelebrations(root: HTMLElement, model: PopupModel, handlers: PopupHandlers): void {
   if (model.celebrations.length === 0) {
     return;
   }
 
+  const visibleEvents = celebrationBatch(model.celebrations);
   const animationTasks: Array<() => void> = [];
-  const sessionEvent = model.celebrations.find((event) => event.type === "session_completed");
-  const milestoneEvents = model.celebrations.filter((event) => event.type !== "session_completed");
+  const sessionEvent = visibleEvents.find((event) => event.type === "session_completed");
+  const milestoneEvents = visibleEvents.filter((event) => event.type !== "session_completed");
   const panel = document.createElement("section");
   panel.className = "card border border-primary/20 bg-base-100 shadow-sm";
   const body = document.createElement("div");
@@ -174,15 +207,32 @@ function renderCelebrations(root: HTMLElement, model: PopupModel): void {
     body.append(renderMilestoneOverview(milestoneEvents, animationTasks));
   }
 
-  if (model.celebrations.length > 4) {
-    appendText(body, "p", `그리고 ${model.celebrations.length - 4}개의 기록이 성장 로그에 남았어요.`, "text-xs text-base-content/60");
+  if (model.celebrations.length > visibleEvents.length) {
+    appendText(body, "p", `확인할 변화가 ${model.celebrations.length - visibleEvents.length}개 더 있어요.`, "text-xs");
   }
-  if (!model.petState.name && model.celebrations.some((event) => event.type === "stage_up")) {
-    body.append(renderNamePrompt(model.petState));
+  if (!model.petState.name && visibleEvents.some((event) => event.type === "stage_up")) {
+    body.append(renderNamePrompt(handlers));
+  }
+  if (model.celebrationAckError) {
+    const notice = document.createElement("div");
+    notice.className = "alert alert-error alert-soft text-sm";
+    notice.setAttribute("role", "alert");
+    appendText(notice, "span", model.celebrationAckError);
+    body.append(notice);
   }
   const actions = document.createElement("div");
   actions.className = "card-actions justify-end";
-  actions.append(createButton("확인", "btn btn-soft btn-sm shadow-sm", () => panel.remove()));
+  const dismiss = createButton("확인", "btn btn-soft min-h-10 shadow-sm", () => {
+    dismiss.disabled = true;
+    dismiss.textContent = "저장 중...";
+    void handlers.dismissCelebrations(visibleEvents.map((event) => event.id)).finally(() => {
+      if (dismiss.isConnected) {
+        dismiss.disabled = false;
+        dismiss.textContent = "다시 시도";
+      }
+    });
+  });
+  actions.append(dismiss);
   body.append(actions);
   panel.append(body);
   root.append(panel);
@@ -209,12 +259,12 @@ function renderSessionGrowthOverview(
   hero.className = "grid grid-cols-[72px_1fr] items-center gap-3";
   const petSlot = document.createElement("div");
   petSlot.className = "grid scale-75 place-items-center";
-  mountPet(petSlot, model.petState, "happy");
+  mountPet(petSlot, model.petState, "celebrate");
   const copy = document.createElement("div");
   copy.className = "space-y-1";
   appendText(copy, "p", "세션 완료", "text-xs font-bold uppercase tracking-wide text-primary");
   appendText(copy, "h2", "집중이 고래를 키웠어요", "text-xl font-extrabold");
-  appendText(copy, "p", event.text, "text-sm text-base-content/70");
+  appendText(copy, "p", event.text, "text-sm");
   hero.append(petSlot, copy);
   wrap.append(hero);
 
@@ -224,7 +274,7 @@ function renderSessionGrowthOverview(
   gained.className = "stat py-3";
   appendText(gained, "div", "이번 세션", "stat-title");
   appendText(gained, "div", `+${xpDelta} XP`, "stat-value text-2xl text-primary tabular-nums");
-  appendText(gained, "div", `${event.minutes ?? 0}분 × ${event.intensity ?? "medium"}`, "stat-desc");
+  appendText(gained, "div", `${event.minutes ?? 0}분 × ${intensityLabel(event.intensity ?? "medium")}`, "stat-desc");
   const total = document.createElement("div");
   total.className = "stat py-3";
   appendText(total, "div", "누적 XP", "stat-title");
@@ -248,7 +298,7 @@ function renderSessionGrowthOverview(
   fill.style.width = `${clampPercent(progressBefore)}%`;
   fill.style.transition = prefersReducedMotion() ? "none" : "width 900ms ease";
   track.append(fill);
-  appendText(progress, "p", `${clampPercent(progressBefore)}% → ${clampPercent(progressAfter)}%`, "text-xs text-base-content/60");
+  appendText(progress, "p", `${clampPercent(progressBefore)}% → ${clampPercent(progressAfter)}%`, "text-xs");
   progress.append(track);
   wrap.append(progress);
 
@@ -271,7 +321,9 @@ function renderMilestoneOverview(events: readonly GrowthEvent[], animationTasks:
     row.style.transform = "translateY(6px)";
     row.style.transition = prefersReducedMotion() ? "none" : "opacity 360ms ease, transform 360ms ease";
     appendText(row, "p", milestoneTitle(event), "font-semibold");
-    appendText(row, "p", event.text, "text-base-content/60");
+    appendText(row, "p", event.type === "badge_earned" && event.badgeId
+      ? badgeDescription(event.badgeId)
+      : event.text);
     wrap.append(row);
     animationTasks.push(() => {
       if (prefersReducedMotion()) {
@@ -289,25 +341,37 @@ function renderMilestoneOverview(events: readonly GrowthEvent[], animationTasks:
   return wrap;
 }
 
-function renderNamePrompt(petState: PetState): HTMLElement {
+function renderNamePrompt(handlers: PopupHandlers): HTMLElement {
   const form = document.createElement("form");
   form.className = "grid gap-2 rounded-box bg-base-200 p-3";
   appendText(form, "p", "이 고래를 뭐라고 부를까요?", "text-sm font-semibold");
   const input = document.createElement("input");
-  input.className = "input input-sm w-full";
+  input.className = "input min-h-10 w-full";
   input.placeholder = "미로";
+  input.maxLength = 24;
   const submit = document.createElement("button");
   submit.type = "submit";
-  submit.className = "btn btn-primary btn-sm";
+  submit.className = "btn btn-primary min-h-10";
   submit.textContent = "이름 붙이기";
   form.append(input, submit);
   form.addEventListener("submit", (event) => {
     event.preventDefault();
     const name = input.value.trim() || "미로";
-    void setTyped("sync", STORAGE_KEYS.sync.petState, { ...petState, name }).then(() => {
-      form.replaceChildren();
-      appendText(form, "p", `${name}와 함께 항해합니다.`, "text-sm font-semibold");
-    });
+    void handlers.setPetName(name)
+      .then(() => {
+        form.replaceChildren();
+        appendText(form, "p", `${name}와 함께 항해합니다.`, "text-sm font-semibold");
+      })
+      .catch((error: unknown) => {
+        const existingError = form.querySelector("[role='alert']");
+        existingError?.remove();
+        appendText(
+          form,
+          "p",
+          error instanceof Error ? error.message : "이름을 저장하지 못했습니다.",
+          "text-error text-sm"
+        ).setAttribute("role", "alert");
+      });
   });
   return form;
 }
@@ -316,31 +380,32 @@ function renderPetDetails(model: PopupModel): HTMLElement {
   const details = document.createElement("details");
   details.className = "collapse collapse-arrow border-t border-base-200";
   const summary = document.createElement("summary");
-  summary.className = "collapse-title min-h-10 text-sm font-semibold";
+  summary.className = "collapse-title min-h-10 text-sm font-semibold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary";
   summary.textContent = "성장 자세히 보기";
   const content = document.createElement("div");
   content.className = "collapse-content grid gap-3 text-sm";
 
   const progress = growthProgress(model.petState.xp, model.petState.stage);
-  appendText(content, "p", `누적 집중 ${model.petState.totalFocusMinutes}분 · ${model.petState.xp} XP`, "text-base-content/70");
+  appendText(content, "p", `누적 집중 ${model.petState.totalFocusMinutes}분 · ${model.petState.xp} XP`);
   if (progress.nextStageName) {
-    appendText(content, "p", `${progress.nextStageName}까지 ${progress.remainingXp} XP`, "text-base-content/70");
+    appendText(content, "p", `${progress.nextStageName}까지 ${progress.remainingXp} XP`);
     const bar = document.createElement("progress");
     bar.className = "progress progress-primary w-full";
     bar.max = 100;
     bar.value = progress.percentToNext;
     content.append(bar);
   } else {
-    appendText(content, "p", "지금은 가장 깊은 바다를 항해 중이에요.", "text-base-content/70");
+    appendText(content, "p", "지금은 가장 깊은 바다를 항해 중이에요.");
   }
-  appendText(content, "p", "고래는 아프거나 돌아가지 않아요.", "text-xs text-base-content/50");
+  appendText(content, "p", "보호막은 7일 연속 집중할 때 1개 충전되고, 하루를 놓치면 자동으로 1개 사용되어 이어온 기록을 지켜줘요. 최대 2개까지 모을 수 있어요.", "text-xs");
+  appendText(content, "p", "고래는 아프거나 돌아가지 않아요.", "text-xs");
 
   const recent = model.growthLog.slice(0, 3);
   if (recent.length > 0) {
     const list = document.createElement("ul");
     list.className = "grid gap-1";
     for (const event of recent) {
-      appendText(list, "li", event.text, "text-xs text-base-content/60");
+      appendText(list, "li", event.text, "text-xs");
     }
     content.append(list);
   }
@@ -357,7 +422,7 @@ function milestoneTitle(event: GrowthEvent): string {
     return "절반 지점";
   }
   if (event.type === "badge_earned") {
-    return "새 징표";
+    return event.badgeId ? `새 징표 · ${badgeName(event.badgeId)}` : "새 징표";
   }
   if (event.type === "freeze_granted") {
     return "보호막";
@@ -435,27 +500,31 @@ function renderActiveHero(root: HTMLElement, model: PopupModel): void {
   panel.className = "card fw-pet-hero shrink-0 border border-base-200 shadow-sm";
 
   const body = document.createElement("div");
-  body.className = "card-body grid grid-cols-[112px_1fr] items-center gap-3 p-4";
+  body.className = "card-body grid grid-cols-[80px_1fr] items-center gap-3 p-4";
 
   const progress = document.createElement("div");
-  progress.className = "radial-progress text-primary tabular-nums";
+  progress.id = "active-session-progress";
+  progress.className = "radial-progress text-primary tabular-nums [--size:4.5rem] [--thickness:0.35rem]";
   progress.style.setProperty("--value", String(progressValue(session)));
+  progress.setAttribute("aria-label", "세션 진행률");
+  progress.setAttribute("aria-valuemin", "0");
+  progress.setAttribute("aria-valuemax", "100");
   progress.setAttribute("aria-valuenow", String(progressValue(session)));
   progress.setAttribute("role", "progressbar");
   const petMount = document.createElement("div");
   petMount.className = "scale-75";
-  mountPet(petMount, model.petState, "idle");
+  mountPet(petMount, model.petState, "focus");
   progress.append(petMount);
   body.append(progress);
 
   const stats = document.createElement("div");
-  stats.className = "space-y-2";
+  stats.className = "min-w-0 space-y-1.5";
   const badges = document.createElement("div");
   badges.className = "flex flex-wrap gap-1.5";
   appendText(badges, "span", streakChipText(model), "badge badge-soft badge-primary shadow-sm");
-  appendText(badges, "span", session.intensity, "badge badge-soft shadow-sm");
+  appendText(badges, "span", intensityLabel(session.intensity), "badge badge-soft shadow-sm");
   stats.append(badges);
-  appendText(stats, "p", model.notice ?? `보호막 ${model.petState.streakFreezes}/2`, "text-sm text-base-content/70");
+  appendText(stats, "p", model.notice ?? `보호막 ${model.petState.streakFreezes}/2`, "text-xs leading-relaxed");
   body.append(stats);
   panel.append(body);
   root.append(panel);
@@ -472,9 +541,10 @@ function renderActiveSession(root: HTMLElement, model: PopupModel, handlers: Pop
   body.className = "card-body gap-5 p-4";
   const copy = document.createElement("div");
   copy.className = "space-y-2";
-  appendText(copy, "p", "진행 중", "text-sm font-semibold text-base-content/60");
-  appendText(copy, "h1", `남은 시간 ${formatRemaining(model.activeSession)}`, "text-4xl font-extrabold tabular-nums");
-  appendText(copy, "p", `현재 강도 ${model.activeSession.intensity}`, "text-sm text-base-content/60");
+  appendText(copy, "p", "진행 중", "text-sm font-semibold");
+  const remaining = appendText(copy, "h1", `남은 시간 ${formatRemaining(model.activeSession)}`, "break-words text-4xl font-extrabold tabular-nums");
+  remaining.id = "active-session-remaining";
+  appendText(copy, "p", `현재 설정 ${intensityLabel(model.activeSession.intensity)}`, "text-sm");
   body.append(copy);
 
   const upgrades = (["soft", "medium", "hard"] as Intensity[]).filter(
@@ -485,20 +555,79 @@ function renderActiveSession(root: HTMLElement, model: PopupModel, handlers: Pop
   actions.className = "space-y-2 border-t border-base-200 pt-4";
 
   if (upgrades.length === 0) {
-    appendText(actions, "p", "이미 가장 단단한 설정입니다.", "text-sm text-base-content/60");
+    appendText(actions, "p", "이미 가장 단단한 설정입니다.", "text-sm");
   } else {
-    appendText(actions, "p", "더 단단한 설정이 필요할 때만 상향합니다.", "text-sm text-base-content/60");
+    appendText(actions, "p", "더 단단한 설정이 필요할 때만 상향합니다.", "text-sm");
   }
 
   for (const intensity of upgrades) {
-    actions.append(createButton(`${intensity}로 상향`, "btn btn-soft btn-sm shadow-sm", () => {
+    actions.append(createButton(`${intensityLabel(intensity)}으로 상향`, "btn btn-soft min-h-10 shadow-sm", () => {
       void handlers.upgradeIntensity(intensity);
     }));
+  }
+
+  if (model.activeSession.intensity === "hard") {
+    renderHardEmergencyControls(actions, model, handlers);
   }
 
   body.append(actions);
   section.append(body);
   root.append(section);
+}
+
+function renderHardEmergencyControls(
+  container: HTMLElement,
+  model: PopupModel,
+  handlers: PopupHandlers,
+  confirming = false
+): void {
+  const session = model.activeSession;
+  if (!session || session.intensity !== "hard") {
+    return;
+  }
+
+  const pending = model.pendingEmergency?.sessionId === session.id ? model.pendingEmergency : null;
+  const wrap = document.createElement("div");
+  wrap.className = "grid gap-2 border-t border-base-200 pt-3";
+  if (pending) {
+    const notice = document.createElement("div");
+    notice.className = "alert alert-warning alert-soft text-sm shadow-none";
+    notice.setAttribute("role", "status");
+    appendText(notice, "span", "비상 종료 요청이 저장되었습니다.");
+    const remaining = appendText(wrap, "p", `종료까지 ${formatDeadline(pending.dueAt)}`, "text-sm font-semibold tabular-nums");
+    remaining.id = "popup-emergency-remaining";
+    wrap.prepend(notice);
+    container.append(wrap);
+    return;
+  }
+
+  if (!confirming) {
+    appendText(wrap, "p", "비상 종료는 5분 뒤 적용되며 이번 주 1회만 사용할 수 있습니다.", "text-xs");
+    wrap.append(createButton("비상 종료 요청", "btn btn-error btn-soft min-h-10 shadow-sm", () => {
+      renderHardEmergencyControls(container, model, handlers, true);
+      wrap.remove();
+    }));
+    container.append(wrap);
+    return;
+  }
+
+  const warning = document.createElement("div");
+  warning.className = "alert alert-warning alert-soft text-sm shadow-none";
+  warning.setAttribute("role", "note");
+  appendText(warning, "span", "한 번 더 누르면 5분 뒤 비상 종료가 예약됩니다.");
+  const buttons = document.createElement("div");
+  buttons.className = "flex flex-wrap gap-2";
+  const confirm = createButton("5분 뒤 종료 예약", "btn btn-error min-h-10 shadow-md", () => {
+    confirm.disabled = true;
+    confirm.textContent = "예약 중...";
+    void handlers.requestEmergencyEnd();
+  });
+  buttons.append(confirm, createButton("되돌아가기", "btn btn-soft min-h-10 shadow-sm", () => {
+    renderHardEmergencyControls(container, model, handlers, false);
+    wrap.remove();
+  }));
+  wrap.append(warning, buttons);
+  container.append(wrap);
 }
 
 function renderSessionForm(root: HTMLElement, model: PopupModel, selection: SelectionState, handlers: PopupHandlers): void {
@@ -512,13 +641,14 @@ function renderSessionForm(root: HTMLElement, model: PopupModel, selection: Sele
   const heading = document.createElement("div");
   heading.className = "space-y-2";
   appendText(heading, "h1", "집중 시작", "text-xl font-bold");
-  appendText(heading, "p", "오늘 한 번만 정하고 바로 들어갑니다.", "text-sm text-base-content/60");
+  appendText(heading, "p", "오늘 한 번만 정하고 바로 들어갑니다.", "text-sm");
   form.append(heading);
 
   const listLabel = appendText(form, "fieldset", "", "fieldset") as HTMLFieldSetElement;
   appendText(listLabel, "legend", "목록", "fieldset-legend");
   const listSelect = document.createElement("select");
   listSelect.name = "siteList";
+  listSelect.dataset.popupFocus = "site-list";
   listSelect.className = "select w-full";
   listSelect.setAttribute("aria-label", "목록");
   for (const siteList of model.siteLists) {
@@ -528,7 +658,7 @@ function renderSessionForm(root: HTMLElement, model: PopupModel, selection: Sele
     option.selected = siteList.id === selection.listId;
     listSelect.append(option);
   }
-  listSelect.addEventListener("change", () => handlers.updateSelection({ listId: listSelect.value }));
+  listSelect.addEventListener("change", () => handlers.updateSelection({ listId: listSelect.value }, true, "site-list"));
   listLabel.append(listSelect);
   form.append(listLabel);
 
@@ -543,11 +673,12 @@ function renderSessionForm(root: HTMLElement, model: PopupModel, selection: Sele
     const radio = document.createElement("input");
     radio.type = "radio";
     radio.name = "duration";
+    radio.dataset.popupFocus = `duration-${minutes}`;
     radio.className = "join-item btn flex-1";
     radio.setAttribute("aria-label", String(minutes));
     radio.checked = selection.durationMinutes === minutes && !selection.customMinutes;
     radio.addEventListener("change", () => {
-      handlers.updateSelection({ durationMinutes: minutes, customMinutes: "" });
+      handlers.updateSelection({ durationMinutes: minutes, customMinutes: "" }, true, `duration-${minutes}`);
     });
     durations.append(radio);
   }
@@ -557,7 +688,12 @@ function renderSessionForm(root: HTMLElement, model: PopupModel, selection: Sele
   const customDetails = document.createElement("details");
   customDetails.className = "collapse collapse-arrow bg-base-200";
   customDetails.open = Boolean(selection.customMinutes);
-  appendText(customDetails, "summary", "직접 입력", "collapse-title min-h-10 text-sm font-medium");
+  appendText(
+    customDetails,
+    "summary",
+    "직접 입력",
+    "collapse-title min-h-10 text-sm font-medium focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+  );
   const customContent = document.createElement("div");
   customContent.className = "collapse-content";
   const customInput = document.createElement("input");
@@ -566,14 +702,26 @@ function renderSessionForm(root: HTMLElement, model: PopupModel, selection: Sele
   customInput.max = "240";
   customInput.inputMode = "numeric";
   customInput.className = "input w-full";
+  customInput.setAttribute("aria-label", "직접 입력 시간(분)");
   customInput.value = selection.customMinutes;
   customInput.placeholder = "분";
   customInput.addEventListener("input", () => {
-    const parsed = Number(customInput.value);
+    const durationMinutes = coerceCustomDuration(customInput.value, selection.durationMinutes);
     handlers.updateSelection({
       customMinutes: customInput.value,
-      durationMinutes: Number.isFinite(parsed) && parsed > 0 ? Math.min(240, Math.round(parsed)) : selection.durationMinutes
-    });
+      durationMinutes
+    }, false);
+    const submit = form.querySelector<HTMLButtonElement>("[data-start-session]");
+    if (submit) {
+      submit.textContent = `${durationMinutes}분 시작`;
+    }
+  });
+  customInput.addEventListener("blur", () => {
+    if (customInput.value) {
+      const durationMinutes = coerceCustomDuration(customInput.value, selection.durationMinutes);
+      customInput.value = String(durationMinutes);
+      handlers.updateSelection({ customMinutes: customInput.value, durationMinutes }, false);
+    }
   });
   customContent.append(customInput);
   customDetails.append(customContent);
@@ -581,7 +729,7 @@ function renderSessionForm(root: HTMLElement, model: PopupModel, selection: Sele
 
   const intensityFieldset = document.createElement("fieldset");
   intensityFieldset.className = "fieldset";
-  appendText(intensityFieldset, "legend", "강도", "fieldset-legend");
+  appendText(intensityFieldset, "legend", "차단 방식", "fieldset-legend");
   const intensities = document.createElement("div");
   intensities.className = "join w-full";
   intensities.setAttribute("role", "group");
@@ -590,11 +738,12 @@ function renderSessionForm(root: HTMLElement, model: PopupModel, selection: Sele
     const radio = document.createElement("input");
     radio.type = "radio";
     radio.name = "intensity";
+    radio.dataset.popupFocus = `intensity-${intensity}`;
     radio.className = "join-item btn flex-1";
-    radio.setAttribute("aria-label", intensity);
+    radio.setAttribute("aria-label", intensityLabel(intensity));
     radio.checked = selection.intensity === intensity;
     radio.addEventListener("change", () => {
-      handlers.updateSelection({ intensity });
+      handlers.updateSelection({ intensity }, true, `intensity-${intensity}`);
     });
     intensities.append(radio);
   }
@@ -603,14 +752,15 @@ function renderSessionForm(root: HTMLElement, model: PopupModel, selection: Sele
 
   if (selection.intensity === "hard") {
     const hardNote = document.createElement("div");
-    hardNote.className = "alert alert-warning py-2 text-sm";
-    appendText(hardNote, "span", "hard는 종료까지 해제할 수 없습니다.");
+    hardNote.className = "rounded-box border border-base-300 bg-base-200 px-3 py-2 text-sm";
+    appendText(hardNote, "span", "비상 종료는 두 번 확인한 뒤 5분 후 적용되며, 주 1회 사용할 수 있습니다.");
     form.append(hardNote);
   }
 
   const submit = document.createElement("button");
   submit.type = "submit";
-  submit.className = "btn btn-primary mt-auto w-full shrink-0";
+  submit.dataset.startSession = "true";
+  submit.className = "btn btn-primary sticky bottom-0 z-10 mt-auto w-full shrink-0 shadow-lg";
   submit.textContent = `${selection.durationMinutes}분 시작`;
   form.append(submit);
   root.append(form);
@@ -618,95 +768,168 @@ function renderSessionForm(root: HTMLElement, model: PopupModel, selection: Sele
 
 export function renderPopup(root: HTMLElement, model: PopupModel, selection: SelectionState, handlers: PopupHandlers): void {
   root.replaceChildren();
-  root.className = "flex h-[580px] w-[360px] flex-col gap-3 bg-base-100 p-4 text-base-content shadow-xl";
+  root.className = "flex h-[580px] w-[360px] flex-col gap-3 overflow-y-auto bg-base-100 px-4 pb-4 text-base-content shadow-xl";
+  renderPopupHeader(root, handlers);
 
   if (model.activeSession?.status === "active") {
     renderActiveHero(root, model);
     renderActiveSession(root, model, handlers);
+  } else if (model.celebrations.length > 0) {
+    renderCelebrations(root, model, handlers);
   } else {
-    renderCelebrations(root, model);
     renderPetPanel(root, model);
     renderSessionForm(root, model, selection, handlers);
   }
 }
 
-async function getActiveSession(): Promise<Session | null> {
+export function clearPopupCelebrations(model: PopupModel): PopupModel {
+  return { ...model, celebrations: [] };
+}
+
+export function celebrationBatch(events: readonly GrowthEvent[]): GrowthEvent[] {
+  const sessionEvent = events.find((event) => event.type === "session_completed");
+  if (sessionEvent) {
+    return events.filter((event) => event.id === sessionEvent.id || (
+      Boolean(sessionEvent.sessionId) && event.sessionId === sessionEvent.sessionId
+    ));
+  }
+  return events.slice(0, 4);
+}
+
+export function mergePetNameSave(model: PopupModel, petState: PetState): PopupModel {
+  return { ...model, petState };
+}
+
+export async function dismissPopupCelebrations(
+  model: PopupModel,
+  acknowledge: (eventIds: readonly string[]) => Promise<void> = acknowledgePopupCelebrations
+): Promise<PopupModel> {
   try {
-    const response = await sendMessage({ type: "GET_STATE" });
-    return response.state.activeSession;
+    await acknowledge(model.celebrations.map((event) => event.id));
+    return clearPopupCelebrations({ ...model, celebrationAckError: undefined });
   } catch {
-    return (await getTyped("local", STORAGE_KEYS.local.activeSession)) ?? null;
+    return {
+      ...model,
+      celebrationAckError: "완료 기록을 저장하지 못했습니다. 연결을 확인한 뒤 다시 시도해 주세요."
+    };
   }
 }
 
-async function loadPopupModel(notice?: string): Promise<PopupModel> {
-  const settlement = await settleCompletedSessionXp();
-  const [storedSiteLists, sessionLog = [], streakLedgerValue] = await Promise.all([
-    getTyped("sync", STORAGE_KEYS.sync.siteLists),
-    getTyped("local", STORAGE_KEYS.local.sessionLog),
-    getTyped<StreakRecoveryState>("local", STREAK_LEDGER_KEY)
-  ]);
+export function mergeCelebrationDismissal(
+  current: PopupModel,
+  dismissedEventIds: readonly string[],
+  acknowledgementError?: string
+): PopupModel {
+  if (acknowledgementError) {
+    return { ...current, celebrationAckError: acknowledgementError };
+  }
 
+  const dismissed = new Set(dismissedEventIds);
+  return {
+    ...current,
+    celebrations: current.celebrations.filter((event) => !dismissed.has(event.id)),
+    celebrationAckError: undefined
+  };
+}
+
+export async function acknowledgePopupCelebrations(eventIds: readonly string[]): Promise<void> {
+  const response = await sendMessage({
+    type: "ACK_CELEBRATIONS",
+    payload: { eventIds: [...eventIds] }
+  });
+  assertOkResponse(response);
+}
+
+export function activeSessionClockSnapshot(session: Session, now = Date.now()): { remainingText: string; progress: number } {
+  return {
+    remainingText: `남은 시간 ${formatRemaining(session, now)}`,
+    progress: progressValue(session, now)
+  };
+}
+
+export function updateActiveSessionClock(root: HTMLElement, session: Session, now = Date.now()): void {
+  const snapshot = activeSessionClockSnapshot(session, now);
+  const remaining = root.querySelector<HTMLElement>("#active-session-remaining");
+  if (remaining) {
+    remaining.textContent = snapshot.remainingText;
+  }
+
+  const progress = root.querySelector<HTMLElement>("#active-session-progress");
+  if (progress) {
+    progress.style.setProperty("--value", String(snapshot.progress));
+    progress.setAttribute("aria-valuenow", String(snapshot.progress));
+  }
+}
+
+export function updatePendingEmergencyClock(
+  root: HTMLElement,
+  pendingEmergency: FocusWhaleState["pendingEmergency"],
+  now = Date.now()
+): void {
+  const remaining = root.querySelector<HTMLElement>("#popup-emergency-remaining");
+  if (remaining && pendingEmergency) {
+    remaining.textContent = `종료까지 ${formatDeadline(pendingEmergency.dueAt, now)}`;
+  }
+}
+
+async function getRuntimeState(): Promise<FocusWhaleState> {
+  try {
+    const response = await sendMessage({ type: "GET_STATE" });
+    if (!response.ok) {
+      throw new Error(response.error);
+    }
+    return response.state;
+  } catch {
+    const [activeSession, pendingEmergency] = await Promise.all([
+      getTyped("local", STORAGE_KEYS.local.activeSession),
+      getTyped<FocusWhaleState["pendingEmergency"]>("local", "pendingEmergency")
+    ]);
+    return fallbackRuntimeState(activeSession ?? null, pendingEmergency ?? null);
+  }
+}
+
+export function fallbackRuntimeState(
+  activeSession: Session | null,
+  pendingEmergency: FocusWhaleState["pendingEmergency"],
+  now = Date.now()
+): FocusWhaleState {
+  const running = activeSession?.status === "active" && activeSession.endsAt > now
+    ? activeSession
+    : null;
+  const pending = running && pendingEmergency?.sessionId === running.id
+    ? pendingEmergency
+    : null;
+  return { activeSession: running, pendingEmergency: pending };
+}
+
+export async function loadPopupModel(notice?: string): Promise<PopupModel> {
+  const storedSiteLists = await getTyped("sync", STORAGE_KEYS.sync.siteLists);
   const migration = migrateSiteListsForCurrentDefaults(storedSiteLists);
   const siteLists = migration.siteLists;
   if (migration.changed) {
     await setTyped("sync", STORAGE_KEYS.sync.siteLists, siteLists);
   }
-  const streakResult = reconcileStreakFromSessions(settlement.petState, sessionLog, {
-    now: new Date(),
-    recovery: streakLedgerValue
-  });
-  const beforeBadges = new Set(streakResult.state.badges);
-  const petState = awardBadges(streakResult.state, sessionLog, siteLists, {
-    comebackEligible: streakResult.streakRestored,
-    now: Date.now()
-  });
-  const normalizedPetState = normalizePetState(petState);
-  const growthEvents: GrowthEvent[] = [];
-  const now = Date.now();
 
-  if (streakResult.freezeAwarded) {
-    growthEvents.push(createGrowthEvent("freeze_granted", now, {}));
+  // GET_STATE may finalize a session whose alarm was missed while the browser
+  // slept. Reconcile rewards and read celebrations only after that durable
+  // finalization, otherwise the first popup can miss the completion overview.
+  const runtimeState = await getRuntimeState();
+  const petResponse = await sendMessage({ type: "RECONCILE_PET" });
+  if (!petResponse.ok) {
+    throw new Error(petResponse.error);
   }
-  if (streakResult.freezeConsumed) {
-    growthEvents.push(createGrowthEvent("freeze_used", now, {}));
-  }
-  if (streakResult.restStarted) {
-    growthEvents.push(createGrowthEvent("streak_rest", now, { streakFrom: streakResult.recovery.previousStreakDays }));
-  }
-  if (streakResult.streakRestored) {
-    growthEvents.push(createGrowthEvent("streak_restored", now, {
-      streakFrom: streakLedgerValue?.previousStreakDays,
-      streakTo: normalizedPetState.streakDays
-    }));
-  }
-  if (streakResult.freshStarted) {
-    growthEvents.push(createGrowthEvent("streak_fresh_start", now, {}));
-  }
-
-  for (const badge of normalizedPetState.badges) {
-    if (!beforeBadges.has(badge)) {
-      growthEvents.push(createGrowthEvent("badge_earned", normalizedPetState.badgeAwards[badge]?.earnedAt ?? now, { badgeId: badge }));
-    }
-  }
-
-  await appendGrowthEvents(growthEvents, true);
-
-  await Promise.all([
-    setTyped("sync", STORAGE_KEYS.sync.petState, normalizedPetState),
-    setTyped<StreakRecoveryState>("local", STREAK_LEDGER_KEY, streakResult.recovery)
-  ]);
   const [celebrations, growthLog] = await Promise.all([
-    drainPendingCelebrations(),
+    readPendingCelebrations(),
     readGrowthLog(10)
   ]);
 
   return {
-    petState: normalizedPetState,
-    activeSession: await getActiveSession(),
+    petState: petResponse.pet.petState,
+    activeSession: runtimeState.activeSession,
+    pendingEmergency: runtimeState.pendingEmergency,
     siteLists,
-    awardedXp: settlement.awardedXp,
-    streakStatus: streakResult.status,
+    awardedXp: petResponse.pet.awardedXp,
+    streakStatus: petResponse.pet.streakStatus,
     celebrations,
     growthLog,
     notice
@@ -726,6 +949,7 @@ function coerceSelection(selection: SelectionState, siteLists: SiteList[]): Sele
 
 export async function bootstrapPopup(root: HTMLElement): Promise<void> {
   let model = await loadPopupModel();
+  const modelLoads = new LatestRequestGuard();
   let selection: SelectionState = coerceSelection({
     listId: model.siteLists[0]?.id ?? DEFAULT_SITE_LISTS[0].id,
     durationMinutes: 25,
@@ -733,13 +957,27 @@ export async function bootstrapPopup(root: HTMLElement): Promise<void> {
     intensity: "medium"
   }, model.siteLists);
 
-  const rerender = () => {
+  const reloadModel = async (notice?: string): Promise<boolean> => {
+    const token = modelLoads.begin();
+    const nextModel = await loadPopupModel(notice);
+    if (!modelLoads.isCurrent(token)) {
+      return false;
+    }
+    model = nextModel;
+    return true;
+  };
+
+  const rerender = (focusKey?: string) => {
+    const scrollTop = root.scrollTop;
     renderPopup(root, model, selection, {
-      updateSelection: (patch) => {
+      updateSelection: (patch, shouldRerender = true, nextFocusKey) => {
         selection = coerceSelection({ ...selection, ...patch }, model.siteLists);
-        rerender();
+        if (shouldRerender) {
+          rerender(nextFocusKey);
+        }
       },
       startSession: async () => {
+        let applied = false;
         try {
           const response = await sendMessage({
             type: "START_SESSION",
@@ -751,45 +989,109 @@ export async function bootstrapPopup(root: HTMLElement): Promise<void> {
             }
           });
           assertOkResponse(response);
-          model = await loadPopupModel("세션을 시작했습니다.");
+          applied = await reloadModel("세션을 시작했습니다.");
         } catch (error) {
-          model = await loadPopupModel(error instanceof Error ? error.message : "세션을 시작하지 못했습니다.");
+          applied = await reloadModel(error instanceof Error ? error.message : "세션을 시작하지 못했습니다.");
         }
-        rerender();
+        if (applied) {
+          rerender();
+        }
       },
       upgradeIntensity: async (intensity) => {
         if (!model.activeSession || INTENSITY_ORDER[intensity] <= INTENSITY_ORDER[model.activeSession.intensity]) {
           return;
         }
 
-        const remaining = Math.max(1, minutesRemaining(model.activeSession));
+        let applied = false;
         try {
           const response = await sendMessage({
-            type: "START_SESSION",
-            payload: {
-              listId: model.activeSession.listId,
-              intensity,
-              durationMinutes: remaining,
-              source: model.activeSession.source
-            }
+            type: "UPGRADE_SESSION_INTENSITY",
+            payload: { intensity }
           });
           assertOkResponse(response);
-          model = await loadPopupModel("강도를 상향했습니다.");
+          applied = await reloadModel("차단 방식을 강화했습니다.");
         } catch (error) {
-          model = await loadPopupModel(error instanceof Error ? error.message : "강도를 상향하지 못했습니다.");
+          applied = await reloadModel(error instanceof Error ? error.message : "차단 방식을 강화하지 못했습니다.");
         }
+        if (applied) {
+          rerender();
+        }
+      },
+      dismissCelebrations: async (eventIds) => {
+        const dismissedEventIds = [...eventIds];
+        const selected = new Set(dismissedEventIds);
+        const result = await dismissPopupCelebrations({
+          ...model,
+          celebrations: model.celebrations.filter((event) => selected.has(event.id))
+        });
+        model = mergeCelebrationDismissal(model, dismissedEventIds, result.celebrationAckError);
         rerender();
+      },
+      setPetName: async (name) => {
+        const response = await sendMessage({ type: "SET_PET_NAME", payload: { name } });
+        if (!response.ok) {
+          throw new Error(response.error);
+        }
+        model = mergePetNameSave(model, response.petState);
+      },
+      requestEmergencyEnd: async () => {
+        let applied = false;
+        try {
+          const response = await sendMessage({ type: "END_SESSION", payload: { reason: "emergency" } });
+          if (!response.ok) {
+            throw new Error(response.error);
+          }
+          applied = await reloadModel("비상 종료 요청을 저장했습니다.");
+        } catch (error) {
+          applied = await reloadModel(error instanceof Error ? error.message : "비상 종료 요청을 저장하지 못했습니다.");
+        }
+        if (applied) {
+          rerender();
+        }
+      },
+      openOptions: () => {
+        void chrome.runtime.openOptionsPage();
       }
     });
+    root.scrollTop = scrollTop;
+    if (focusKey) {
+      root.querySelector<HTMLElement>(`[data-popup-focus="${focusKey}"]`)?.focus({ preventScroll: true });
+    }
   };
 
   rerender();
-  window.setInterval(async () => {
+  window.setInterval(() => {
     if (model.activeSession?.status === "active") {
-      model = await loadPopupModel(model.notice);
-      rerender();
+      updateActiveSessionClock(root, model.activeSession);
+      updatePendingEmergencyClock(root, model.pendingEmergency);
     }
-  }, 30_000);
+  }, 1_000);
+
+  chrome.storage.onChanged.addListener((changes, areaName) => {
+    const relevantChange = (
+      areaName === "local"
+      && (hasOwn(changes, STORAGE_KEYS.local.activeSession) || hasOwn(changes, "pendingEmergency"))
+    ) || (
+      areaName === "sync"
+      && (hasOwn(changes, STORAGE_KEYS.sync.siteLists) || hasOwn(changes, STORAGE_KEYS.sync.petState))
+    );
+    if (relevantChange) {
+      const focusKey = document.activeElement instanceof HTMLElement && root.contains(document.activeElement)
+        ? document.activeElement.dataset.popupFocus
+        : undefined;
+      void reloadModel(model.notice).then((applied) => {
+        if (applied) {
+          rerender(focusKey);
+        }
+      }).catch((error: unknown) => {
+        model = {
+          ...model,
+          notice: error instanceof Error ? error.message : "세션 상태를 새로고침하지 못했습니다."
+        };
+        rerender(focusKey);
+      });
+    }
+  });
 }
 
 export function renderPopupPreview(root: HTMLElement, petState: PetState, siteLists: SiteList[], sessionLog: Session[]): void {
@@ -797,6 +1099,7 @@ export function renderPopupPreview(root: HTMLElement, petState: PetState, siteLi
   const previewModel: PopupModel = {
     petState: awardBadges(streak.state, sessionLog, siteLists),
     activeSession: null,
+    pendingEmergency: null,
     siteLists,
     awardedXp: 36,
     streakStatus: streak.status,
@@ -813,7 +1116,11 @@ export function renderPopupPreview(root: HTMLElement, petState: PetState, siteLi
   const noopHandlers: PopupHandlers = {
     updateSelection: () => undefined,
     startSession: async () => undefined,
-    upgradeIntensity: async () => undefined
+    upgradeIntensity: async () => undefined,
+    dismissCelebrations: async () => undefined,
+    setPetName: async () => undefined,
+    requestEmergencyEnd: async () => undefined,
+    openOptions: () => undefined
   };
 
   renderPopup(root, previewModel, previewSelection, noopHandlers);
@@ -821,7 +1128,7 @@ export function renderPopupPreview(root: HTMLElement, petState: PetState, siteLi
 
 function assertOkResponse(response: unknown): void {
   if (!response || typeof response !== "object" || !("ok" in response)) {
-    return;
+    throw new Error("백그라운드 응답을 확인하지 못했습니다.");
   }
 
   const candidate = response as { ok: boolean; error?: string };
@@ -830,7 +1137,11 @@ function assertOkResponse(response: unknown): void {
   }
 }
 
-const root = document.querySelector<HTMLElement>("#app");
+function hasOwn(value: object, key: PropertyKey): boolean {
+  return Object.prototype.hasOwnProperty.call(value, key);
+}
+
+const root = typeof document === "undefined" ? null : document.querySelector<HTMLElement>("#app");
 if (root && document.body.dataset.page === "focuswhale-popup") {
   void bootstrapPopup(root).catch((error: unknown) => {
     root.textContent = error instanceof Error ? error.message : "Popup failed to load.";

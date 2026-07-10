@@ -1,10 +1,13 @@
 {
   "name": "focuswhale",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "vite build",
+    "build": "npm run build:extension && npm run build:content && npm run verify:build",
+    "build:extension": "vite build",
+    "build:content": "vite build --config vite.content.config.ts",
+    "verify:build": "node scripts/verify-build.mjs",
     "typecheck": "tsc --noEmit",
     "test": "vitest run"
   },
