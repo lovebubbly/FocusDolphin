@@ -8,7 +8,7 @@ The product is deliberately non-punitive: users choose the intensity, the hard-m
 
 The current source and production build identify as **version 1.0.0**. This is a local release candidate, not a claim of store publication.
 
-Verified on the 2026-07-11 01:33 KST release-candidate tree:
+Verified on the 2026-07-11 02:29 KST release-candidate tree:
 
 - `npm run typecheck`: pass.
 - `npm test`: pass, **30 test files / 196 tests**.
@@ -18,13 +18,13 @@ Verified on the 2026-07-11 01:33 KST release-candidate tree:
 - Manifest web-accessible resources: exactly four allowlisted files.
 - Pretendard Variable and its SIL Open Font License are packaged locally.
 
-The rebuilt bundle passed the isolated Whale 4.38 core matrix for soft, medium, hard, popup emergency, Options, all 20 pet states, adversarial `x.com.`, pre-deadline browser-process restart continuity, and clean-profile extracted-archive loading. Exact headed Whale checks additionally passed completion dismissal across list rerenders, blank-intent rejection, Options keyboard/modal focus, normal and reduced-motion completion, and a 13-state visual matrix with 68 contrast checks (minimum 4.94:1), 40 px minimum targets, 19 screenshots, and no page errors. Headed Chrome for Testing 147 accepted the real optional-history prompt, showed controlled domain-only results with extension URLs excluded, revoked the permission, and then started a medium session successfully. See [QA.md](QA.md) for the exact evidence boundary.
+The rebuilt bundle passed the isolated Whale 4.38 core matrix for soft, medium, hard, popup emergency, Options, all 20 pet states, adversarial `x.com.`, pre-deadline and overdue browser-process restart, simultaneous natural/emergency alarms, active-session sync restoration, next-occurrence schedule recovery, and clean-profile extracted-archive loading. Exact headed Whale checks additionally passed completion dismissal across list rerenders, blank-intent rejection, Options keyboard/modal focus, normal and reduced-motion completion, and a 13-state visual matrix with 68 contrast checks (minimum 4.94:1), 40 px minimum targets, 19 screenshots, and no page errors. Explicitly labeled instrumented exact-build checks replaced the MV3 worker at both durable journal boundaries and held a history callback for five seconds while the due session was first observed complete 23 ms after its deadline and a later local clear rejected the stale result. Headed Chrome for Testing 147 accepted the real optional-history prompt, showed controlled domain-only results with extension URLs excluded, revoked the permission, and then started a medium session successfully. See [QA.md](QA.md) for the exact evidence boundary.
 
 Still pending before publication:
 
-- Exercise restart after a session is already overdue and destructive interruption during each recovery journal.
 - Prepare store listing assets/metadata, permission justifications, reviewer notes, and submission materials.
 - Commit and verify the intended public privacy-policy URL; GitHub Issues is already selected as the support/privacy channel.
+- Record product-owner approval and complete the selected store's submission/review process.
 
 Goal 5 opt-in LLM analysis remains intentionally out of scope and is not a v1.0.0 publication blocker.
 
@@ -160,6 +160,7 @@ The live Whale development extension used for final-candidate checks had ID `ojo
 - [RELEASE_CHECKLIST.md](RELEASE_CHECKLIST.md): publication gate and remaining work.
 - [docs/SOL_HANDOFF.md](docs/SOL_HANDOFF.md): architecture, risk, and successor handoff.
 - [docs/NOTION_ISSUE_TRIAGE.md](docs/NOTION_ISSUE_TRIAGE.md): current resolution of the Notion issue list.
+- [docs/TECHNICAL_QA_EVIDENCE_2026-07-11.md](docs/TECHNICAL_QA_EVIDENCE_2026-07-11.md): sanitized exact-build alarm, restart, history-concurrency, and recovery-journal evidence.
 - [DECISIONS.md](DECISIONS.md): durable product and engineering decisions.
 - [CHANGELOG.md](CHANGELOG.md): v1.0.0 release-candidate changes.
 
@@ -172,6 +173,6 @@ No top-level open-source license has been selected. Pretendard remains under SIL
 ## Documentation Provenance
 
 - Product owner and repository maintainer: **Choi Yunseong (최윤성)** (`Yunseong Choi` in Git history).
-- This release/handoff refresh was prepared by **OpenAI Codex (GPT-5)**, at Choi Yunseong's request on **2026-07-11 01:33 KST**.
-- Evidence comes from the local repository, current automated gates, and exact-build disposable-profile browser runs recorded in `QA.md`; remaining recovery, owner, and publication checks are labeled explicitly.
+- This release/handoff refresh was prepared by **OpenAI Codex (GPT-5)**, at Choi Yunseong's request and last refreshed on **2026-07-11 02:29 KST**.
+- Evidence comes from the local repository, current automated gates, and exact-build disposable-profile browser runs recorded in `QA.md`; owner and publication checks remain labeled explicitly.
 - Code authorship remains defined by Git history. Documentation attribution does not imply product-owner approval of every Codex assessment.

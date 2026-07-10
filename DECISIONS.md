@@ -1,6 +1,6 @@
 # FocusWhale Decisions
 
-Last refreshed: **2026-07-11 01:43 KST** by **OpenAI Codex (GPT-5)**, for requester and product owner **Choi Yunseong (최윤성)**.
+Last refreshed: **2026-07-11 02:29 KST** by **OpenAI Codex (GPT-5)**, for requester and product owner **Choi Yunseong (최윤성)**.
 
 This file records durable choices that are easy to accidentally undo. New undocumented choices should be added here with rationale.
 
@@ -150,6 +150,12 @@ This file records durable choices that are easy to accidentally undo. New undocu
 
 ## D-025: Measured Accessibility Overrides Theme Defaults
 
-**Decision:** Small semantic labels use the full theme content token, the initial hard-emergency soft button keeps its error tint with readable content text, and every disclosure summary has a theme-primary two-pixel `focus-visible` outline with a two-pixel offset.
+**Decision:** Small semantic labels use the full theme content token, the initial hard-emergency soft button keeps its error tint with readable content text, and every disclosure summary has a theme-primary two-pixel `focus-visible` treatment with a two-pixel offset.
 
 **Why:** The headed matrix measured the default small-label contrast at 4.22:1 and the initial emergency action at 4.11:1, while disclosure summaries had no visible ring. The corrected exact build passes 68 contrast checks with a 4.94:1 minimum and exposes visible focus on all seven popup keyboard stops.
+
+## D-026: Disclose Instrumented Exact-Build Evidence
+
+**Decision:** Use `INSTRUMENTED EXACT BUILD` only when the unchanged production bundle runs in a disposable browser profile while CDP supplies deterministic platform responses/latency or terminates the worker at a reviewed compiled-code boundary. Record the instrumentation, loaded-bundle fingerprint, durable pre-interruption state, worker replacement evidence, and post-recovery invariants. Never relabel that result as an unmodified headed user flow.
+
+**Why:** Real browser APIs do not offer a reliable user-facing control for pausing a history callback or killing an MV3 worker between two adjacent durable writes. Deterministic runtime fault injection can prove queue and journal behavior against the shipped bundle, but only if its boundary remains explicit and auditable.

@@ -6,7 +6,7 @@
 > - Product owner: **Choi Yunseong (최윤성)**
 > - Prepared by: **OpenAI Codex, GPT-5 coding agent**
 > - Original triage: **2026-07-09 21:14:34 KST**
-> - Current release-candidate refresh: **2026-07-11 01:33 KST**
+> - Current release-candidate refresh: **2026-07-11 02:29 KST**
 > - This document records repository evidence; it does not claim that the Notion page was edited, that the owner approved the result, or that a store release exists
 
 ## Status Vocabulary
@@ -14,11 +14,12 @@
 - **Implemented**: code exists in the current working tree.
 - **Automated pass**: typecheck/test/build or targeted validation covers the behavior.
 - **Live exact pass**: exercised in Whale after rebuilding and loading the exact current `dist/`.
+- **Instrumented exact pass**: the exact current bundle ran with disclosed CDP latency or worker-boundary fault injection; repository files and loaded assets were unchanged.
 - **Live prior-candidate pass**: exercised in Whale before the final durability fixes and rebuild.
 - **Pending live**: not re-run against the exact final binary.
 - **Deferred**: intentionally outside v1.0.0.
 
-Automated baseline: typecheck pass, build/verification pass, 30 test files / 196 tests pass. The classic content IIFE is 116,276 bytes. Core issue paths have exact-build Whale evidence; headed Whale and Chrome-for-Testing checks now cover the previously open usability, accessibility, and real optional-history paths. Remaining recovery and publication boundaries are explicit below and in `QA.md`.
+Automated baseline: typecheck pass, build/verification pass, 30 test files / 196 tests pass. The classic content IIFE is 116,276 bytes. Core issue paths have exact-build Whale evidence; headed Whale and Chrome-for-Testing checks cover usability, accessibility, and the real optional-history path. The overdue-restart, alarm/lock/schedule, history-concurrency, and recovery-journal rows are also closed at their disclosed exact-build evidence levels. Remaining owner and publication boundaries are explicit below and in `QA.md`.
 
 ## Resolution Table
 
@@ -38,7 +39,7 @@ Automated baseline: typecheck pass, build/verification pass, 30 test files / 196
 | 12 | Mobile version is weak | Deferred | Out of scope | Separate Android/SNSLOCK plan |
 | 13 | Sprite variety is missing | Four moods, five stages, eighty frames | Exact-final 20-state matrix | None |
 | 14 | `x.com` does not block | Alias expansion and regex DNR redirect | Exact-final adversarial Whale pass; Chrome for Testing core pass | Consumer Chrome installed-profile spot check only |
-| 15 | Options remains editable during a session | UI lock plus SW snapshot/revert | Exact-final visible lock/restart/runtime rejection | Full protected-field manual spot check |
+| 15 | Options remains editable during a session | UI lock plus SW snapshot/revert | Exact-final direct deletion/replacement of settings, lists, and schedules while active | None |
 
 ## 1. Blocked UI
 
@@ -193,9 +194,9 @@ The polish pass also closed issues that were not purely visual:
 
 ## Done Boundary
 
-Implementation/automated work is at release-candidate level, but publication is not done until:
+Implementation and technical exact-build QA are at release-candidate level, but publication is not done until:
 
-- every blocking pending row in `QA.md` is run on the latest rebuilt binary;
+- technical evidence remains green if the binary changes;
 - the reconciled privacy policy is committed and verified at its intended public URL; GitHub Issues is the selected contact channel;
 - final secret/privacy/archive scans pass;
 - the existing release ZIP is loaded in a clean profile and listing/reviewer materials are prepared and tested;

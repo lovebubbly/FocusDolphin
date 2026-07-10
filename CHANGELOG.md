@@ -1,6 +1,6 @@
 # Changelog
 
-Documentation refresh: **OpenAI Codex (GPT-5)** for product owner **Choi Yunseong (최윤성)**, **2026-07-11 01:33 KST**.
+Documentation refresh: **OpenAI Codex (GPT-5)** for product owner **Choi Yunseong (최윤성)**, **2026-07-11 02:29 KST**.
 
 All notable FocusWhale changes are documented here. The project has not yet recorded a public store release.
 
@@ -86,7 +86,8 @@ All notable FocusWhale changes are documented here. The project has not yet reco
 - No source maps or unexpected external URLs in the final bundle.
 - Exact four-resource WAR allowlist.
 - Release ZIP: 2,693,022 bytes, SHA-256 `4d766244997647161b63a6d7f5018970e5ab7df94a99af82cecfd6aa7469af0f`; checksum passes; 32 entries / 24 files extract byte-equal to `dist/`; token/path/email scan has no findings.
-- Exact-final Whale 4.38 passes cover soft, medium, hard, popup emergency, Options, all 20 pet states, adversarial `x.com.`, and pre-deadline browser-process restart continuity. Restart after an already-overdue deadline and destructive recovery-journal fault injection remain open.
+- Exact-final Whale 4.38 passes cover soft, medium, hard, popup emergency, Options, all 20 pet states, adversarial `x.com.`, pre-deadline and overdue browser-process restart, the natural/emergency alarm race, all protected sync fields, and next-occurrence schedule recovery.
+- Instrumented exact-build passes cover a five-second history callback concurrent with a due alarm/local clear and worker replacement at both durable recovery-journal boundaries. The loaded worker hash stayed `f3884cdd70e425b5cb6f061b98c0f4f3acddcf300fbd69c8513fd144fc53d0ad`; each recovery settled exactly once.
 - Chrome for Testing 147 passes the exact-final soft and medium cross-browser paths.
 - Headed Whale exact-build checks pass list-rerender dismissal, blank-intent rejection, Options keyboard/modal focus, normal and reduced completion motion, 13 visual states, 68 contrast checks with a 4.94:1 minimum, 40 px minimum inspected targets, 19 screenshots, and zero page errors.
 - Headed Chrome for Testing 147 accepts the real optional-history prompt, renders controlled domain-only results with extension URLs excluded, revokes permission, and starts a medium session afterward.

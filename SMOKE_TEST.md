@@ -1,6 +1,6 @@
 # FocusWhale Smoke Test
 
-Documentation refresh: **OpenAI Codex (GPT-5)** for product owner **Choi Yunseong (최윤성)**, **2026-07-11 01:33 KST**.
+Documentation refresh: **OpenAI Codex (GPT-5)** for product owner **Choi Yunseong (최윤성)**, **2026-07-11 02:29 KST**.
 
 Use a dedicated Naver Whale or Chromium profile with the freshly built `dist/` loaded unpacked. Do not reuse stale build output.
 
@@ -148,12 +148,15 @@ Headless and headed checks used isolated disposable profiles. Naver Whale 4.38 /
 - PASS: headed Whale verified Options keyboard tabs/modal focus, blank-intent rejection after the real 30-second friction, completion acknowledgement followed by list rerender, and normal/reduced post-session XP/progress animation.
 - PASS: headed Whale covered 13 light/dark/reduced-motion surface states, 68 measured contrast checks (minimum 4.94:1), all effective targets at least 40px, visible focus rings, no overflow, 19 screenshots, and zero page errors.
 - PASS: headed Chrome for Testing displayed and accepted the real `history` permission sheet, retained domain-only controlled results, excluded extension URLs/path/query/title/timestamps, revoked permission, and started a medium session afterward.
+- PASS: visible Whale ran the simultaneous natural/emergency deadline, restored direct deletion/replacement of settings/lists/schedules, and started the next eligible occurrence after expired suppression with its exact alarms and DNR.
+- PASS: a visible Whale process stopped before a shortened deadline, restarted only after it was overdue, finalized once, and remained unchanged across a second restart; three distinct PIDs loaded identical bundle hashes.
+- PASS: instrumented exact-build history stress kept a five-second callback pending while the due session was first observed complete at +23 ms; a successful local clear then rejected the stale result without restoring recommendations.
+- PASS: instrumented exact-build worker replacement at the durable session-finalization and pet-settlement journal boundaries recovered one log, one stats credit, one settlement, one growth event, and one XP delta, with no remaining journal/rule/alarm.
 
 Remaining evidence boundary:
 
-- Restarting only after a session is already overdue and destructive interruption injection for both recovery journals remain pending.
-- The live natural-completion/emergency-alarm race, active locked-field restoration, and next eligible schedule occurrence remain automated-only evidence in `QA.md`.
-- Consumer Google Chrome 148 rejects command-line unpacked-extension loading before FocusWhale runs; Chrome for Testing is the supported headless cross-check channel.
-- Product-owner reward/visual judgment and publication sign-off are not recorded.
+- Every technical exact-build row in `QA.md` is now checked. The history-latency and worker-interruption rows are explicitly instrumented evidence rather than unmodified user-flow evidence.
+- Consumer Google Chrome 148 rejects command-line unpacked-extension loading before FocusWhale runs; Chrome for Testing remains the supported disposable-profile cross-check channel.
+- Product-owner reward/visual judgment, public privacy/store metadata, and publication sign-off are not recorded.
 
-Track the remaining recovery and owner/publication rows in [QA.md](QA.md). Do not infer them from unrelated green checks.
+Track owner/publication work in [QA.md](QA.md) and [RELEASE_CHECKLIST.md](RELEASE_CHECKLIST.md). Do not infer approval or publication from technical green checks.

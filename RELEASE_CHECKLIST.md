@@ -1,6 +1,6 @@
 # FocusWhale v1.0.0 Release Checklist
 
-Last refreshed: **2026-07-11 01:43 KST** by **OpenAI Codex (GPT-5)**, for requester and product owner **Choi Yunseong (최윤성)**.
+Last refreshed: **2026-07-11 02:29 KST** by **OpenAI Codex (GPT-5)**, for requester and product owner **Choi Yunseong (최윤성)**.
 
 The source version is 1.0.0, but this checklist is the publication gate. Unchecked blocking rows mean the product is not ready to submit.
 
@@ -34,15 +34,20 @@ The source version is 1.0.0, but this checklist is the publication gate. Uncheck
 - [x] Full soft overlay flow on a real host page. **Whale and Chrome for Testing exact-final pass**
 - [x] Pet name persistence across popup/options/browser restart. **Headless exact-final pass**
 - [x] Optional history grant/analyze/revoke, domain-only output, extension-URL exclusion, and post-revoke core use. **Headed Chrome for Testing 147 exact-build pass**
-- [ ] Long history analysis does not delay session completion, and a successful local clear invalidates an older in-flight result. **Automated current; headed stress check pending**
+- [x] Long history analysis does not delay session completion, and a successful local clear invalidates an older in-flight result. **Instrumented exact-build pass: five-second callback remained pending, session first observed complete at +23 ms, clear invalidated the stale commit**
 - [x] Local-data clear when idle and rejection while active. **Headless exact-final pass**
-- [x] Restart before `endsAt` preserves the active session, rules, alarm, name, and lock across a real browser PID change. **Headless exact-build pass; overdue-at-start restart and fault injection remain open in `QA.md`**
+- [x] Restart before `endsAt` preserves the active session, rules, alarm, name, and lock across a real browser PID change. **Headless exact-build pass**
+- [x] Restart only after `endsAt` and verify exactly-once completion across another restart. **Headed exact-build pass: three distinct Whale PIDs, one log/stats/XP/growth settlement, zero residual rules/alarms/journals**
+- [x] Replace the MV3 worker at the durable session-finalization and pet-settlement journal boundaries. **Instrumented exact-build pass: both worker runtimes replaced; each recovered exactly once under repeated reconciliation**
+- [x] Race the natural and emergency alarms at the same deadline. **Headed exact-build pass: natural completion won exactly once**
+- [x] Delete and replace every protected sync collection during an active session. **Headed exact-build pass: settings, lists, and schedules restored without losing session/rules/alarm**
+- [x] Expire a prior schedule suppression and start the next eligible occurrence. **Headed exact-build pass: exact window deadline, DNR, session alarm, and reconcile alarm**
 - [x] Light/dark visual and contrast matrix. **Headed Whale exact-build pass: 13 states, 68 contrast checks, minimum 4.94:1, 19 screenshots, no page errors**
 - [x] Reduced-motion matrix for overlay, all 20 pet states, and completion. **Headless/headed exact-build pass**
 - [x] All five stages x four moods in installed extension. **20 sprites / 20 atlas rows**
 - [x] Chrome cross-check for core redirect/overlay behavior. **Chrome for Testing 147 exact-final soft/medium pass**
 
-The core matrix passed in Whale. The exact headed pass additionally covered list-rerender dismissal, blank intent, Options keyboard/modal focus, normal/reduced completion motion, and the full visual/accessibility sweep. Chrome for Testing 147 accepted the real optional-history prompt and passed grant/results/revoke/post-revoke core use. Stock Google Chrome 148 rejects command-line unpacked extensions before FocusWhale runs, so it is not counted as an application failure or pass. Local screenshots were used for visual assertions; no recording or external upload occurred.
+The core matrix passed in Whale. The exact headed pass additionally covered list-rerender dismissal, blank intent, Options keyboard/modal focus, normal/reduced completion motion, the full visual/accessibility sweep, alarm/schedule/lock recovery, and overdue browser restart. Instrumented exact-build checks used deterministic in-memory history latency and debugger-controlled worker replacement without changing repository files or the loaded bundle. Chrome for Testing 147 accepted the real optional-history prompt and passed grant/results/revoke/post-revoke core use. Stock Google Chrome 148 rejects command-line unpacked extensions before FocusWhale runs, so it is not counted as an application failure or pass. Local screenshots were used for visual assertions; no recording or external upload occurred.
 
 ## Privacy And Security
 
@@ -95,4 +100,4 @@ The core matrix passed in Whale. The exact headed pass additionally covered list
 
 ## Current Decision
 
-**Not ready for store submission yet.** Automated gates, headed usability/accessibility/history checks, the core browser matrix, the clean-profile extracted-archive smoke test, the exact reviewed commit/clean rebuild, and the archive audit pass. Overdue-start and destructive recovery-journal checks remain open, as do public policy verification, permission justifications, store materials, the tag decision, top-level license decision, and owner approval.
+**Not ready for store submission yet.** All technical exact-build QA rows, automated gates, headed usability/accessibility/history checks, the core browser matrix, recovery fault injection, the clean-profile extracted-archive smoke test, the exact reviewed commit/clean rebuild, and the archive audit pass. Publication still requires public policy verification, permission justifications, store materials, target-store and tag decisions, a deliberate top-level license decision, and owner approval.

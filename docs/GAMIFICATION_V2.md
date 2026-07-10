@@ -175,7 +175,7 @@ Storage uses `pendingEmergency`, `emergencyUsage`, and schedule-occurrence suppr
 
 ## Automated Evidence
 
-Release-candidate gates refreshed by OpenAI Codex (GPT-5) for product owner Choi Yunseong on 2026-07-11 01:33 KST:
+Release-candidate gates refreshed by OpenAI Codex (GPT-5) for product owner Choi Yunseong on 2026-07-11 02:29 KST:
 
 - Typecheck: pass.
 - Vitest: **30 files / 196 tests**, pass.
@@ -185,6 +185,6 @@ Gamification coverage includes XP flooring, thresholds, migration non-regression
 
 ## Live Evidence Boundary
 
-The exact-final headless Whale matrix passes natural completion, sequential session/badge acknowledgement, close/reload dismissal, hard two-step/pending/reload/weekly behavior, scheduled-occurrence suppression, popup emergency access, pet-name persistence across a real browser restart, and all 20 stage/mood combinations. Headed Whale additionally passes the list-mode rerender acknowledgement path, normal-motion XP/progress count-up, immediate reduced-motion final values, visible milestone rows, and the surface-wide reduced-motion matrix. Chrome for Testing repeated the soft/medium completion paths and accepted the real optional-history permission prompt.
+The exact-final headless Whale matrix passes natural completion, sequential session/badge acknowledgement, close/reload dismissal, hard two-step/pending/reload/weekly behavior, scheduled-occurrence suppression, popup emergency access, pet-name persistence across a real browser restart, and all 20 stage/mood combinations. Headed Whale additionally passes the list-mode rerender acknowledgement path, normal-motion XP/progress count-up, immediate reduced-motion final values, visible milestone rows, the surface-wide reduced-motion matrix, and overdue restart with one XP/growth settlement. Instrumented exact-build checks replace the worker after the session-finalization journal and again after the pet-settlement journal while XP is still zero; each replay finishes with one 30-XP event and no duplicate ledger/event. Chrome for Testing repeated the soft/medium completion paths and accepted the real optional-history permission prompt.
 
-Product-owner judgment of reward meaning remains explicitly pending in `QA.md`; recovery fault-injection items are tracked separately from gamification presentation.
+Product-owner judgment of reward meaning remains explicitly pending in `QA.md`; recovery fault injection is complete and remains explicitly labeled as instrumented evidence rather than a user-facing flow.

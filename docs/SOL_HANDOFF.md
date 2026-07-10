@@ -5,7 +5,7 @@
 > - Product owner and requester: **Choi Yunseong (최윤성)**
 > - Prepared and consolidated by: **OpenAI Codex (GPT-5)**
 > - Original document created: **2026-07-09 21:11:44 KST**
-> - Current release-candidate refresh: **2026-07-11 01:43 KST**
+> - Current release-candidate refresh: **2026-07-11 02:29 KST**
 > - Time zone: **Asia/Seoul (UTC+09:00)**
 > - Evidence basis: local source, current automated/static gates, exact-final disposable-profile Whale/Chrome-for-Testing runs, and the clean-profile extracted-archive smoke test recorded in `QA.md`
 > - Approval caveat: this handoff does not claim product-owner approval, store review, or publication
@@ -22,7 +22,7 @@ Automated release gates are green:
 - Classic content script: **116,276-byte IIFE**.
 - Release verifier: exact four web-accessible resources, no source maps, no unexpected external URLs, matching packaged Pretendard license.
 
-The exact final bundle passed isolated Whale 4.38 checks for soft, medium, hard, popup emergency, Options, all 20 pet states, adversarial `x.com.`, and pre-deadline browser-process restart continuity. Headed Whale additionally passed list-rerender dismissal, blank intent, Options keyboard/modal focus, normal/reduced completion motion, and a 13-state accessibility matrix with 68 contrast checks (minimum 4.94:1), 40 px minimum targets, 19 screenshots, and no page errors. Headed Chrome for Testing 147 accepted the real optional-history prompt, verified domain-only results and extension-URL exclusion, revoked permission, and started a medium session afterward. A clean profile loaded the extracted release archive and fetched the exact content bundle. Visual assertions use local `/tmp` screenshots; no recording or external upload occurred.
+The exact final bundle passed isolated Whale 4.38 checks for soft, medium, hard, popup emergency, Options, all 20 pet states, adversarial `x.com.`, both sides of browser-process restart, simultaneous natural/emergency alarms, all protected sync fields, and the next eligible schedule occurrence. Headed Whale additionally passed list-rerender dismissal, blank intent, Options keyboard/modal focus, normal/reduced completion motion, and a 13-state accessibility matrix with 68 contrast checks (minimum 4.94:1), 40 px minimum targets, 19 screenshots, and no page errors. Instrumented exact-build checks replaced the worker at both durable recovery-journal boundaries and held history computation open for five seconds while the due alarm and stale-result generation guard remained responsive. Headed Chrome for Testing 147 accepted the real optional-history prompt, verified domain-only results and extension-URL exclusion, revoked permission, and started a medium session afterward. A clean profile loaded the extracted release archive and fetched the exact content bundle. Visual assertions use local `/tmp` screenshots; no recording or external upload occurred.
 
 The candidate is **not store-published**. The exact current `dist/` is packaged at `release/FocusWhale-1.0.0.zip` (2,693,022 bytes; SHA-256 `4d766244997647161b63a6d7f5018970e5ab7df94a99af82cecfd6aa7469af0f`). Its checksum passes; 32 entries / 24 files extract byte-equal to `dist/`; the extracted copy passes a clean-profile smoke load as extension ID `codbhopmpipbogplaofkgndjeoemjbck`; and the archive token/path/email scan found no findings. The reviewed source is committed locally as `acb45b6`; a fresh `git archive` plus `npm ci` reproduced the same build byte-for-byte. GitHub Issues is the selected support/privacy channel and the repository `PRIVACY.md` path is the intended policy URL, but the local commits are not pushed and the URL is not verified as publicly published. No store listing or product-owner sign-off is documented.
 
@@ -31,6 +31,8 @@ The candidate is **not store-published**. The exact current `dist/` is packaged 
 Use these labels in future updates:
 
 - **HEADLESS EXACT BUILD**: directly exercised in an isolated temporary-profile, headless Whale after rebuilding and loading the exact current `dist/`.
+- **HEADED EXACT BUILD**: directly exercised in an isolated temporary-profile, visible Whale or Chrome for Testing after loading the exact current `dist/`.
+- **INSTRUMENTED EXACT BUILD**: the exact current bundle ran in a visible disposable profile while CDP supplied deterministic API latency or replaced the worker at a reviewed compiled-code boundary; the repository and bundle were not modified.
 - **HEADLESS PRIOR CANDIDATE**: directly exercised headlessly before the final durability/recovery fixes.
 - **LIVE PRIOR BUILD**: directly exercised in a visible Whale profile before the latest fixes/rebuild.
 - **AUTOMATED CURRENT**: verified by tests/build/static checks on the current tree.
@@ -241,12 +243,19 @@ Headed exact-build pass:
 - completion dismissal across list-mode rerender, normal/reduced completion motion, and blank-intent rejection in Whale;
 - keyboard tabs plus destructive-modal focus trap/Escape/focus restoration in Options;
 - 13 light/dark visual states, 68 contrast checks with a 4.94:1 minimum, all inspected targets at least 40 x 40 px, 19 local screenshots, and no page errors;
-- real optional-history prompt, controlled domain-only results, extension-URL exclusion, revoke, and post-revoke medium-session start in Chrome for Testing 147.
+- real optional-history prompt, controlled domain-only results, extension-URL exclusion, revoke, and post-revoke medium-session start in Chrome for Testing 147;
+- simultaneous natural/emergency alarms, deletion/replacement of all three protected sync collections, and next-eligible schedule recovery in visible Whale;
+- restart only after the session was already overdue across three distinct Whale process IDs, plus a second restart proving completion remained exactly once.
 
-Pending recovery/manual states:
+Instrumented exact-build pass:
 
-- restart after the session is already overdue and fault injection during each recovery journal;
-- product-owner visual/reward judgment and final release sign-off.
+- five-second history callback latency while the due session was first observed complete 23 ms after its deadline; local clear then rejected the stale result without restoring recommendations;
+- exact debugger pauses after the durable session-finalization and pet-settlement journal writes, worker-runtime replacement confirmed by new `performance.timeOrigin`, and one log/stats/settlement/growth result with no residual journal, rule, or alarm.
+
+Pending manual/publication states:
+
+- product-owner visual/reward judgment and final release sign-off;
+- public policy/support metadata, permission justifications, store assets/reviewer instructions, target-store choice, and submission.
 
 Consumer Google Chrome 148 rejects command-line unpacked-extension loading before FocusWhale runs; Chrome for Testing 147 is the supported disposable-profile cross-check. The browser-chrome optional-permission confirmation passed in the headed channel. These are evidence boundaries, not observed FocusWhale runtime failures.
 
@@ -254,14 +263,13 @@ Consumer Google Chrome 148 rejects command-line unpacked-extension loading befor
 
 1. Preserve the reviewed `acb45b6` release-candidate commit and this evidence-only documentation follow-up.
 2. Run `npm run typecheck`, `npm test`, and `npm run build` again after any change.
-3. Complete the remaining overdue-start and destructive recovery-journal checks against the exact rebuilt artifact.
-4. Complete every unchecked publication-blocking row in `QA.md`.
-5. Push the committed `PRIVACY.md` only when requested, verify the intended GitHub URL is publicly reachable, and use GitHub Issues as the support/privacy channel.
-6. Run a final secret/privacy scan against the exact release diff and archive.
-7. Re-verify the current ZIP/checksum and repeat the clean-profile archive load after the release commit if the build changes.
-8. Prepare store listing copy, icons/screenshots, permission justifications, support URL, privacy URL, and reviewer instructions.
-9. Obtain product-owner release approval.
-10. Commit/tag/push and submit only when explicitly requested and all blocking checks pass.
+3. Keep every technical evidence row in `QA.md` green if the binary changes.
+4. Push the committed `PRIVACY.md` only when requested, verify the intended GitHub URL is publicly reachable, and use GitHub Issues as the support/privacy channel.
+5. Run a final secret/privacy scan against the exact release diff and archive.
+6. Re-verify the current ZIP/checksum and repeat the clean-profile archive load after the release commit if the build changes.
+7. Prepare store listing copy, icons/screenshots, permission justifications, support URL, privacy URL, and reviewer instructions.
+8. Obtain product-owner release approval.
+9. Commit/tag/push and submit only when explicitly requested and all blocking checks pass.
 
 Use `RELEASE_CHECKLIST.md` as the operational gate.
 
@@ -269,6 +277,7 @@ Use `RELEASE_CHECKLIST.md` as the operational gate.
 
 - A user can disable/remove an extension or use another browser/profile; FocusWhale is not an enforcement/security boundary.
 - Whale and Chrome can differ despite Chromium compatibility.
+- Tailwind 4 automatic source detection can react to Markdown vocabulary. Even documentation-only changes must rerun the production build and compare the artifact; this refresh removed one accidental documentation candidate and restored byte equality with the reviewed ZIP.
 - Local free-text intent can contain sensitive user-entered content; the UI cannot prevent that.
 - Goal 5 remote/LLM analysis is absent by design and would require explicit opt-in plus a new privacy/security review.
 - Mobile/SNSLOCK work belongs in a separate repository/spec because Android permissions and blocking surfaces differ materially from MV3.
@@ -289,4 +298,4 @@ Use `RELEASE_CHECKLIST.md` as the operational gate.
 - Do not bypass service-worker mutation queues with whole-object UI writes.
 - Do not remove the hard emergency valve or its confirmation/weekly limit.
 - Do not make pets regress or turn rewards into pressure.
-- Do not call the candidate published or store-ready until the remaining headed/manual QA, public policy URL, verified-current packaging at release time, and owner approval are complete.
+- Do not call the candidate published or store-ready until the public policy URL, store materials, verified-current packaging at release time, and owner approval are complete.
