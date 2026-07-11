@@ -57,7 +57,7 @@ The core matrix passed in Whale. The exact headed pass additionally covered list
 - [ ] Publish `PRIVACY.md` at a stable public HTTPS URL.
 - [ ] Add the public privacy URL to store metadata.
 - [x] Secret/privacy scan passes against the exact current candidate and release archive; archive token/path/email scan has no findings.
-- [x] Repeat the scan against the exact release commit if it differs from the current artifact. **`acb45b6` source and extracted archive: no secret/token/private-key/machine-path findings**
+- [x] Repeat the scan against the exact release commit if it differs from the current artifact. **`6dfb1cd` source and final extracted archive: no secret/token/private-key/machine-path findings**
 - [x] Confirm no real browsing exports, browser profiles, extension storage, or personal screenshots are included.
 - [x] Sanitize machine-specific `/Users/...` paths from `docs/SNSLOCK_CORE_CONCEPT_PORT_PLAN.md`.
 - [x] Review all permissions/host permissions and write store justifications. **`store/PERMISSIONS_AND_PRIVACY.md`**
@@ -66,8 +66,9 @@ The core matrix passed in Whale. The exact headed pass additionally covered list
 ## Package
 
 - [x] Review `git status` and final diff; preserve intentional user changes.
-- [x] Commit the exact reviewed candidate. **`acb45b6` (`Finalize FocusWhale v1.0 release candidate`) on `main`**
-- [x] Rebuild from the release commit in a clean dependency environment. **Fresh `git archive` + `npm ci`; typecheck, 30/196 tests, build/verifier pass; both rebuilt `dist/` trees are byte-equal to the reviewed artifact**
+- [x] Commit the exact reviewed executable candidate. **`acb45b6` (`Finalize FocusWhale v1.0 release candidate`) on `main`**
+- [x] Commit the publication package and distribution notices. **`6dfb1cd` (`Prepare FocusWhale store submission pack`) on `main`; no app logic or manifest change**
+- [x] Rebuild from the publication commit in a clean dependency environment. **Fresh `git archive 6dfb1cd` + `npm ci`; typecheck, 30/196 tests, build/verifier pass; rebuilt `dist/` is byte-equal to the final extracted package**
 - [x] Create `release/FocusWhale-1.0.0.zip` from the exact final `dist/` with the manifest at archive root.
 - [x] Load the extracted ZIP into a clean profile and smoke test it. **Visible Whale 4.38: MV3 v1.0.0 popup, exact 116,276-byte content bundle, and packaged notices passed under extension ID `ejhfobkhmdabjhobogffeineggppeafj`; no popup page console errors**
 - [x] Record archive size: 2,694,409 bytes.

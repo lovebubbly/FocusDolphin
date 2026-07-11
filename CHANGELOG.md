@@ -92,7 +92,7 @@ All notable FocusWhale changes are documented here. The project has not yet reco
 - Headed Whale exact-build checks pass list-rerender dismissal, blank-intent rejection, Options keyboard/modal focus, normal and reduced completion motion, 13 visual states, 68 contrast checks with a 4.94:1 minimum, 40 px minimum inspected targets, 19 screenshots, and zero page errors.
 - Headed Chrome for Testing 147 accepts the real optional-history prompt, renders controlled domain-only results with extension URLs excluded, revokes permission, and starts a medium session afterward.
 - The notice-inclusive release archive loads in a clean visible Whale 4.38 profile under ID `ejhfobkhmdabjhobogffeineggppeafj`, renders the popup with no page console errors, opens the packaged notice, and retains the exact 116,276-byte content script.
-- Release-candidate commit `acb45b6` reproduces the reviewed `dist/` byte-for-byte from a fresh `git archive` plus `npm ci`; the exact commit and archive secret scan passes.
+- Executable release-candidate commit `acb45b6` established the behavioral baseline. Publication-pack commit `6dfb1cd` adds only repository/store collateral and the packaged notice; a fresh `git archive` plus `npm ci` passes typecheck, all 196 tests, build verification, and byte equality with the final extracted package. The exact commit and archive secret scan passes.
 
 ### Not Yet Released
 

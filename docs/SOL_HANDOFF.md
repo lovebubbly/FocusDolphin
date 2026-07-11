@@ -261,7 +261,7 @@ Consumer Google Chrome 148 rejects command-line unpacked-extension loading befor
 
 ## Release Handoff Sequence
 
-1. Preserve the reviewed `acb45b6` release-candidate commit and this evidence-only documentation follow-up.
+1. Preserve executable baseline `acb45b6` and publication-pack commit `6dfb1cd`; the latter adds store/repository collateral and the packaged third-party notice without changing app logic or the manifest.
 2. Run `npm run typecheck`, `npm test`, and `npm run build` again after any change.
 3. Keep every technical evidence row in `QA.md` green if the binary changes.
 4. Push the committed `PRIVACY.md`, verify the intended GitHub URL is publicly reachable, and use GitHub Issues as the support/privacy channel.
