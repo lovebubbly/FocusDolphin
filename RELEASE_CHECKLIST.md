@@ -1,6 +1,6 @@
 # FocusWhale v1.0.0 Release Checklist
 
-Last refreshed: **2026-07-11 02:29 KST** by **OpenAI Codex (GPT-5)**, for requester and product owner **Choi Yunseong (최윤성)**.
+Last refreshed: **2026-07-11 02:42 KST** by **OpenAI Codex (GPT-5)**, for requester and product owner **Choi Yunseong (최윤성)**.
 
 The source version is 1.0.0, but this checklist is the publication gate. Unchecked blocking rows mean the product is not ready to submit.
 
@@ -15,8 +15,9 @@ The source version is 1.0.0, but this checklist is the publication gate. Uncheck
 - [x] Production output contains no source maps.
 - [x] Production JS/CSS/HTML/JSON contains no unexpected external URLs.
 - [x] Packaged Pretendard OFL exactly matches the source license.
+- [x] Packaged Tailwind CSS, daisyUI, and Vite core MIT notices exactly match their installed dependency licenses.
 - [x] Atlas report validates 384 x 1,920, 4 x 20, 80 frames.
-- [x] Release ZIP extracts byte-for-byte equal to exact final `dist/` with `manifest.json` at the root.
+- [x] Release ZIP extracts byte-for-byte equal to exact final `dist/` with `manifest.json` at the root; all executable files retain the tested fingerprints.
 
 ## Live Final-Build QA
 
@@ -59,7 +60,7 @@ The core matrix passed in Whale. The exact headed pass additionally covered list
 - [x] Repeat the scan against the exact release commit if it differs from the current artifact. **`acb45b6` source and extracted archive: no secret/token/private-key/machine-path findings**
 - [x] Confirm no real browsing exports, browser profiles, extension storage, or personal screenshots are included.
 - [x] Sanitize machine-specific `/Users/...` paths from `docs/SNSLOCK_CORE_CONCEPT_PORT_PLAN.md`.
-- [ ] Review all permissions/host permissions and write store justifications.
+- [x] Review all permissions/host permissions and write store justifications. **`store/PERMISSIONS_AND_PRIVACY.md`**
 - [x] Confirm no backend, telemetry, advertising, remote AI, CDN, or remote font was introduced.
 
 ## Package
@@ -68,25 +69,27 @@ The core matrix passed in Whale. The exact headed pass additionally covered list
 - [x] Commit the exact reviewed candidate. **`acb45b6` (`Finalize FocusWhale v1.0 release candidate`) on `main`**
 - [x] Rebuild from the release commit in a clean dependency environment. **Fresh `git archive` + `npm ci`; typecheck, 30/196 tests, build/verifier pass; both rebuilt `dist/` trees are byte-equal to the reviewed artifact**
 - [x] Create `release/FocusWhale-1.0.0.zip` from the exact final `dist/` with the manifest at archive root.
-- [x] Load the extracted ZIP into a clean profile and smoke test it. **MV3 v1.0.0 popup and exact 116,276-byte content bundle passed under extension ID `codbhopmpipbogplaofkgndjeoemjbck`**
-- [x] Record archive size: 2,693,022 bytes.
-- [x] Record and verify SHA-256: `4d766244997647161b63a6d7f5018970e5ab7df94a99af82cecfd6aa7469af0f`.
+- [x] Load the extracted ZIP into a clean profile and smoke test it. **Visible Whale 4.38: MV3 v1.0.0 popup, exact 116,276-byte content bundle, and packaged notices passed under extension ID `ejhfobkhmdabjhobogffeineggppeafj`; no popup page console errors**
+- [x] Record archive size: 2,694,409 bytes.
+- [x] Record and verify SHA-256: `241a9863fde194a20d1f0f54dc1a7377bf9314dd40413e5fd1488dab52c97f18`.
 - [x] Confirm manifest/name/description/version/icons.
-- [x] Confirm the archive is byte-equal to exact final `dist/`: 32 entries / 24 files.
-- [x] Confirm no source maps, tests, TypeScript, generated source sheets, or private docs are in the ZIP.
-- [ ] Create signed Git tag/release notes if the project uses tags.
+- [x] Confirm the archive is byte-equal to exact final `dist/`: 33 entries / 25 files.
+- [x] Confirm no source maps, tests, TypeScript, generated source sheets, or private docs are in the ZIP; required third-party notices are included.
+- [x] Draft version 1.0.0 release notes. **`store/RELEASE_NOTES_1.0.0.md`**
+- [ ] Create a signed Git tag only after owner approval. **No pre-existing tag convention; no tag is required for the store ZIP itself**
 
 ## Store Materials
 
-- [ ] Choose target store(s): Whale, Chrome Web Store, or both.
-- [ ] Prepare listing title, short description, full description, category, and language coverage.
-- [ ] Prepare final screenshots from the release build only.
-- [ ] Prepare required promotional/store images without personal browser data.
-- [ ] Add support URL and monitored support contact.
-- [ ] Add privacy URL.
-- [ ] Write reviewer instructions for blocklist/medium/hard/optional-history testing.
-- [ ] Document why broad HTTP(S) host access and the content script are necessary.
-- [ ] Confirm whether a top-level software license is required and select one deliberately.
+- [x] Choose the first target store. **Whale Store first for the exact reviewed 1.0.0 package; Chrome requires a separately approved browser-neutral manifest-description rebuild**
+- [x] Prepare listing title, exact-package short description, Korean full description, category, and language coverage. **The current English manifest description is labeled accurately; the Korean short-description replacement is explicitly rebuild-only**
+- [x] Prepare final screenshots from the release build only. **Four authentic 1280 x 800 exact-build composites under `store-assets/`**
+- [x] Prepare required promotional/store images without personal browser data. **Chrome 440 x 280 tile plus shared screenshots; hashes and source captures recorded**
+- [x] Prepare support URL. **Public GitHub Issues**
+- [ ] Product owner confirms that the public support channel will be monitored.
+- [x] Prepare the privacy URL and Limited Use statement. **Public reachability and dashboard entry remain separate gates**
+- [x] Write reviewer instructions for blocklist/medium/hard/optional-history testing. **`store/REVIEWER_INSTRUCTIONS.md`**
+- [x] Document why broad HTTP(S) host access and the content script are necessary. **`store/PERMISSIONS_AND_PRIVACY.md`**
+- [x] Select the repository license deliberately. **Publicly viewable, all rights reserved; third-party licenses preserved**
 
 ## Approval And Publication
 
@@ -100,4 +103,4 @@ The core matrix passed in Whale. The exact headed pass additionally covered list
 
 ## Current Decision
 
-**Not ready for store submission yet.** All technical exact-build QA rows, automated gates, headed usability/accessibility/history checks, the core browser matrix, recovery fault injection, the clean-profile extracted-archive smoke test, the exact reviewed commit/clean rebuild, and the archive audit pass. Publication still requires public policy verification, permission justifications, store materials, target-store and tag decisions, a deliberate top-level license decision, and owner approval.
+**Release preparation is nearly complete, but no store submission is authorized or recorded.** All technical exact-build QA, automated gates, headed usability/accessibility/history checks, recovery fault injection, archive verification, listing copy, permission/privacy declarations, reviewer instructions, exact-build imagery, release notes, target-store choice, and license decision are complete. Remaining gates are public privacy-URL verification, confirmation that the support channel will be monitored, product-owner approval, publisher-dashboard entry, upload, review, and publication. A signed source tag is optional and deferred until owner approval.

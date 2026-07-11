@@ -22,9 +22,9 @@ The rebuilt bundle passed the isolated Whale 4.38 core matrix for soft, medium, 
 
 Still pending before publication:
 
-- Prepare store listing assets/metadata, permission justifications, reviewer notes, and submission materials.
-- Commit and verify the intended public privacy-policy URL; GitHub Issues is already selected as the support/privacy channel.
-- Record product-owner approval and complete the selected store's submission/review process.
+- Publish and verify the intended public privacy-policy URL; GitHub Issues is already selected as the support/privacy channel.
+- Record product-owner approval of the prepared store copy, disclosures, and exact-build imagery.
+- Upload the exact package to the selected store and complete its review process.
 
 Goal 5 opt-in LLM analysis remains intentionally out of scope and is not a v1.0.0 publication blocker.
 
@@ -85,7 +85,7 @@ Growth settlement is service-worker owned and idempotent. Per-session ledgers an
 
 ## Privacy And Data
 
-FocusWhale has no backend, telemetry SDK, advertising SDK, remote AI integration, API keys, or external asset loads. The repository policy is [PRIVACY.md](PRIVACY.md); it is a local policy file until a public URL is published.
+FocusWhale has no backend, telemetry SDK, advertising SDK, remote AI integration, API keys, or external asset loads. The repository policy is [PRIVACY.md](PRIVACY.md); the release checklist records when its public URL has been verified.
 
 The mandatory manifest permissions are `declarativeNetRequest`, `storage`, and `alarms`. Browser history is an **optional permission** requested only when the user starts recommendation analysis. HTTP(S) host access supports session redirects, already-open-tab handling, and soft overlays.
 
@@ -161,18 +161,19 @@ The live Whale development extension used for final-candidate checks had ID `ojo
 - [docs/SOL_HANDOFF.md](docs/SOL_HANDOFF.md): architecture, risk, and successor handoff.
 - [docs/NOTION_ISSUE_TRIAGE.md](docs/NOTION_ISSUE_TRIAGE.md): current resolution of the Notion issue list.
 - [docs/TECHNICAL_QA_EVIDENCE_2026-07-11.md](docs/TECHNICAL_QA_EVIDENCE_2026-07-11.md): sanitized exact-build alarm, restart, history-concurrency, and recovery-journal evidence.
+- [store/README.md](store/README.md): selected-store strategy, listing copy, disclosures, reviewer instructions, and owner-only submission steps.
 - [DECISIONS.md](DECISIONS.md): durable product and engineering decisions.
 - [CHANGELOG.md](CHANGELOG.md): v1.0.0 release-candidate changes.
 
 ## Packaging And Publication
 
-Version 1.0.0 is packaged at `release/FocusWhale-1.0.0.zip` (**2,693,022 bytes**, SHA-256 `4d766244997647161b63a6d7f5018970e5ab7df94a99af82cecfd6aa7469af0f`). Its checksum passes; the 32-entry/24-file extracted tree is byte-for-byte equal to the exact current `dist/`; the extracted copy loaded successfully in a clean profile as extension ID `codbhopmpipbogplaofkgndjeoemjbck`; and the archive token/path/email scan found no findings. The reviewed source is committed locally as `acb45b6` and reproduces the artifact after a clean `npm ci`, but this is still not a pushed or store-submitted release. GitHub Issues is the selected support/privacy channel. The intended stable policy URL is [the repository `PRIVACY.md`](https://github.com/lovebubbly/FocusWhale/blob/main/PRIVACY.md); it must not be treated as published evidence until the local commits are pushed and the URL is verified publicly. Before public release, complete every blocking item in [RELEASE_CHECKLIST.md](RELEASE_CHECKLIST.md), prepare listing/reviewer materials, and obtain owner sign-off.
+Version 1.0.0 is packaged at `release/FocusWhale-1.0.0.zip` (**2,694,409 bytes**, SHA-256 `241a9863fde194a20d1f0f54dc1a7377bf9314dd40413e5fd1488dab52c97f18`). Its checksum passes; the 33-entry/25-file extracted tree is byte-for-byte equal to the exact current `dist/`; and a clean visible Whale 4.38 profile loaded the extracted copy as extension ID `ejhfobkhmdabjhobogffeineggppeafj`, rendered the popup with no page console errors, and opened the packaged third-party notice. The executable payload remains byte-identical to the fully tested release candidate; the only package addition is `licenses/THIRD-PARTY-NOTICES.txt`. The archive token/path/email scan found no findings. This is still not a store-submitted release. The exact package is selected for a Whale Store first submission. Paste-ready listing, permission, privacy, reviewer, and release-note materials are under [store/](store/); exact-build listing images are under `store-assets/`. GitHub Issues is the selected support/privacy channel. The intended stable policy URL is [the repository `PRIVACY.md`](https://github.com/lovebubbly/FocusWhale/blob/main/PRIVACY.md); the release checklist records its public verification separately from local preparation. Before public release, complete every blocking item in [RELEASE_CHECKLIST.md](RELEASE_CHECKLIST.md) and obtain owner sign-off.
 
-No top-level open-source license has been selected. Pretendard remains under SIL OFL; generated sprite provenance is recorded separately.
+The repository is publicly viewable but **all rights are reserved** under [LICENSE](LICENSE); no open-source license is granted for FocusWhale's original work. Pretendard remains under SIL OFL; Tailwind CSS, daisyUI, and the Vite core runtime retain their MIT notices in the shipped `licenses/` directory; generated sprite provenance is recorded separately.
 
 ## Documentation Provenance
 
 - Product owner and repository maintainer: **Choi Yunseong (최윤성)** (`Yunseong Choi` in Git history).
-- This release/handoff refresh was prepared by **OpenAI Codex (GPT-5)**, at Choi Yunseong's request and last refreshed on **2026-07-11 02:29 KST**.
+- This release/handoff and store-preparation refresh was prepared by **OpenAI Codex (GPT-5)**, at Choi Yunseong's request and last refreshed on **2026-07-11 02:42 KST**.
 - Evidence comes from the local repository, current automated gates, and exact-build disposable-profile browser runs recorded in `QA.md`; owner and publication checks remain labeled explicitly.
 - Code authorship remains defined by Git history. Documentation attribution does not imply product-owner approval of every Codex assessment.

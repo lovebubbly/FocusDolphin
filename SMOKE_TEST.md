@@ -14,7 +14,7 @@ npm run build
 
 Expected automated result for the v1.0.0 candidate: 30 test files / 196 tests; classic `assets/content.js` at 116,276 bytes; exact four-resource WAR allowlist; no source maps or unexpected external URLs.
 
-Release artifact: `release/FocusWhale-1.0.0.zip`, 2,693,022 bytes, SHA-256 `4d766244997647161b63a6d7f5018970e5ab7df94a99af82cecfd6aa7469af0f`. The checksum passes; its 32 entries / 24 files extract byte-for-byte equal to the exact current `dist/`; `manifest.json` is at the root; the extracted copy passes a clean-profile Whale smoke load under extension ID `codbhopmpipbogplaofkgndjeoemjbck`; and the archive token/path/email scan found no findings.
+Release artifact: `release/FocusWhale-1.0.0.zip`, 2,694,409 bytes, SHA-256 `241a9863fde194a20d1f0f54dc1a7377bf9314dd40413e5fd1488dab52c97f18`. The checksum passes; its 33 entries / 25 files extract byte-for-byte equal to the exact current `dist/`; `manifest.json` is at the root; and the extracted copy passes a clean visible Whale 4.38 smoke load under extension ID `ejhfobkhmdabjhobogffeineggppeafj`. The popup rendered with no page console errors, the packaged third-party notice opened, and the archive token/path/email scan found no findings. The tested executable files remain byte-identical to the prior release candidate; only the required notice file was added.
 
 ## Service-Worker Checks
 
@@ -143,7 +143,7 @@ Headless and headed checks used isolated disposable profiles. Naver Whale 4.38 /
 - PASS: hard confirmation/cancel/pending/reload/weekly rejection and scheduled-occurrence suppression with exact boundary re-arm.
 - PASS: popup emergency valve, Options validation/lock/name/request-denial flow, 20-state pet matrix, adversarial `x.com.`, and browser-process restart recovery.
 - PASS: popup multi-digit input retained focus through `2 -> 24 -> 240`; dark idle theme resolved correctly.
-- PASS: extracted release archive loaded in a clean Whale profile under ID `codbhopmpipbogplaofkgndjeoemjbck` and fetched the exact 116,276-byte content script.
+- PASS: the notice-inclusive release archive loaded in a clean visible Whale 4.38 profile under ID `ejhfobkhmdabjhobogffeineggppeafj`, rendered the popup with no page console errors, opened the packaged notice, and retained the exact 116,276-byte content script.
 - PASS: Chrome for Testing 147 repeated the exact-final soft and medium flows.
 - PASS: headed Whale verified Options keyboard tabs/modal focus, blank-intent rejection after the real 30-second friction, completion acknowledgement followed by list rerender, and normal/reduced post-session XP/progress animation.
 - PASS: headed Whale covered 13 light/dark/reduced-motion surface states, 68 measured contrast checks (minimum 4.94:1), all effective targets at least 40px, visible focus rings, no overflow, 19 screenshots, and zero page errors.

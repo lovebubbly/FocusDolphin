@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 개인정보 처리방침
+    url: https://github.com/lovebubbly/FocusWhale/blob/main/PRIVACY.md
+    about: 공개 이슈를 작성하기 전에 데이터 처리와 삭제 방법을 확인하세요.

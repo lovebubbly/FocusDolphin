@@ -1,0 +1,17 @@
+Copyright (c) 2026 Choi Yunseong. All rights reserved.
+
+This repository is publicly viewable, but no permission is granted to copy,
+modify, redistribute, sublicense, or create derivative works from FocusWhale's
+source code, documentation, or original visual assets unless the copyright
+owner gives prior written permission.
+
+An end user may install and use an officially distributed FocusWhale extension
+under the terms of the browser extension store and browser through which it is
+provided. That permission does not grant a right to redistribute the package or
+source code.
+
+Third-party components remain under their own licenses. In particular,
+Pretendard is distributed under the SIL Open Font License recorded in
+`assets/fonts/Pretendard-LICENSE.txt`. Tailwind CSS, daisyUI, and Vite core
+runtime notices are recorded in `public/licenses/THIRD-PARTY-NOTICES.txt` and
+shipped with the extension package.

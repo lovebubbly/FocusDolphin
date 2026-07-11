@@ -1,6 +1,6 @@
 # FocusWhale Privacy Policy
 
-Product owner: **Choi Yunseong (최윤성)**. Repository-accuracy refresh prepared by **OpenAI Codex (GPT-5)** on **2026-07-10 20:29 KST**.
+Product owner: **Choi Yunseong (최윤성)**. Repository-accuracy refresh prepared by **OpenAI Codex (GPT-5)** on **2026-07-11 02:42 KST**.
 
 Effective date: July 10, 2026
 
@@ -64,6 +64,8 @@ The release bundle contains its UI styles, pet artwork, icons, and Pretendard fo
 
 The browser and its sync service are platform providers. Their handling of browser history, extension permissions, and synced extension storage is governed by their own terms and privacy policies.
 
+FocusWhale's use of information received from browser APIs, including the optional history API, adheres to the [Chrome Web Store User Data Policy](https://developer.chrome.com/docs/webstore/program-policies/user-data-faq/), including its Limited Use requirements. Information is used only to provide or improve the user-facing focus, recommendation, recovery, and pet-progression features described in this policy. It is not sold, used for advertising, used for creditworthiness, transferred for unrelated purposes, or made available for developer-side human review. The use of information received from Google APIs will adhere to the Chrome Web Store User Data Policy, including the Limited Use requirements.
+
 ## Children And Sensitive Data
 
 FocusWhale is a general productivity tool and is not designed to collect information from children. Users should avoid entering confidential or personally identifying information in the medium-mode intent field because that text is retained locally until extension storage is cleared.
@@ -76,4 +78,4 @@ Material changes to data collection, permissions, transmission, or retention sho
 
 For support, privacy questions, or deletion questions, use [FocusWhale GitHub Issues](https://github.com/lovebubbly/FocusWhale/issues). Do not include private browsing details, intent text, or other sensitive information in a public issue.
 
-The intended stable public location for this policy is [the repository `PRIVACY.md`](https://github.com/lovebubbly/FocusWhale/blob/main/PRIVACY.md). At the 2026-07-10 documentation refresh, the current policy edits were still uncommitted, so that URL had not yet been verified as the published version of this text.
+The intended stable public location for this policy is [the repository `PRIVACY.md`](https://github.com/lovebubbly/FocusWhale/blob/main/PRIVACY.md). Publication evidence must verify that exact HTTPS URL after the release-preparation commits are pushed.

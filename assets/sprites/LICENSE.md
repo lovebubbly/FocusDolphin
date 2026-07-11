@@ -13,7 +13,7 @@ Generation records and original outputs:
 
 Each source sheet was converted to its adjacent `*-transparent.png` file with the Codex image-generation skill's `remove_chroma_key.py` helper using border auto-keying, a soft matte, despill, and transparent/opaque thresholds. `scripts/assemble-focuswhale-atlas.py` then deterministically split, scaled, centered, baseline-aligned, and packed those sheets into the runtime atlas. The machine-readable QA and SHA-256 provenance record is `assets/sprites/atlas-report.json`.
 
-The v3 sheets were generated specifically for this repository and do not incorporate third-party source artwork. Use and distribution of generated outputs remain subject to the repository license and the applicable OpenAI terms; no separate third-party sprite license was introduced.
+The v3 sheets were generated specifically for this repository and do not incorporate third-party source artwork. Use and distribution of generated outputs remain subject to the repository's top-level all-rights-reserved notice and the applicable OpenAI terms; no separate third-party sprite license was introduced.
 
 `focuswhale-placeholder.svg` is kept as an older project-authored fallback/reference asset and is no longer used by the runtime renderer.
 

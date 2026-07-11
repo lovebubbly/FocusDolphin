@@ -26,17 +26,17 @@ Do not turn an automated, prior-build live, or earlier-baseline result into an e
 | Build hygiene | PASS | no source maps or unexpected external URLs |
 | WAR surface | PASS | exact four-resource allowlist |
 | Font license | PASS | packaged Pretendard OFL matches source license |
-| Release archive | PASS | 2,693,022-byte ZIP; SHA-256 `4d766244997647161b63a6d7f5018970e5ab7df94a99af82cecfd6aa7469af0f`; checksum passes; extracted tree byte-equal to `dist/` |
-| Archive hygiene | PASS | 32 entries / 24 files; token/path/email scan found no findings |
+| Release archive | PASS | 2,694,409-byte ZIP; SHA-256 `241a9863fde194a20d1f0f54dc1a7377bf9314dd40413e5fd1488dab52c97f18`; checksum passes; extracted tree byte-equal to `dist/` |
+| Archive hygiene | PASS | 33 entries / 25 files; required Pretendard/Tailwind CSS/daisyUI/Vite notices included; token/path/email scan found no findings |
 
 ## Live Browser Evidence
 
 Environment:
 
-- Exact-final browsers: Naver Whale 4.38.386.14 / Chromium 148 and Google Chrome for Testing 147 in isolated disposable headed profiles, plus isolated disposable headless profiles for the core matrix and archive smoke.
+- Exact-final browsers: Naver Whale 4.38.386.14 / Chromium 148 and Google Chrome for Testing 147 in isolated disposable headed profiles, plus isolated disposable headless profiles for the core matrix. The final notice-inclusive archive smoke used a visible disposable Whale profile.
 - Consumer Google Chrome 148 rejected command-line unpacked-extension loading before FocusWhale ran, so it is not counted as an app failure or pass.
-- Development-path extension ID: `ojojphoncmkplfcinppanpbbhhfjcpgi`. The current clean-profile extracted archive used ID `codbhopmpipbogplaofkgndjeoemjbck`; extension IDs are path/profile dependent.
-- Exact artifact boundary: the current exact rows exercised the unchanged 01:33 `dist/` that produced the recorded release ZIP. The popup emergency and later recovery harnesses fingerprinted the loaded bundles; the built background worker SHA-256 remained `f3884cdd70e425b5cb6f061b98c0f4f3acddcf300fbd69c8513fd144fc53d0ad`.
+- Development-path extension ID: `ojojphoncmkplfcinppanpbbhhfjcpgi`. The current clean-profile extracted archive used ID `ejhfobkhmdabjhobogffeineggppeafj`; extension IDs are path/profile dependent.
+- Exact artifact boundary: the behavioral rows exercised the executable payload retained in the current release ZIP. The publication refresh adds only `licenses/THIRD-PARTY-NOTICES.txt`; every pre-existing extracted file remains byte-identical. The popup emergency and recovery harnesses fingerprinted the loaded bundles; the built background worker SHA-256 remains `f3884cdd70e425b5cb6f061b98c0f4f3acddcf300fbd69c8513fd144fc53d0ad`.
 - Capture boundary: visual assertions saved local screenshots under `/tmp`; the restart, `x.com`, and archive-load checks explicitly recorded `screenCapture: false`. No recording or external upload was used.
 - Permission boundary: the earlier headless request could not operate browser chrome. The exact headed Chrome-for-Testing run accepted the real prompt and completed grant, controlled analysis, revoke, and post-revoke core-use checks.
 - Recovery boundary: the overdue test used three distinct visible Whale process IDs. Journal tests debugger-paused the exact 42,842-byte built worker immediately after the relevant durable journal write, accepted `Target.closeTarget`, detached the debugger, observed a new worker `performance.timeOrigin`, and then replayed recovery through a normal runtime request.
@@ -61,7 +61,7 @@ Verified:
 | Options keyboard/modal focus | HEADED EXACT BUILD PASS | Whale passed tab keyboard semantics, destructive-modal focus trap, Escape close, and focus restoration to the invoker. |
 | Visual/accessibility matrix | HEADED EXACT BUILD PASS | Whale passed 13 light/dark states, 68 measured contrast checks (minimum 4.94:1), all inspected targets at least 40 x 40 px, 19 local screenshots, and zero page errors. |
 | Optional history lifecycle | HEADED EXACT BUILD PASS | Chrome for Testing accepted the real browser prompt, rendered controlled domain-only results, excluded extension URLs, revoked permission, and started a medium session afterward. |
-| Extracted release archive | HEADLESS EXACT BUILD PASS | The clean-profile archive copy loaded as MV3 v1.0.0 under ID `codbhopmpipbogplaofkgndjeoemjbck`, rendered the popup, fetched the exact 116,276-byte content bundle, and produced no page errors. |
+| Extracted release archive | HEADED EXACT BUILD PASS | The final notice-inclusive archive loaded in visible Whale 4.38 as MV3 v1.0.0 under ID `ejhfobkhmdabjhobogffeineggppeafj`, rendered the popup, opened the packaged notice, retained the exact 116,276-byte content bundle, and produced no popup page errors. |
 | Alarm race, sync lock, schedule continuation | HEADED EXACT BUILD PASS | Visible Whale ran simultaneous natural/emergency alarms; natural completion won with one log, one stats credit, one pet settlement, one growth event, and no residual rules/alarms. Direct deletion and replacement of all three protected sync collections restored the durable snapshot without disturbing the active session. An expired prior suppression was removed and the next eligible medium occurrence started with exact session/reconcile deadlines and DNR. |
 | Overdue cold restart | HEADED EXACT BUILD PASS | Whale stopped before the shortened deadline, restarted only after it was overdue, and finalized exactly once. Three distinct process IDs loaded identical bundle hashes; a second verification restart preserved one log, one stats credit, one XP/growth settlement, and zero active rules/alarms/journals. |
 | Recovery-journal interruption | INSTRUMENTED EXACT BUILD PASS | At both the session-finalization and pet-settlement compiled boundaries, the durable journal existed before the paused worker was replaced. Each recovery produced one completion log, one 25-minute stats credit, one settlement ledger entry, one growth event, and 30 XP; no journal, DNR rule, or session alarm remained after repeated reconciliation. Built-worker SHA-256: `f3884cdd70e425b5cb6f061b98c0f4f3acddcf300fbd69c8513fd144fc53d0ad`. |
@@ -72,7 +72,7 @@ The core exact-final matrix is green in Whale, with soft/medium cross-checks and
 Still pending before publication:
 
 - Product-owner visual/reward judgment and final manual sign-off.
-- Public privacy/support metadata, permission justifications, store materials, target-store decision, and submission work tracked in `RELEASE_CHECKLIST.md`.
+- Public privacy-URL verification, support-monitoring confirmation, owner approval, publisher-dashboard entry, store review, and publication remain tracked in `RELEASE_CHECKLIST.md`.
 
 ## Earlier Baseline Evidence
 

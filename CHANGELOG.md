@@ -85,18 +85,20 @@ All notable FocusWhale changes are documented here. The project has not yet reco
 - Classic content script: 116,276 bytes.
 - No source maps or unexpected external URLs in the final bundle.
 - Exact four-resource WAR allowlist.
-- Release ZIP: 2,693,022 bytes, SHA-256 `4d766244997647161b63a6d7f5018970e5ab7df94a99af82cecfd6aa7469af0f`; checksum passes; 32 entries / 24 files extract byte-equal to `dist/`; token/path/email scan has no findings.
+- Release ZIP: 2,694,409 bytes, SHA-256 `241a9863fde194a20d1f0f54dc1a7377bf9314dd40413e5fd1488dab52c97f18`; checksum passes; 33 entries / 25 files extract byte-equal to `dist/`; token/path/email scan has no findings. The executable payload is unchanged; the package adds required Tailwind CSS/daisyUI/Vite notices.
 - Exact-final Whale 4.38 passes cover soft, medium, hard, popup emergency, Options, all 20 pet states, adversarial `x.com.`, pre-deadline and overdue browser-process restart, the natural/emergency alarm race, all protected sync fields, and next-occurrence schedule recovery.
 - Instrumented exact-build passes cover a five-second history callback concurrent with a due alarm/local clear and worker replacement at both durable recovery-journal boundaries. The loaded worker hash stayed `f3884cdd70e425b5cb6f061b98c0f4f3acddcf300fbd69c8513fd144fc53d0ad`; each recovery settled exactly once.
 - Chrome for Testing 147 passes the exact-final soft and medium cross-browser paths.
 - Headed Whale exact-build checks pass list-rerender dismissal, blank-intent rejection, Options keyboard/modal focus, normal and reduced completion motion, 13 visual states, 68 contrast checks with a 4.94:1 minimum, 40 px minimum inspected targets, 19 screenshots, and zero page errors.
 - Headed Chrome for Testing 147 accepts the real optional-history prompt, renders controlled domain-only results with extension URLs excluded, revokes permission, and starts a medium session afterward.
-- The extracted release archive loads in a clean profile under ID `codbhopmpipbogplaofkgndjeoemjbck` and fetches the exact 116,276-byte content script.
+- The notice-inclusive release archive loads in a clean visible Whale 4.38 profile under ID `ejhfobkhmdabjhobogffeineggppeafj`, renders the popup with no page console errors, opens the packaged notice, and retains the exact 116,276-byte content script.
 - Release-candidate commit `acb45b6` reproduces the reviewed `dist/` byte-for-byte from a fresh `git archive` plus `npm ci`; the exact commit and archive secret scan passes.
 
 ### Not Yet Released
 
 - A verified local release ZIP exists; no store submission or publication is recorded.
-- GitHub Issues is the selected support/privacy contact. The repository `PRIVACY.md` URL is the intended policy target, but the local commit is not pushed and the policy is not yet verified as publicly published.
+- Whale Store is selected as the first exact-package target. Listing copy, privacy/permission declarations, reviewer instructions, release notes, and exact-build store images are prepared under `store/` and `store-assets/`.
+- GitHub Issues is the selected support/privacy contact. The repository `PRIVACY.md` URL remains a publication gate until the current commit is pushed and that exact HTTPS page is verified.
+- The repository now records an explicit all-rights-reserved source and original-asset license; third-party licenses remain unchanged.
 - Goal 5 opt-in LLM analysis is not included.
 - Mobile/SNSLOCK implementation is outside this repository/version.

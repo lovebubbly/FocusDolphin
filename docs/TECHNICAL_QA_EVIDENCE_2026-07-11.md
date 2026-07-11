@@ -22,8 +22,8 @@ Every run loaded the same local `dist/`. The final rebuild after documentation e
 | Content script | 116,276 bytes; SHA-256 `7caaa383bbe4dbbe950304af9a654f9e5d24066b11f328bc9610a8cf96a9e743` |
 | Popup bundle | SHA-256 `9d4c694e5f36cec7de825e97ccd6f8bc7120a7dfa54d3506be7c72460398dc5e` |
 | Options bundle | SHA-256 `e16da2db37cd8a58d1b22fad842920fb32678da53491c2545778a5bca522c144` |
-| Release ZIP | 2,693,022 bytes; SHA-256 `4d766244997647161b63a6d7f5018970e5ab7df94a99af82cecfd6aa7469af0f` |
-| Extracted comparison | 24 files; `diff -qr` returned no difference |
+| Release ZIP | 2,694,409 bytes; SHA-256 `241a9863fde194a20d1f0f54dc1a7377bf9314dd40413e5fd1488dab52c97f18` |
+| Extracted comparison | 25 files; `diff -qr` returned no difference. The executable payload matches the tested candidate; one third-party notice file was added for distribution compliance. |
 
 No screen recording or screenshot was captured for these technical runs. Disposable browser profiles and controller scripts stayed under `/tmp`; no artifact was uploaded.
 

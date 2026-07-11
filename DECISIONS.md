@@ -159,3 +159,21 @@ This file records durable choices that are easy to accidentally undo. New undocu
 **Decision:** Use `INSTRUMENTED EXACT BUILD` only when the unchanged production bundle runs in a disposable browser profile while CDP supplies deterministic platform responses/latency or terminates the worker at a reviewed compiled-code boundary. Record the instrumentation, loaded-bundle fingerprint, durable pre-interruption state, worker replacement evidence, and post-recovery invariants. Never relabel that result as an unmodified headed user flow.
 
 **Why:** Real browser APIs do not offer a reliable user-facing control for pausing a history callback or killing an MV3 worker between two adjacent durable writes. Deterministic runtime fault injection can prove queue and journal behavior against the shipped bundle, but only if its boundary remains explicit and auditable.
+
+## D-027: Whale-First Exact Package
+
+**Decision:** Submit the exact reviewed 1.0.0 package to Naver Whale Store first. Its store-visible short description remains the current English `manifest.description`; the Korean detailed listing may describe the Korean interface, while a Korean short description requires an owner-authorized manifest localization and rebuilt package. Prepare Chrome Web Store disclosures and images as a secondary baseline, but require a browser-neutral manifest-description rebuild before a Chrome upload. Do not advertise an English interface until localization exists.
+
+**Why:** The current manifest names Naver Whale and the production interface is Korean. A Whale-first submission preserves the reviewed binary and original target while avoiding misleading Chrome or English-language metadata.
+
+## D-028: Publicly Viewable, All Rights Reserved
+
+**Decision:** Make the repository's licensing status explicit with a top-level all-rights-reserved notice. Store installation permission does not grant source or package redistribution rights. Third-party components keep their own licenses.
+
+**Why:** A public GitHub repository without a license already grants no general reuse rights, but an explicit notice removes ambiguity and repairs the generated-sprite notice that previously referred to a nonexistent repository license.
+
+## D-029: Ship Third-Party Notices Without Changing Executable Code
+
+**Decision:** Package exact MIT notices for Tailwind CSS, daisyUI, and the emitted Vite core runtime beside Pretendard's SIL OFL. Keep the fully tested JavaScript, CSS, HTML, manifest, font, icons, and sprite payload byte-identical; add only `licenses/THIRD-PARTY-NOTICES.txt` and repeat the clean-profile archive load.
+
+**Why:** Public source attribution alone does not satisfy the distribution notice carried by MIT-licensed code and styles in the extension ZIP. A notice-only package refresh closes that compliance gap without reopening application behavior.
