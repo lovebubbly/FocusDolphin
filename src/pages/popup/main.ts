@@ -869,7 +869,7 @@ function renderSessionForm(root: HTMLElement, model: PopupModel, selection: Sele
     radio.type = "radio";
     radio.name = "intensity";
     radio.dataset.popupFocus = `intensity-${intensity}`;
-    radio.className = "join-item btn flex-1";
+    radio.className = "join-item btn h-auto min-h-10 min-w-0 flex-1 whitespace-normal px-1 py-1 text-xs leading-4";
     radio.setAttribute("aria-label", intensityLabel(intensity));
     radio.checked = selection.intensity === intensity;
     radio.addEventListener("change", () => {
