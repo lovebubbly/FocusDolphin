@@ -9,6 +9,7 @@
 > - Working branch: `codex/goal-8-web-product-polish`
 > - Approved Phase A commit: `e7274a1339a7f6849ace807c2fdaeeee33d031e8`
 > - Approval recorded by commit: `fad859d`
+> - Verified Phase B executable commit: `5029d2a924cc14b5175fe1da1f4f9a2fcf274fb8`
 > - Approval record: Choi Yunseong approved all presented states on 2026-07-11 with no exceptions, then requested the terminology-only public-history cleanup on 2026-07-12.
 > - Approval boundary: all presented mockup states, no exceptions. This is not a store-publication approval.
 
@@ -262,16 +263,17 @@ Load only the freshly generated `dist/` in a clean Whale profile. Do not reuse t
 
 ## Remaining Publication Sequence
 
-1. Select and review the committed Goal 8 executable hash.
-2. Rebuild that commit in a detached clean checkout after `npm ci`.
-3. Compare the clean `dist/` byte-for-byte with the reviewed branch output.
-4. Regenerate `release/FocusWhale-1.0.0.zip` with `manifest.json` at archive root.
-5. Repeat secret, private-key, personal-email, machine-path, profile, source-map, test/source, and production dependency scans.
-6. Load the extracted ZIP in a clean ordinary Whale profile and repeat the critical Session/blocked/overlay/completion journey.
-7. Refresh the stale core-flow store composites from that exact archive.
-8. Recheck bilingual listing copy, permission disclosures, privacy URL, support-channel ownership, and reviewer instructions.
-9. Obtain product-owner approval of the exact package and current imagery.
-10. Upload through the Whale publisher account, record submission metadata, resolve review feedback, and only then record publication.
+Selected and reviewed executable: `5029d2a924cc14b5175fe1da1f4f9a2fcf274fb8`. The documentation-only completion commit that follows it does not change production source or the verified bundle.
+
+1. Rebuild the executable commit in a detached clean checkout after `npm ci`.
+2. Compare the clean `dist/` byte-for-byte with the reviewed branch output.
+3. Regenerate `release/FocusWhale-1.0.0.zip` with `manifest.json` at archive root.
+4. Repeat secret, private-key, personal-email, machine-path, profile, source-map, test/source, and production dependency scans.
+5. Load the extracted ZIP in a clean ordinary Whale profile and repeat the critical Session/blocked/overlay/completion journey.
+6. Refresh the stale core-flow store composites from that exact archive.
+7. Recheck bilingual listing copy, permission disclosures, privacy URL, support-channel ownership, and reviewer instructions.
+8. Obtain product-owner approval of the exact package and current imagery.
+9. Upload through the Whale publisher account, record submission metadata, resolve review feedback, and only then record publication.
 
 ## Explicit Non-Claims
 

@@ -95,7 +95,7 @@ The core matrix passed in Whale. The exact headed pass additionally covered list
 
 ## Package
 
-- [ ] Review and commit the exact Goal 8 executable candidate on the dedicated branch.
+- [x] Review and commit the exact Goal 8 executable candidate on the dedicated branch: `5029d2a924cc14b5175fe1da1f4f9a2fcf274fb8` (`Implement Goal 8 web product polish`).
 - [ ] Rebuild the selected commit in a detached clean checkout after `npm ci`; require build, typecheck, 33/250 tests, and byte-for-byte comparison with reviewed `dist/`.
 - [ ] Regenerate `release/FocusWhale-1.0.0.zip` with `manifest.json` at archive root. **The existing ZIP predates Goal 8 and must not be relabeled.**
 - [ ] Record new archive byte size, SHA-256, and file/entry count.
@@ -135,4 +135,4 @@ Historical package evidence: the current tracked/release-area archive belongs to
 
 ## Current Decision
 
-**Goal 8 source-level automated gates and all exact unpacked-build Whale suites are green, but the candidate is not publication-ready.** The old archive and store imagery are stale. A selected executable commit, clean detached rebuild, regenerated/rescanned archive, extracted-archive critical-flow smoke, refreshed bilingual imagery, exact-package owner approval, support/privacy metadata, publisher upload, review, and publication remain separate open gates.
+**Goal 8 executable commit `5029d2a924cc14b5175fe1da1f4f9a2fcf274fb8`, source-level automated gates, and all exact unpacked-build Whale suites are green, but the candidate is not publication-ready.** The old archive and store imagery are stale. A clean detached rebuild, regenerated/rescanned archive, extracted-archive critical-flow smoke, refreshed bilingual imagery, exact-package owner approval, support/privacy metadata, publisher upload, review, and publication remain separate open gates.

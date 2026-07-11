@@ -2,7 +2,7 @@
 
 Last refreshed: **2026-07-12 KST** by **OpenAI Codex (GPT-5)**, for requester and product owner **Choi Yunseong (최윤성)**.
 
-Current evidence boundary: **Goal 8 Phase B on `codex/goal-8-web-product-polish`, exercised against a frozen rebuilt `dist/` whose 42,956-byte background worker has SHA-256 `172ca0d895958575048e022f1ef3051fb76d46b74ff1efe1ba80c731ab6f1d0e` and whose final 25,240-byte popup has SHA-256 `e191845b3f549fe92007c61d1002b10d233847751616c6bc04b277f566b16390`**. Choi Yunseong approved the complete Phase A mockup contract at commit `e7274a1` on 2026-07-11 with no exceptions. That design approval is not a substitute for the executable evidence below or approval of a future store archive.
+Current evidence boundary: **Goal 8 Phase B executable commit `5029d2a924cc14b5175fe1da1f4f9a2fcf274fb8` on `codex/goal-8-web-product-polish`, exercised against a rebuilt `dist/` whose 42,956-byte background worker has SHA-256 `172ca0d895958575048e022f1ef3051fb76d46b74ff1efe1ba80c731ab6f1d0e` and whose final 25,240-byte popup has SHA-256 `e191845b3f549fe92007c61d1002b10d233847751616c6bc04b277f566b16390`**. Choi Yunseong approved the complete Phase A mockup contract at commit `e7274a1` on 2026-07-11 with no exceptions. That design approval is not a substitute for the executable evidence below or approval of a future store archive.
 
 ## Evidence Labels
 

@@ -6,7 +6,7 @@ The product is deliberately non-punitive: users choose the intensity, the hard-m
 
 ## Release Status
 
-The current source and production build identify as **version 1.0.0**. Goal 8 is a technically verified branch candidate, not a claim of store publication.
+The current source and production build identify as **version 1.0.0**. Goal 8 executable commit `5029d2a924cc14b5175fe1da1f4f9a2fcf274fb8` is a technically verified branch candidate, not a claim of store publication.
 
 Choi Yunseong approved the complete Goal 8 Phase A visual contract at exact commit `e7274a1` on 2026-07-11, with no exceptions. Phase B implements that contract across Session, Rules, Review, Preferences, blocked, overlay, onboarding, and completion states while retaining the existing MV3, wellness, privacy, and storage contracts.
 
