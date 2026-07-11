@@ -1,12 +1,14 @@
 import { sendMessage, type FocusWhaleState } from "../../shared/messaging";
 import { LatestRequestGuard } from "../../shared/latestRequest";
-import { stageName } from "../../shared/gamification";
+import { translate } from "../../shared/i18n";
 import { getTyped, setTyped, STORAGE_KEYS } from "../../shared/storage";
-import { DEFAULT_SITE_LISTS, migrateSiteListsForCurrentDefaults } from "../../shared/siteLists";
+import { DEFAULT_SITE_LISTS, migrateSiteListsForCurrentDefaults, siteListDisplayName } from "../../shared/siteLists";
 import type { Intensity, PetState, Session, SiteList } from "../../shared/types";
-import { awardBadges, badgeDescription, badgeName } from "../../pet/badges";
+import { awardBadges } from "../../pet/badges";
 import {
   growthProgress,
+  DEFAULT_PET_NAME,
+  petDisplayName,
   readPendingCelebrations,
   readGrowthLog,
   type GrowthEvent
@@ -18,6 +20,22 @@ const INTENSITY_ORDER: Record<Intensity, number> = {
   soft: 0,
   medium: 1,
   hard: 2
+};
+
+type LocaleOverride = "ko" | "en";
+
+const BADGE_KEY_BY_ID: Record<string, string> = {
+  "first-session": "FirstSession",
+  "first-hard": "FirstHard",
+  "focus-10-hours": "Focus10Hours",
+  "focus-50-hours": "Focus50Hours",
+  "five-day-week": "FiveDayWeek",
+  "allowlist-10": "Allowlist10",
+  "streak-7": "Streak7",
+  "streak-30": "Streak30",
+  comeback: "Comeback",
+  "first-schedule": "FirstSchedule",
+  "steady-4w": "Steady4w"
 };
 
 export interface PopupModel {
@@ -65,16 +83,13 @@ function formatDeadline(deadline: number, now = Date.now()): string {
     : `${minutes}:${String(seconds).padStart(2, "0")}`;
 }
 
-export function intensityLabel(intensity: Intensity): string {
-  if (intensity === "soft") {
-    return "가벼운 안내";
-  }
-
-  if (intensity === "medium") {
-    return "확인 후 허용";
-  }
-
-  return "완전 차단";
+export function intensityLabel(intensity: Intensity, localeOverride?: LocaleOverride): string {
+  const keyByIntensity: Record<Intensity, string> = {
+    soft: "intensitySoft",
+    medium: "intensityMedium",
+    hard: "intensityHard"
+  };
+  return translate(keyByIntensity[intensity], undefined, localeOverride);
 }
 
 export function coerceCustomDuration(rawValue: string, fallbackMinutes: number): number {
@@ -88,7 +103,7 @@ function renderPopupHeader(root: HTMLElement, handlers: PopupHandlers): void {
   const header = document.createElement("header");
   header.className = "sticky top-0 z-20 flex min-h-10 shrink-0 items-center justify-between bg-base-100 py-1";
   appendText(header, "p", "FocusWhale", "text-sm font-bold");
-  header.append(createButton("설정", "btn btn-ghost min-h-10 px-3", handlers.openOptions));
+  header.append(createButton(translate("commonSettings"), "btn btn-ghost min-h-10 px-3", handlers.openOptions));
   root.append(header);
 }
 
@@ -100,27 +115,19 @@ function progressValue(session: Session, now = Date.now()): number {
 }
 
 function petStateLine(petState: PetState): string {
-  const stageLabels: Record<PetState["stage"], string> = {
-    0: "알이 깨어날 준비 중",
-    1: "새끼 고래로 자라는 중",
-    2: "어린 고래가 항해 중",
-    3: "푸른 고래가 깊어지는 중",
-    4: "별고래와 항해 중"
-  };
-
-  return stageLabels[petState.stage];
+  return translate(`popupPetStageLine${petState.stage}`);
 }
 
 function streakChipText(model: PopupModel): string {
   if (model.streakStatus === "resting") {
-    return "쉬는 중";
+    return translate("popupStreakResting");
   }
 
   if (model.streakStatus === "fresh") {
-    return "새 출발";
+    return translate("popupStreakFresh");
   }
 
-  return `${model.petState.streakDays}일째`;
+  return translate("popupStreakDays", String(model.petState.streakDays));
 }
 
 function recentBadgeText(petState: PetState): string {
@@ -128,7 +135,25 @@ function recentBadgeText(petState: PetState): string {
     (petState.badgeAwards[right]?.earnedAt ?? 0) - (petState.badgeAwards[left]?.earnedAt ?? 0)
   )[0];
 
-  return recentBadge ? `최근 징표 · ${badgeName(recentBadge)}` : "첫 징표를 기다리는 중";
+  return recentBadge
+    ? translate("popupBadgeRecent", localizedBadgeName(recentBadge))
+    : translate("popupBadgeWaiting");
+}
+
+function localizedStageName(stage: PetState["stage"], localeOverride?: LocaleOverride): string {
+  return translate(`petStageName${stage}`, undefined, localeOverride);
+}
+
+function localizedBadgeName(id: string, localeOverride?: LocaleOverride): string {
+  const key = BADGE_KEY_BY_ID[id];
+  return key ? translate(`badge${key}Name`, undefined, localeOverride) : id;
+}
+
+function localizedBadgeDescription(id: string, localeOverride?: LocaleOverride): string {
+  const key = BADGE_KEY_BY_ID[id];
+  return key
+    ? translate(`badge${key}Description`, undefined, localeOverride)
+    : translate("badgeFallbackDescription", undefined, localeOverride);
 }
 
 function appendText(parent: HTMLElement, tagName: keyof HTMLElementTagNameMap, text: string, className?: string): HTMLElement {
@@ -164,13 +189,13 @@ function renderPetPanel(root: HTMLElement, model: PopupModel): void {
 
   const stats = document.createElement("div");
   stats.className = "min-w-0 space-y-2";
-  appendText(stats, "p", model.petState.name ?? "미로", "break-all text-sm font-semibold");
+  appendText(stats, "p", petDisplayName(model.petState.name), "break-all text-sm font-semibold");
   appendText(stats, "h1", petStateLine(model.petState), "text-xl font-extrabold");
-  appendText(stats, "p", "집중 세션을 완료하면 자라요.", "text-xs");
+  appendText(stats, "p", translate("popupPetGrowthHint"), "text-xs");
   const badges = document.createElement("div");
   badges.className = "flex flex-wrap gap-1.5";
   appendText(badges, "span", streakChipText(model), "badge badge-soft badge-primary shadow-sm");
-  appendText(badges, "span", `보호막 ${model.petState.streakFreezes}/2`, "badge badge-soft shadow-sm");
+  appendText(badges, "span", translate("popupFreezeCount", String(model.petState.streakFreezes)), "badge badge-soft shadow-sm");
   stats.append(badges);
   appendText(stats, "p", recentBadgeText(model.petState), "text-sm");
 
@@ -200,7 +225,7 @@ function renderCelebrations(root: HTMLElement, model: PopupModel, handlers: Popu
   if (sessionEvent) {
     body.append(renderSessionGrowthOverview(model, sessionEvent, animationTasks));
   } else {
-    appendText(body, "p", "방금 만든 변화", "text-sm font-semibold text-primary");
+    appendText(body, "p", translate("popupCelebrationRecentChange"), "text-sm font-semibold text-primary");
   }
 
   if (milestoneEvents.length > 0) {
@@ -208,7 +233,12 @@ function renderCelebrations(root: HTMLElement, model: PopupModel, handlers: Popu
   }
 
   if (model.celebrations.length > visibleEvents.length) {
-    appendText(body, "p", `확인할 변화가 ${model.celebrations.length - visibleEvents.length}개 더 있어요.`, "text-xs");
+    appendText(
+      body,
+      "p",
+      translate("popupCelebrationMoreChanges", String(model.celebrations.length - visibleEvents.length)),
+      "text-xs"
+    );
   }
   if (!model.petState.name && visibleEvents.some((event) => event.type === "stage_up")) {
     body.append(renderNamePrompt(handlers));
@@ -222,13 +252,13 @@ function renderCelebrations(root: HTMLElement, model: PopupModel, handlers: Popu
   }
   const actions = document.createElement("div");
   actions.className = "card-actions justify-end";
-  const dismiss = createButton("확인", "btn btn-soft min-h-10 shadow-sm", () => {
+  const dismiss = createButton(translate("popupCelebrationConfirm"), "btn btn-soft min-h-10 shadow-sm", () => {
     dismiss.disabled = true;
-    dismiss.textContent = "저장 중...";
+    dismiss.textContent = translate("popupSaving");
     void handlers.dismissCelebrations(visibleEvents.map((event) => event.id)).finally(() => {
       if (dismiss.isConnected) {
         dismiss.disabled = false;
-        dismiss.textContent = "다시 시도";
+        dismiss.textContent = translate("commonRetry");
       }
     });
   });
@@ -262,9 +292,9 @@ function renderSessionGrowthOverview(
   mountPet(petSlot, model.petState, "celebrate");
   const copy = document.createElement("div");
   copy.className = "space-y-1";
-  appendText(copy, "p", "세션 완료", "text-xs font-bold uppercase tracking-wide text-primary");
-  appendText(copy, "h2", "집중이 고래를 키웠어요", "text-xl font-extrabold");
-  appendText(copy, "p", event.text, "text-sm");
+  appendText(copy, "p", translate("popupCompletionLabel"), "text-xs font-bold uppercase tracking-wide text-primary");
+  appendText(copy, "h2", translate("popupCompletionHeading"), "text-xl font-extrabold");
+  appendText(copy, "p", localizedGrowthEventText(event), "text-sm");
   hero.append(petSlot, copy);
   wrap.append(hero);
 
@@ -272,25 +302,42 @@ function renderSessionGrowthOverview(
   stats.className = "stats stats-vertical overflow-hidden bg-base-200 shadow-sm";
   const gained = document.createElement("div");
   gained.className = "stat py-3";
-  appendText(gained, "div", "이번 세션", "stat-title");
+  appendText(gained, "div", translate("popupCompletionThisSession"), "stat-title");
   appendText(gained, "div", `+${xpDelta} XP`, "stat-value text-2xl text-primary tabular-nums");
-  appendText(gained, "div", `${event.minutes ?? 0}분 × ${intensityLabel(event.intensity ?? "medium")}`, "stat-desc");
+  appendText(
+    gained,
+    "div",
+    translate("popupMinutesTimesIntensity", [String(event.minutes ?? 0), intensityLabel(event.intensity ?? "medium")]),
+    "stat-desc"
+  );
   const total = document.createElement("div");
   total.className = "stat py-3";
-  appendText(total, "div", "누적 XP", "stat-title");
+  appendText(total, "div", translate("popupCompletionTotalXp"), "stat-title");
   const totalValue = appendText(total, "div", String(xpAfter), "stat-value text-2xl tabular-nums");
   appendText(total, "div", `${xpBefore} → ${xpAfter}`, "stat-desc");
   const stage = document.createElement("div");
   stage.className = "stat py-3";
-  appendText(stage, "div", "현재 단계", "stat-title");
-  appendText(stage, "div", stageName(stageTo), "stat-value text-2xl");
-  appendText(stage, "div", stageFrom === stageTo ? "차근차근 자라는 중" : `${stageName(stageFrom)}에서 성장`, "stat-desc");
+  appendText(stage, "div", translate("popupCompletionCurrentStage"), "stat-title");
+  appendText(stage, "div", localizedStageName(stageTo), "stat-value text-2xl");
+  appendText(
+    stage,
+    "div",
+    stageFrom === stageTo
+      ? translate("popupCompletionGrowingSteadily")
+      : translate("popupCompletionGrewFromStage", localizedStageName(stageFrom)),
+    "stat-desc"
+  );
   stats.append(gained, total, stage);
   wrap.append(stats);
 
   const progress = document.createElement("div");
   progress.className = "grid gap-2 rounded-box bg-base-200 p-3";
-  appendText(progress, "p", stageFrom === stageTo ? "다음 성장까지" : "새 단계로 넘어갔어요", "text-sm font-semibold");
+  appendText(
+    progress,
+    "p",
+    stageFrom === stageTo ? translate("popupCompletionUntilNextGrowth") : translate("popupCompletionReachedNewStage"),
+    "text-sm font-semibold"
+  );
   const track = document.createElement("div");
   track.className = "h-3 overflow-hidden rounded-full bg-base-300";
   const fill = document.createElement("div");
@@ -322,8 +369,8 @@ function renderMilestoneOverview(events: readonly GrowthEvent[], animationTasks:
     row.style.transition = prefersReducedMotion() ? "none" : "opacity 360ms ease, transform 360ms ease";
     appendText(row, "p", milestoneTitle(event), "font-semibold");
     appendText(row, "p", event.type === "badge_earned" && event.badgeId
-      ? badgeDescription(event.badgeId)
-      : event.text);
+      ? localizedBadgeDescription(event.badgeId)
+      : localizedGrowthEventText(event));
     wrap.append(row);
     animationTasks.push(() => {
       if (prefersReducedMotion()) {
@@ -344,23 +391,23 @@ function renderMilestoneOverview(events: readonly GrowthEvent[], animationTasks:
 function renderNamePrompt(handlers: PopupHandlers): HTMLElement {
   const form = document.createElement("form");
   form.className = "grid gap-2 rounded-box bg-base-200 p-3";
-  appendText(form, "p", "이 고래를 뭐라고 부를까요?", "text-sm font-semibold");
+  appendText(form, "p", translate("popupNamePrompt"), "text-sm font-semibold");
   const input = document.createElement("input");
   input.className = "input min-h-10 w-full";
-  input.placeholder = "미로";
+  input.placeholder = translate("defaultPetName");
   input.maxLength = 24;
   const submit = document.createElement("button");
   submit.type = "submit";
   submit.className = "btn btn-primary min-h-10";
-  submit.textContent = "이름 붙이기";
+  submit.textContent = translate("popupNameSubmit");
   form.append(input, submit);
   form.addEventListener("submit", (event) => {
     event.preventDefault();
-    const name = input.value.trim() || "미로";
+    const name = input.value.trim() || DEFAULT_PET_NAME;
     void handlers.setPetName(name)
       .then(() => {
         form.replaceChildren();
-        appendText(form, "p", `${name}와 함께 항해합니다.`, "text-sm font-semibold");
+        appendText(form, "p", translate("popupNameSuccess", petDisplayName(name)), "text-sm font-semibold");
       })
       .catch((error: unknown) => {
         const existingError = form.querySelector("[role='alert']");
@@ -368,7 +415,7 @@ function renderNamePrompt(handlers: PopupHandlers): HTMLElement {
         appendText(
           form,
           "p",
-          error instanceof Error ? error.message : "이름을 저장하지 못했습니다.",
+          error instanceof Error ? localizePopupRuntimeError(error.message, "popupNameSaveError") : translate("popupNameSaveError"),
           "text-error text-sm"
         ).setAttribute("role", "alert");
       });
@@ -381,31 +428,42 @@ function renderPetDetails(model: PopupModel): HTMLElement {
   details.className = "collapse collapse-arrow border-t border-base-200";
   const summary = document.createElement("summary");
   summary.className = "collapse-title min-h-10 text-sm font-semibold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary";
-  summary.textContent = "성장 자세히 보기";
+  summary.textContent = translate("popupGrowthDetails");
   const content = document.createElement("div");
   content.className = "collapse-content grid gap-3 text-sm";
 
   const progress = growthProgress(model.petState.xp, model.petState.stage);
-  appendText(content, "p", `누적 집중 ${model.petState.totalFocusMinutes}분 · ${model.petState.xp} XP`);
+  appendText(
+    content,
+    "p",
+    translate("popupGrowthTotalFocusXp", [String(model.petState.totalFocusMinutes), String(model.petState.xp)])
+  );
   if (progress.nextStageName) {
-    appendText(content, "p", `${progress.nextStageName}까지 ${progress.remainingXp} XP`);
+    appendText(
+      content,
+      "p",
+      translate("popupGrowthUntilStage", [
+        localizedStageName((model.petState.stage + 1) as PetState["stage"]),
+        String(progress.remainingXp)
+      ])
+    );
     const bar = document.createElement("progress");
     bar.className = "progress progress-primary w-full";
     bar.max = 100;
     bar.value = progress.percentToNext;
     content.append(bar);
   } else {
-    appendText(content, "p", "지금은 가장 깊은 바다를 항해 중이에요.");
+    appendText(content, "p", translate("popupGrowthMaxStage"));
   }
-  appendText(content, "p", "보호막은 7일 연속 집중할 때 1개 충전되고, 하루를 놓치면 자동으로 1개 사용되어 이어온 기록을 지켜줘요. 최대 2개까지 모을 수 있어요.", "text-xs");
-  appendText(content, "p", "고래는 아프거나 돌아가지 않아요.", "text-xs");
+  appendText(content, "p", translate("popupGrowthFreezeExplanation"), "text-xs");
+  appendText(content, "p", translate("popupGrowthNeverRegresses"), "text-xs");
 
   const recent = model.growthLog.slice(0, 3);
   if (recent.length > 0) {
     const list = document.createElement("ul");
     list.className = "grid gap-1";
     for (const event of recent) {
-      appendText(list, "li", event.text, "text-xs");
+      appendText(list, "li", localizedGrowthEventText(event), "text-xs");
     }
     content.append(list);
   }
@@ -416,28 +474,80 @@ function renderPetDetails(model: PopupModel): HTMLElement {
 
 function milestoneTitle(event: GrowthEvent): string {
   if (event.type === "stage_up") {
-    return "성장";
+    return translate("popupMilestoneStage");
   }
   if (event.type === "half_way") {
-    return "절반 지점";
+    return translate("popupMilestoneHalfWay");
   }
   if (event.type === "badge_earned") {
-    return event.badgeId ? `새 징표 · ${badgeName(event.badgeId)}` : "새 징표";
+    return event.badgeId
+      ? translate("popupMilestoneNewBadgeNamed", localizedBadgeName(event.badgeId))
+      : translate("popupMilestoneNewBadge");
   }
   if (event.type === "freeze_granted") {
-    return "보호막";
+    return translate("popupMilestoneFreeze");
   }
   if (event.type === "freeze_used") {
-    return "스트릭 보호";
+    return translate("popupMilestoneStreakProtected");
   }
   if (event.type === "streak_restored") {
-    return "이어받기";
+    return translate("popupMilestoneStreakRestored");
   }
   if (event.type === "streak_fresh_start") {
-    return "새 출발";
+    return translate("popupMilestoneFreshStart");
   }
 
-  return "성장 로그";
+  return translate("popupMilestoneGrowthLog");
+}
+
+export function localizedGrowthEventText(event: GrowthEvent, localeOverride?: LocaleOverride): string {
+  const minutes = String(event.minutes ?? 0);
+  const xpDelta = String(event.xpDelta ?? 0);
+  if (event.type === "session_completed") {
+    return translate(
+      "growthSessionCompleted",
+      [minutes, xpDelta, intensityLabel(event.intensity ?? "medium", localeOverride)],
+      localeOverride
+    );
+  }
+  if (event.type === "stage_up") {
+    return translate(
+      "growthStageUp",
+      localizedStageName(event.stageTo ?? 0, localeOverride),
+      localeOverride
+    );
+  }
+  if (event.type === "half_way") {
+    return translate(
+      "growthHalfWay",
+      localizedStageName(event.stageTo ?? 0, localeOverride),
+      localeOverride
+    );
+  }
+  if (event.type === "badge_earned") {
+    return event.badgeId
+      ? translate("growthBadgeEarned", localizedBadgeName(event.badgeId, localeOverride), localeOverride)
+      : translate("growthBadgeEarnedGeneric", undefined, localeOverride);
+  }
+  if (event.type === "freeze_granted") {
+    return translate("growthFreezeGranted", undefined, localeOverride);
+  }
+  if (event.type === "freeze_used") {
+    return translate("growthFreezeUsed", undefined, localeOverride);
+  }
+  if (event.type === "streak_restored") {
+    return translate("growthStreakRestored", String(event.streakTo ?? 1), localeOverride);
+  }
+  if (event.type === "streak_rest") {
+    return translate("growthStreakRest", undefined, localeOverride);
+  }
+  if (event.type === "streak_fresh_start") {
+    return translate("growthStreakFreshStart", undefined, localeOverride);
+  }
+  if (event.type === "session_ended_early") {
+    return translate("growthSessionEndedEarly", undefined, localeOverride);
+  }
+  return translate("growthMigration", undefined, localeOverride);
 }
 
 function runAnimationTasks(tasks: Array<() => void>): void {
@@ -506,7 +616,7 @@ function renderActiveHero(root: HTMLElement, model: PopupModel): void {
   progress.id = "active-session-progress";
   progress.className = "radial-progress text-primary tabular-nums [--size:4.5rem] [--thickness:0.35rem]";
   progress.style.setProperty("--value", String(progressValue(session)));
-  progress.setAttribute("aria-label", "세션 진행률");
+  progress.setAttribute("aria-label", translate("popupActiveProgressLabel"));
   progress.setAttribute("aria-valuemin", "0");
   progress.setAttribute("aria-valuemax", "100");
   progress.setAttribute("aria-valuenow", String(progressValue(session)));
@@ -524,7 +634,12 @@ function renderActiveHero(root: HTMLElement, model: PopupModel): void {
   appendText(badges, "span", streakChipText(model), "badge badge-soft badge-primary shadow-sm");
   appendText(badges, "span", intensityLabel(session.intensity), "badge badge-soft shadow-sm");
   stats.append(badges);
-  appendText(stats, "p", model.notice ?? `보호막 ${model.petState.streakFreezes}/2`, "text-xs leading-relaxed");
+  appendText(
+    stats,
+    "p",
+    model.notice ?? translate("popupFreezeCount", String(model.petState.streakFreezes)),
+    "text-xs leading-relaxed"
+  );
   body.append(stats);
   panel.append(body);
   root.append(panel);
@@ -541,10 +656,20 @@ function renderActiveSession(root: HTMLElement, model: PopupModel, handlers: Pop
   body.className = "card-body gap-5 p-4";
   const copy = document.createElement("div");
   copy.className = "space-y-2";
-  appendText(copy, "p", "진행 중", "text-sm font-semibold");
-  const remaining = appendText(copy, "h1", `남은 시간 ${formatRemaining(model.activeSession)}`, "break-words text-4xl font-extrabold tabular-nums");
+  appendText(copy, "p", translate("popupActiveStatus"), "text-sm font-semibold");
+  const remaining = appendText(
+    copy,
+    "h1",
+    translate("popupActiveRemaining", formatRemaining(model.activeSession)),
+    "break-words text-4xl font-extrabold tabular-nums"
+  );
   remaining.id = "active-session-remaining";
-  appendText(copy, "p", `현재 설정 ${intensityLabel(model.activeSession.intensity)}`, "text-sm");
+  appendText(
+    copy,
+    "p",
+    translate("popupActiveCurrentIntensity", intensityLabel(model.activeSession.intensity)),
+    "text-sm"
+  );
   body.append(copy);
 
   const upgrades = (["soft", "medium", "hard"] as Intensity[]).filter(
@@ -555,13 +680,13 @@ function renderActiveSession(root: HTMLElement, model: PopupModel, handlers: Pop
   actions.className = "space-y-2 border-t border-base-200 pt-4";
 
   if (upgrades.length === 0) {
-    appendText(actions, "p", "이미 가장 단단한 설정입니다.", "text-sm");
+    appendText(actions, "p", translate("popupActiveStrongestIntensity"), "text-sm");
   } else {
-    appendText(actions, "p", "더 단단한 설정이 필요할 때만 상향합니다.", "text-sm");
+    appendText(actions, "p", translate("popupActiveUpgradeHint"), "text-sm");
   }
 
   for (const intensity of upgrades) {
-    actions.append(createButton(`${intensityLabel(intensity)}으로 상향`, "btn btn-soft min-h-10 shadow-sm", () => {
+    actions.append(createButton(translate("popupActiveUpgradeButton", intensityLabel(intensity)), "btn btn-soft min-h-10 shadow-sm", () => {
       void handlers.upgradeIntensity(intensity);
     }));
   }
@@ -593,8 +718,13 @@ function renderHardEmergencyControls(
     const notice = document.createElement("div");
     notice.className = "alert alert-warning alert-soft text-sm shadow-none";
     notice.setAttribute("role", "status");
-    appendText(notice, "span", "비상 종료 요청이 저장되었습니다.");
-    const remaining = appendText(wrap, "p", `종료까지 ${formatDeadline(pending.dueAt)}`, "text-sm font-semibold tabular-nums");
+    appendText(notice, "span", translate("popupEmergencySaved"));
+    const remaining = appendText(
+      wrap,
+      "p",
+      translate("popupEmergencyUntilEnd", formatDeadline(pending.dueAt)),
+      "text-sm font-semibold tabular-nums"
+    );
     remaining.id = "popup-emergency-remaining";
     wrap.prepend(notice);
     container.append(wrap);
@@ -602,8 +732,8 @@ function renderHardEmergencyControls(
   }
 
   if (!confirming) {
-    appendText(wrap, "p", "비상 종료는 5분 뒤 적용되며 이번 주 1회만 사용할 수 있습니다.", "text-xs");
-    wrap.append(createButton("비상 종료 요청", "btn btn-error btn-soft min-h-10 shadow-sm", () => {
+    appendText(wrap, "p", translate("popupEmergencyRule"), "text-xs");
+    wrap.append(createButton(translate("popupEmergencyRequest"), "btn btn-error btn-soft min-h-10 shadow-sm", () => {
       renderHardEmergencyControls(container, model, handlers, true);
       wrap.remove();
     }));
@@ -614,15 +744,15 @@ function renderHardEmergencyControls(
   const warning = document.createElement("div");
   warning.className = "alert alert-warning alert-soft text-sm shadow-none";
   warning.setAttribute("role", "note");
-  appendText(warning, "span", "한 번 더 누르면 5분 뒤 비상 종료가 예약됩니다.");
+  appendText(warning, "span", translate("popupEmergencyConfirmWarning"));
   const buttons = document.createElement("div");
   buttons.className = "flex flex-wrap gap-2";
-  const confirm = createButton("5분 뒤 종료 예약", "btn btn-error min-h-10 shadow-md", () => {
+  const confirm = createButton(translate("popupEmergencySchedule"), "btn btn-error min-h-10 shadow-md", () => {
     confirm.disabled = true;
-    confirm.textContent = "예약 중...";
+    confirm.textContent = translate("popupEmergencyScheduling");
     void handlers.requestEmergencyEnd();
   });
-  buttons.append(confirm, createButton("되돌아가기", "btn btn-soft min-h-10 shadow-sm", () => {
+  buttons.append(confirm, createButton(translate("popupGoBack"), "btn btn-soft min-h-10 shadow-sm", () => {
     renderHardEmergencyControls(container, model, handlers, false);
     wrap.remove();
   }));
@@ -640,21 +770,21 @@ function renderSessionForm(root: HTMLElement, model: PopupModel, selection: Sele
 
   const heading = document.createElement("div");
   heading.className = "space-y-2";
-  appendText(heading, "h1", "집중 시작", "text-xl font-bold");
-  appendText(heading, "p", "오늘 한 번만 정하고 바로 들어갑니다.", "text-sm");
+  appendText(heading, "h1", translate("popupFormHeading"), "text-xl font-bold");
+  appendText(heading, "p", translate("popupFormDescription"), "text-sm");
   form.append(heading);
 
   const listLabel = appendText(form, "fieldset", "", "fieldset") as HTMLFieldSetElement;
-  appendText(listLabel, "legend", "목록", "fieldset-legend");
+  appendText(listLabel, "legend", translate("popupFormList"), "fieldset-legend");
   const listSelect = document.createElement("select");
   listSelect.name = "siteList";
   listSelect.dataset.popupFocus = "site-list";
   listSelect.className = "select w-full";
-  listSelect.setAttribute("aria-label", "목록");
+  listSelect.setAttribute("aria-label", translate("popupFormList"));
   for (const siteList of model.siteLists) {
     const option = document.createElement("option");
     option.value = siteList.id;
-    option.textContent = siteList.name;
+    option.textContent = siteListDisplayName(siteList);
     option.selected = siteList.id === selection.listId;
     listSelect.append(option);
   }
@@ -664,18 +794,18 @@ function renderSessionForm(root: HTMLElement, model: PopupModel, selection: Sele
 
   const durationFieldset = document.createElement("fieldset");
   durationFieldset.className = "fieldset";
-  appendText(durationFieldset, "legend", "시간", "fieldset-legend");
+  appendText(durationFieldset, "legend", translate("popupFormDuration"), "fieldset-legend");
   const durations = document.createElement("div");
   durations.className = "join w-full";
   durations.setAttribute("role", "group");
-  durations.setAttribute("aria-label", "시간 선택");
+  durations.setAttribute("aria-label", translate("popupFormDurationSelection"));
   for (const minutes of [15, 25, 50, 90]) {
     const radio = document.createElement("input");
     radio.type = "radio";
     radio.name = "duration";
     radio.dataset.popupFocus = `duration-${minutes}`;
     radio.className = "join-item btn flex-1";
-    radio.setAttribute("aria-label", String(minutes));
+    radio.setAttribute("aria-label", translate("commonMinutes", String(minutes)));
     radio.checked = selection.durationMinutes === minutes && !selection.customMinutes;
     radio.addEventListener("change", () => {
       handlers.updateSelection({ durationMinutes: minutes, customMinutes: "" }, true, `duration-${minutes}`);
@@ -691,7 +821,7 @@ function renderSessionForm(root: HTMLElement, model: PopupModel, selection: Sele
   appendText(
     customDetails,
     "summary",
-    "직접 입력",
+    translate("popupFormCustomDuration"),
     "collapse-title min-h-10 text-sm font-medium focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
   );
   const customContent = document.createElement("div");
@@ -702,9 +832,9 @@ function renderSessionForm(root: HTMLElement, model: PopupModel, selection: Sele
   customInput.max = "240";
   customInput.inputMode = "numeric";
   customInput.className = "input w-full";
-  customInput.setAttribute("aria-label", "직접 입력 시간(분)");
+  customInput.setAttribute("aria-label", translate("popupFormCustomDurationAria"));
   customInput.value = selection.customMinutes;
-  customInput.placeholder = "분";
+  customInput.placeholder = translate("popupMinutesPlaceholder");
   customInput.addEventListener("input", () => {
     const durationMinutes = coerceCustomDuration(customInput.value, selection.durationMinutes);
     handlers.updateSelection({
@@ -713,7 +843,7 @@ function renderSessionForm(root: HTMLElement, model: PopupModel, selection: Sele
     }, false);
     const submit = form.querySelector<HTMLButtonElement>("[data-start-session]");
     if (submit) {
-      submit.textContent = `${durationMinutes}분 시작`;
+      submit.textContent = translate("popupStartMinutes", String(durationMinutes));
     }
   });
   customInput.addEventListener("blur", () => {
@@ -729,11 +859,11 @@ function renderSessionForm(root: HTMLElement, model: PopupModel, selection: Sele
 
   const intensityFieldset = document.createElement("fieldset");
   intensityFieldset.className = "fieldset";
-  appendText(intensityFieldset, "legend", "차단 방식", "fieldset-legend");
+  appendText(intensityFieldset, "legend", translate("popupFormBlockingMethod"), "fieldset-legend");
   const intensities = document.createElement("div");
   intensities.className = "join w-full";
   intensities.setAttribute("role", "group");
-  intensities.setAttribute("aria-label", "강도 선택");
+  intensities.setAttribute("aria-label", translate("popupFormIntensitySelection"));
   for (const intensity of ["soft", "medium", "hard"] as Intensity[]) {
     const radio = document.createElement("input");
     radio.type = "radio";
@@ -753,7 +883,7 @@ function renderSessionForm(root: HTMLElement, model: PopupModel, selection: Sele
   if (selection.intensity === "hard") {
     const hardNote = document.createElement("div");
     hardNote.className = "rounded-box border border-base-300 bg-base-200 px-3 py-2 text-sm";
-    appendText(hardNote, "span", "비상 종료는 두 번 확인한 뒤 5분 후 적용되며, 주 1회 사용할 수 있습니다.");
+    appendText(hardNote, "span", translate("popupFormHardNote"));
     form.append(hardNote);
   }
 
@@ -761,7 +891,7 @@ function renderSessionForm(root: HTMLElement, model: PopupModel, selection: Sele
   submit.type = "submit";
   submit.dataset.startSession = "true";
   submit.className = "btn btn-primary sticky bottom-0 z-10 mt-auto w-full shrink-0 shadow-lg";
-  submit.textContent = `${selection.durationMinutes}분 시작`;
+  submit.textContent = translate("popupStartMinutes", String(selection.durationMinutes));
   form.append(submit);
   root.append(form);
 }
@@ -802,7 +932,8 @@ export function mergePetNameSave(model: PopupModel, petState: PetState): PopupMo
 
 export async function dismissPopupCelebrations(
   model: PopupModel,
-  acknowledge: (eventIds: readonly string[]) => Promise<void> = acknowledgePopupCelebrations
+  acknowledge: (eventIds: readonly string[]) => Promise<void> = acknowledgePopupCelebrations,
+  localeOverride?: LocaleOverride
 ): Promise<PopupModel> {
   try {
     await acknowledge(model.celebrations.map((event) => event.id));
@@ -810,7 +941,7 @@ export async function dismissPopupCelebrations(
   } catch {
     return {
       ...model,
-      celebrationAckError: "완료 기록을 저장하지 못했습니다. 연결을 확인한 뒤 다시 시도해 주세요."
+      celebrationAckError: translate("popupCelebrationAckError", undefined, localeOverride)
     };
   }
 }
@@ -840,9 +971,13 @@ export async function acknowledgePopupCelebrations(eventIds: readonly string[]):
   assertOkResponse(response);
 }
 
-export function activeSessionClockSnapshot(session: Session, now = Date.now()): { remainingText: string; progress: number } {
+export function activeSessionClockSnapshot(
+  session: Session,
+  now = Date.now(),
+  localeOverride?: LocaleOverride
+): { remainingText: string; progress: number } {
   return {
-    remainingText: `남은 시간 ${formatRemaining(session, now)}`,
+    remainingText: translate("popupActiveRemaining", formatRemaining(session, now), localeOverride),
     progress: progressValue(session, now)
   };
 }
@@ -868,7 +1003,7 @@ export function updatePendingEmergencyClock(
 ): void {
   const remaining = root.querySelector<HTMLElement>("#popup-emergency-remaining");
   if (remaining && pendingEmergency) {
-    remaining.textContent = `종료까지 ${formatDeadline(pendingEmergency.dueAt, now)}`;
+    remaining.textContent = translate("popupEmergencyUntilEnd", formatDeadline(pendingEmergency.dueAt, now));
   }
 }
 
@@ -989,9 +1124,13 @@ export async function bootstrapPopup(root: HTMLElement): Promise<void> {
             }
           });
           assertOkResponse(response);
-          applied = await reloadModel("세션을 시작했습니다.");
+          applied = await reloadModel(translate("popupNoticeSessionStarted"));
         } catch (error) {
-          applied = await reloadModel(error instanceof Error ? error.message : "세션을 시작하지 못했습니다.");
+          applied = await reloadModel(
+            error instanceof Error
+              ? localizePopupRuntimeError(error.message, "popupNoticeSessionStartFailed")
+              : translate("popupNoticeSessionStartFailed")
+          );
         }
         if (applied) {
           rerender();
@@ -1009,9 +1148,13 @@ export async function bootstrapPopup(root: HTMLElement): Promise<void> {
             payload: { intensity }
           });
           assertOkResponse(response);
-          applied = await reloadModel("차단 방식을 강화했습니다.");
+          applied = await reloadModel(translate("popupNoticeIntensityUpgraded"));
         } catch (error) {
-          applied = await reloadModel(error instanceof Error ? error.message : "차단 방식을 강화하지 못했습니다.");
+          applied = await reloadModel(
+            error instanceof Error
+              ? localizePopupRuntimeError(error.message, "popupNoticeIntensityUpgradeFailed")
+              : translate("popupNoticeIntensityUpgradeFailed")
+          );
         }
         if (applied) {
           rerender();
@@ -1041,9 +1184,13 @@ export async function bootstrapPopup(root: HTMLElement): Promise<void> {
           if (!response.ok) {
             throw new Error(response.error);
           }
-          applied = await reloadModel("비상 종료 요청을 저장했습니다.");
+          applied = await reloadModel(translate("popupNoticeEmergencySaved"));
         } catch (error) {
-          applied = await reloadModel(error instanceof Error ? error.message : "비상 종료 요청을 저장하지 못했습니다.");
+          applied = await reloadModel(
+            error instanceof Error
+              ? localizePopupRuntimeError(error.message, "popupNoticeEmergencySaveFailed")
+              : translate("popupNoticeEmergencySaveFailed")
+          );
         }
         if (applied) {
           rerender();
@@ -1086,7 +1233,9 @@ export async function bootstrapPopup(root: HTMLElement): Promise<void> {
       }).catch((error: unknown) => {
         model = {
           ...model,
-          notice: error instanceof Error ? error.message : "세션 상태를 새로고침하지 못했습니다."
+          notice: error instanceof Error
+            ? localizePopupRuntimeError(error.message, "popupNoticeRefreshFailed")
+            : translate("popupNoticeRefreshFailed")
         };
         rerender(focusKey);
       });
@@ -1105,7 +1254,7 @@ export function renderPopupPreview(root: HTMLElement, petState: PetState, siteLi
     streakStatus: streak.status,
     celebrations: [],
     growthLog: [],
-    notice: "개발 프리뷰"
+    notice: translate("popupDevelopmentPreview")
   };
   const previewSelection: SelectionState = {
     listId: siteLists[0]?.id ?? DEFAULT_SITE_LISTS[0].id,
@@ -1128,13 +1277,30 @@ export function renderPopupPreview(root: HTMLElement, petState: PetState, siteLi
 
 function assertOkResponse(response: unknown): void {
   if (!response || typeof response !== "object" || !("ok" in response)) {
-    throw new Error("백그라운드 응답을 확인하지 못했습니다.");
+    throw new Error(translate("popupErrorInvalidBackgroundResponse"));
   }
 
   const candidate = response as { ok: boolean; error?: string };
   if (!candidate.ok) {
-    throw new Error(candidate.error ?? "요청을 처리하지 못했습니다.");
+    throw new Error(candidate.error ?? translate("popupErrorRequestFailed"));
   }
+}
+
+function localizePopupRuntimeError(error: string, fallbackKey: string): string {
+  const keyByMessage: Record<string, string> = {
+    "A session is already running. Use the intensity upgrade action instead.": "popupErrorSessionAlreadyRunning",
+    "No active session is available for an intensity upgrade.": "popupErrorNoActiveSessionForUpgrade",
+    "Running sessions can only raise intensity.": "popupErrorIntensityCanOnlyIncrease",
+    "Emergency end is only available during an active hard session.": "popupErrorEmergencyUnavailable",
+    "\uc774\ubc88 \uc8fc \ube44\uc0c1 \uc885\ub8cc \uc694\uccad\uc740 \uc774\ubbf8 \uc0ac\uc6a9\ud588\uc2b5\ub2c8\ub2e4.": "popupErrorEmergencyAlreadyUsed"
+  };
+  const key = keyByMessage[error];
+  if (key) {
+    return translate(key);
+  }
+
+  const localKeys = ["popupErrorInvalidBackgroundResponse", "popupErrorRequestFailed"];
+  return localKeys.some((localKey) => error === translate(localKey)) ? error : translate(fallbackKey);
 }
 
 function hasOwn(value: object, key: PropertyKey): boolean {
@@ -1142,8 +1308,14 @@ function hasOwn(value: object, key: PropertyKey): boolean {
 }
 
 const root = typeof document === "undefined" ? null : document.querySelector<HTMLElement>("#app");
+if (typeof document !== "undefined") {
+  document.documentElement.lang = translate("appLocale");
+  document.title = translate("popupDocumentTitle");
+}
 if (root && document.body.dataset.page === "focuswhale-popup") {
   void bootstrapPopup(root).catch((error: unknown) => {
-    root.textContent = error instanceof Error ? error.message : "Popup failed to load.";
+    root.textContent = error instanceof Error
+      ? localizePopupRuntimeError(error.message, "popupLoadFailed")
+      : translate("popupLoadFailed");
   });
 }

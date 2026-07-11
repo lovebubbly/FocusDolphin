@@ -21,6 +21,11 @@ const REQUIRED_CONTENT_ASSET_PATHS = [
   "assets/focuswhale-atlas.png",
   "assets/PretendardVariable.woff2"
 ];
+const REQUIRED_LOCALIZED_PATHS = [
+  "src/pages/onboarding/index.html",
+  "_locales/en/messages.json",
+  "_locales/ko/messages.json"
+];
 
 await Promise.all([waitForPath(MANIFEST_PATH), waitForPath(CONTENT_PATH), waitForPath(FONT_LICENSE_PATH)]);
 const manifest = JSON.parse(await readFile(MANIFEST_PATH, "utf8"));
@@ -41,6 +46,13 @@ const requiredPaths = [
   manifest.options_page,
   ...(manifest.content_scripts ?? []).flatMap((entry) => entry.js ?? [])
 ].filter((value) => typeof value === "string");
+
+if (manifest.default_locale !== "en") {
+  throw new Error("Manifest default_locale must be en for the supported locale fallback.");
+}
+if (manifest.name !== "__MSG_appName__" || manifest.description !== "__MSG_appDescription__") {
+  throw new Error("Manifest name and description must use localized message keys.");
+}
 
 const webAccessibleResources = (manifest.web_accessible_resources ?? [])
   .flatMap((entry) => entry.resources ?? []);
@@ -69,7 +81,7 @@ if (missingResources.length > 0 || unexpectedResources.length > 0) {
   );
 }
 
-requiredPaths.push(...webAccessibleResources);
+requiredPaths.push(...webAccessibleResources, ...REQUIRED_LOCALIZED_PATHS);
 
 for (const relativePath of requiredPaths) {
   await waitForPath(resolve(DIST_DIR, relativePath));

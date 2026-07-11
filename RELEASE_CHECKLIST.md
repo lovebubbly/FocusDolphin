@@ -1,25 +1,51 @@
 # FocusWhale v1.0.0 Release Checklist
 
-Last refreshed: **2026-07-11 10:17 KST** by **OpenAI Codex (GPT-5)**, for requester and product owner **Choi Yunseong (최윤성)**.
+Last refreshed: **2026-07-11 12:08 KST** by **OpenAI Codex (GPT-5)**, for requester and product owner **Choi Yunseong (최윤성)**.
 
-The source version is 1.0.0, but this checklist is the publication gate. Unchecked blocking rows mean the product is not ready to submit.
+The source version remains 1.0.0, but this checklist now gates the Goal 7 onboarding and Korean/English localization candidate on `codex/goal-7-onboarding-i18n`. Unchecked blocking rows mean the localized build is not ready to submit. Checked rows in the explicitly historical v1.0.0 sections are regression evidence only.
 
 ## Automated Gate
 
 - [x] `npm run typecheck` passes.
-- [x] `npm test` passes: 30 files / 196 tests.
+- [x] `npm test` passes: 33 files / 237 tests.
 - [x] `npm run build` passes.
-- [x] Content script is a classic IIFE (116,276 bytes).
-- [x] Manifest targets exist.
+- [x] Content script is a classic IIFE (178,301 bytes; SHA-256 `beed14e097185ddf2d31f3a17f07b9a422d99b715e22d9bc8eae17eb111e31a6`).
+- [x] All 11 verified manifest/build targets exist, including onboarding and both locale catalogs.
+- [x] Manifest uses localized name, description, and action title with `default_locale: en`.
+- [x] English and Korean catalogs have exact key-count parity: 460 / 460.
 - [x] WAR list contains exactly four reviewed resources.
 - [x] Production output contains no source maps.
 - [x] Production JS/CSS/HTML/JSON contains no unexpected external URLs.
 - [x] Packaged Pretendard OFL exactly matches the source license.
 - [x] Packaged Tailwind CSS, daisyUI, and Vite core MIT notices exactly match their installed dependency licenses.
 - [x] Atlas report validates 384 x 1,920, 4 x 20, 80 frames.
-- [x] Release ZIP extracts byte-for-byte equal to exact final `dist/` with `manifest.json` at the root; all executable files retain the tested fingerprints.
+- [x] Goal 7 release ZIP extracts byte-for-byte equal to the exact final working-tree `dist/` with `manifest.json` at the root; repeat after the executable commit if fingerprints change.
 
-## Live Final-Build QA
+## Goal 7 Current Live QA
+
+Headed disposable Naver Whale 4.38 / Chromium 148 evidence from the current rebuilt `dist/`:
+
+- [x] English first-install onboarding renders all three steps, persists completion, and stays closed on later launches.
+- [x] Korean first-install onboarding renders all three steps, persists `version: 1` / `outcome: setup_only`, and stays closed on later launches.
+- [x] Onboarding defaults to soft, never escalates automatically, and describes the emergency valve only for hard sessions.
+- [x] Onboarding does not request optional `history` permission in English or Korean.
+- [x] Options exposes the replay entry; English activation opens the packaged onboarding URL with `?replay=1`, and the shared launch path is unit-tested.
+- [x] English and Korean idle popup render at 360 x 600 with localized product defaults, visible pet/CTA, no message-key leak, no horizontal overflow, and no page console error.
+- [x] English and Korean Options activity/replay surfaces render without message-key leak or horizontal overflow.
+- [x] Korean blocked no-session page renders without message-key leak, overflow, or page console error.
+- [x] Korean fallback handles Whale reporting `getUILanguage() = ko-KR` while the runtime catalog exposes `@@ui_locale = en_US`.
+- [ ] English blocked no-session page is visually checked on the committed exact build.
+- [ ] English and Korean active popup, medium/hard blocked flow, soft overlay, and completion overview pass in an ordinary visible Whale profile.
+- [ ] English and Korean light/dark/reduced-motion localization matrix passes without copy clipping or key leaks.
+- [ ] Live browser network trace confirms zero external fetches. The static production-URL scan already passes.
+- [ ] Keyboard-only onboarding completion and Options replay are exercised in both locales.
+- [ ] Product owner completes visual/copy judgment in both languages.
+
+Playwright-launched Whale stalls at `chrome.alarms.create` during session start at roughly 97-100% CPU. The exact same stall reproduced at pre-Goal-7 baseline commit `acb45b6`; record it as a harness limitation/pre-existing baseline behavior, not a Goal 7 regression and not a normal-browser pass. Google Chrome is not counted as a Goal 7 smoke pass because browser URL policy blocked the extension pages before FocusWhale could be exercised.
+
+## Prior v1.0.0 Live QA (Historical)
+
+The checked rows in this section belong to the prior v1.0.0 release executable. They do not close the Goal 7 rows above.
 
 - [x] Load the exact rebuilt `dist/` in isolated headless Whale profiles and exercise that exact output. **Whale 4.38 / Chromium 148**
 - [x] Popup active state and visible focus pet in Whale. **Headless exact-final pass**
@@ -52,43 +78,44 @@ The core matrix passed in Whale. The exact headed pass additionally covered list
 
 ## Privacy And Security
 
-- [x] Reconcile `PRIVACY.md` against final retention and in-product clear behavior.
+- [x] Reconcile `PRIVACY.md` against the versioned local onboarding completion record (`focuswhaleOnboarding`) and replay behavior.
 - [x] Set [GitHub Issues](https://github.com/lovebubbly/FocusWhale/issues) as the support/privacy contact channel.
-- [x] Publish `PRIVACY.md` at a stable public HTTPS URL. **GitHub public page and Limited Use statement verified 2026-07-11 after push**
+- [ ] Publish the Goal 7-reconciled `PRIVACY.md` at the existing stable public HTTPS URL and re-verify the Limited Use statement. **The prior v1 page was reachable on 2026-07-11**
 - [ ] Add the public privacy URL to store metadata.
-- [x] Secret/privacy scan passes against the exact current candidate and release archive; archive token/path/email scan has no findings.
-- [x] Repeat the scan against the exact release commit if it differs from the current artifact. **`6dfb1cd` source and final extracted archive: no secret/token/private-key/machine-path findings**
-- [x] Confirm no real browsing exports, browser profiles, extension storage, or personal screenshots are included.
+- [x] Secret/privacy scan passes against the Goal 7 working tree and regenerated release archive; repeat after commit if content changes.
+- [x] Confirm no real browsing exports, browser profiles, extension storage, or personal screenshots are included in the Goal 7 diff/archive.
 - [x] Sanitize machine-specific `/Users/...` paths from `docs/SNSLOCK_CORE_CONCEPT_PORT_PLAN.md`.
-- [x] Review all permissions/host permissions and write store justifications. **`store/PERMISSIONS_AND_PRIVACY.md`**
-- [x] Confirm no backend, telemetry, advertising, remote AI, CDN, or remote font was introduced.
+- [x] Review all permissions/host permissions and onboarding behavior. **`history` remains optional and is not requested during onboarding; `store/PERMISSIONS_AND_PRIVACY.md` updated**
+- [x] Static production scan confirms no backend, telemetry, advertising, remote AI, CDN, remote font, or other unexpected external URL was introduced.
+
+Historical v1.0.0 security evidence: commit `6dfb1cd` and its extracted archive had no secret/token/private-key/machine-path finding. Repeat that scan because Goal 7 changes the executable and package.
 
 ## Package
 
-- [x] Review `git status` and final diff; preserve intentional user changes.
-- [x] Commit the exact reviewed executable candidate. **`acb45b6` (`Finalize FocusWhale v1.0 release candidate`) on `main`**
-- [x] Commit the publication package and distribution notices. **`6dfb1cd` (`Prepare FocusWhale store submission pack`) on `main`; no app logic or manifest change**
-- [x] Rebuild from the publication commit in a clean dependency environment. **Fresh `git archive 6dfb1cd` + `npm ci`; typecheck, 30/196 tests, build/verifier pass; rebuilt `dist/` is byte-equal to the final extracted package**
-- [x] Create `release/FocusWhale-1.0.0.zip` from the exact final `dist/` with the manifest at archive root.
-- [x] Load the extracted ZIP into a clean profile and smoke test it. **Visible Whale 4.38: MV3 v1.0.0 popup, exact 116,276-byte content bundle, and packaged notices passed under extension ID `ejhfobkhmdabjhobogffeineggppeafj`; no popup page console errors**
-- [x] Record archive size: 2,694,409 bytes.
-- [x] Record and verify SHA-256: `241a9863fde194a20d1f0f54dc1a7377bf9314dd40413e5fd1488dab52c97f18`.
-- [x] Confirm manifest/name/description/version/icons.
-- [x] Confirm the archive is byte-equal to exact final `dist/`: 33 entries / 25 files.
-- [x] Confirm no source maps, tests, TypeScript, generated source sheets, or private docs are in the ZIP; required third-party notices are included.
-- [x] Draft version 1.0.0 release notes. **`store/RELEASE_NOTES_1.0.0.md`**
+- [x] Review the final Goal 7 `git status` and diff; preserve intentional user changes.
+- [ ] Commit the exact reviewed Goal 7 executable candidate.
+- [ ] Rebuild from that commit in a clean dependency environment; typecheck, 33/237 tests, build/verifier, and byte-reproducibility pass.
+- [x] Regenerate `release/FocusWhale-1.0.0.zip` from the exact current `dist/` with `manifest.json` at archive root.
+- [ ] Load the extracted Goal 7 ZIP into a clean ordinary Whale profile and complete the current smoke matrix.
+- [x] Record the Goal 7 archive: 2,754,338 bytes; SHA-256 `cba02253a1422d8f19ed7ddb16288f0c51a442656cbd02cf459740e68b5656a0`; 31 entries / 31 files.
+- [x] Confirm localized manifest name/description/version/icons in the extracted archive.
+- [x] Confirm no source maps, tests, TypeScript, generated source sheets, browser profiles, or private docs are in the ZIP; required third-party notices are included.
+- [x] Update the draft version 1.0.0 release notes for onboarding and Korean/English support. **`store/RELEASE_NOTES_1.0.0.md`**
 - [ ] Create a signed Git tag only after owner approval. **No pre-existing tag convention; no tag is required for the store ZIP itself**
+
+Historical package evidence: `acb45b6` was the prior executable candidate and `6dfb1cd` the prior publication pack. Their 2,694,409-byte ZIP (`241a9863fde194a20d1f0f54dc1a7377bf9314dd40413e5fd1488dab52c97f18`, 33 entries / 25 files, 116,276-byte content script) passed byte-equality and clean Whale load, but it predates Goal 7.
 
 ## Store Materials
 
-- [x] Choose the first target store. **Whale Store first for the exact reviewed 1.0.0 package; Chrome requires a separately approved browser-neutral manifest-description rebuild**
-- [x] Prepare listing title, exact-package short description, Korean full description, category, and language coverage. **The current English manifest description is labeled accurately; the Korean short-description replacement is explicitly rebuild-only**
-- [x] Prepare final screenshots from the release build only. **Four authentic 1280 x 800 exact-build composites under `store-assets/`**
-- [x] Prepare required promotional/store images without personal browser data. **Chrome 440 x 280 tile plus shared screenshots; hashes and source captures recorded**
+- [x] Choose the first target store. **Whale Store first for the localized Goal 7 package; Chrome follows only after separate browser-specific QA and listing approval**
+- [x] Draft bilingual listing title/description, category, and language coverage for the Goal 7 candidate. **`store/STORE_LISTING.md`**
+- [x] Capture exact Goal 7 onboarding screenshots in English and Korean at 1280 x 800, with checksums and no personal data.
+- [ ] Refresh or explicitly approve the four prior-build core-flow composites before upload.
+- [x] Confirm the icon and copy-free promotional tile remain byte-identical and accurate.
 - [x] Prepare support URL. **Public GitHub Issues**
 - [ ] Product owner confirms that the public support channel will be monitored.
-- [x] Prepare the privacy URL and Limited Use statement. **Public reachability and dashboard entry remain separate gates**
-- [x] Write reviewer instructions for blocklist/medium/hard/optional-history testing. **`store/REVIEWER_INSTRUCTIONS.md`**
+- [x] Prepare the privacy URL and Limited Use statement. **Public reachability is historical; dashboard entry remains a separate gate**
+- [x] Update reviewer instructions for first-install onboarding, language behavior, blocklist/medium/hard, and optional-history testing. **`store/REVIEWER_INSTRUCTIONS.md`**
 - [x] Document why broad HTTP(S) host access and the content script are necessary. **`store/PERMISSIONS_AND_PRIVACY.md`**
 - [x] Select the repository license deliberately. **Publicly viewable, all rights reserved; third-party licenses preserved**
 
@@ -104,4 +131,4 @@ The core matrix passed in Whale. The exact headed pass additionally covered list
 
 ## Current Decision
 
-**Release preparation is complete up to the owner/store boundary, but no store submission is authorized or recorded.** All technical exact-build QA, automated gates, headed usability/accessibility/history checks, recovery fault injection, archive verification, public policy verification, listing copy, permission/privacy declarations, reviewer instructions, exact-build imagery, release notes, target-store choice, and license decision are complete. Remaining gates are confirmation that the support channel will be monitored, product-owner approval, publisher-dashboard metadata entry, upload, review, and publication. A signed source tag is optional and deferred until owner approval.
+**The Goal 7 source/build, archive, static privacy scan, and bilingual onboarding-image gates are green, but the localized release is not publication-ready yet.** Remaining technical gates are a normal-browser active-session/blocked/overlay/completion sweep in both locales, English blocked no-session check, light/dark/reduced-motion and keyboard checks, a live zero-network trace, committed clean rebuild, extracted-archive browser load, and refresh or approval of the four older core-flow composites. Owner approval, support-channel monitoring, publisher-dashboard metadata, upload, review, and publication also remain open. The prior v1.0.0 browser evidence is preserved only as regression context.

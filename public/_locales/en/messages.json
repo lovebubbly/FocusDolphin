@@ -1,0 +1,1718 @@
+{
+  "appName": {
+    "message": "FocusWhale",
+    "description": "Extension name shown in the browser and store listing."
+  },
+  "appDescription": {
+    "message": "A local-first focus assistant for healthier browsing habits.",
+    "description": "Short extension description shown in the browser and store listing."
+  },
+  "appLocale": {
+    "message": "en"
+  },
+  "defaultAllowlistName": {
+    "message": "Focus allowlist"
+  },
+  "defaultBlocklistName": {
+    "message": "Default blocklist"
+  },
+  "defaultPetName": {
+    "message": "Miro"
+  },
+  "badgeFallbackDescription": {
+    "message": "A record of a new journey."
+  },
+  "badgeAllowlist10Description": {
+    "message": "You kept only the lights you needed through ten journeys."
+  },
+  "badgeAllowlist10Name": {
+    "message": "Lighthouse Keeper"
+  },
+  "badgeComebackDescription": {
+    "message": "Coming back is often the hardest part. Welcome back."
+  },
+  "badgeComebackName": {
+    "message": "Back to the Sea"
+  },
+  "badgeFirstHardDescription": {
+    "message": "You chose the deep water and swam all the way through."
+  },
+  "badgeFirstHardName": {
+    "message": "First Deep Dive"
+  },
+  "badgeFirstScheduleDescription": {
+    "message": "The sea opened on its own at the right time."
+  },
+  "badgeFirstScheduleName": {
+    "message": "Tide Chart"
+  },
+  "badgeFirstSessionDescription": {
+    "message": "Your first focus session made the first ripple."
+  },
+  "badgeFirstSessionName": {
+    "message": "First Ripple"
+  },
+  "badgeFiveDayWeekDescription": {
+    "message": "You found a five-day rhythm. The days did not have to be consecutive."
+  },
+  "badgeFiveDayWeekName": {
+    "message": "A Week's Rhythm"
+  },
+  "badgeFocus10HoursDescription": {
+    "message": "Ten hours, gathered a little at a time."
+  },
+  "badgeFocus10HoursName": {
+    "message": "Ten Hours at Sea"
+  },
+  "badgeFocus50HoursDescription": {
+    "message": "Fifty hours carried you across an ocean."
+  },
+  "badgeFocus50HoursName": {
+    "message": "Fifty-Hour Ocean"
+  },
+  "badgeSteady4wDescription": {
+    "message": "It did not have to be perfect to be steady. That is real progress."
+  },
+  "badgeSteady4wName": {
+    "message": "Steady Waves"
+  },
+  "badgeStreak30Description": {
+    "message": "A month-long current took shape."
+  },
+  "badgeStreak30Name": {
+    "message": "Thirty-Day Current"
+  },
+  "badgeStreak7Description": {
+    "message": "The current flowed for seven days."
+  },
+  "badgeStreak7Name": {
+    "message": "Seven-Day Current"
+  },
+  "blockedActionsAria": {
+    "message": "Blocking choices"
+  },
+  "blockedCurrentSite": {
+    "message": "Current site"
+  },
+  "blockedDocumentTitle": {
+    "message": "FocusWhale"
+  },
+  "blockedEmergencyConfirmWarning": {
+    "message": "Press once more to schedule an emergency end. Go back if you pressed it by mistake."
+  },
+  "blockedEmergencyEnding": {
+    "message": "Ending session"
+  },
+  "blockedEmergencyPending": {
+    "message": "Emergency end request saved. The session will end in about 5 minutes."
+  },
+  "blockedEmergencyRequest": {
+    "message": "Request emergency end"
+  },
+  "blockedEmergencyRule": {
+    "message": "Emergency end takes effect after 5 minutes and can be used once per week."
+  },
+  "blockedEmergencySaveFailed": {
+    "message": "We couldn't save the request. Please try again."
+  },
+  "blockedEmergencySchedule": {
+    "message": "Schedule end in 5 minutes"
+  },
+  "blockedErrorBlockedPageRequired": {
+    "message": "This action requires the FocusWhale blocked page."
+  },
+  "blockedErrorDomainNotBlocked": {
+    "message": "This site is not blocked by the active session."
+  },
+  "blockedErrorEmergencyAlreadyUsed": {
+    "message": "You've already used this week's emergency end request."
+  },
+  "blockedErrorEmergencyUnavailable": {
+    "message": "Emergency end is only available during an active full-block session."
+  },
+  "blockedErrorInvalidDomain": {
+    "message": "We couldn't identify a valid site for temporary access."
+  },
+  "blockedErrorInvalidIntent": {
+    "message": "Enter a reason between 1 and 140 characters."
+  },
+  "blockedErrorNoMatchingMediumSession": {
+    "message": "Temporary access requires the matching active confirm-to-continue session."
+  },
+  "blockedErrorTopLevelPageRequired": {
+    "message": "This action requires a top-level FocusWhale blocked-page tab."
+  },
+  "blockedGoBack": {
+    "message": "Go back"
+  },
+  "blockedHardNoTemporaryAllow": {
+    "message": "Temporary access is not available in full-block mode."
+  },
+  "blockedHeadingSessionActive": {
+    "message": "Focus session in progress"
+  },
+  "blockedHeadingSessionEnded": {
+    "message": "Focus session ended"
+  },
+  "blockedHeadingStateUnavailable": {
+    "message": "We couldn't check the session status"
+  },
+  "blockedIntentHelp": {
+    "message": "Write one sentence about why you need this site right now."
+  },
+  "blockedIntentLegend": {
+    "message": "Why you need to open it"
+  },
+  "blockedInvalidExtensionResponse": {
+    "message": "We couldn't verify the extension response."
+  },
+  "blockedLoadFailed": {
+    "message": "We couldn't load the blocked page."
+  },
+  "blockedMediumPrompt": {
+    "message": "Take a brief check-in before opening this site."
+  },
+  "blockedOpenAnyway": {
+    "message": "Open anyway"
+  },
+  "blockedRemainingCheckNeeded": {
+    "message": "Check needed"
+  },
+  "blockedRemainingNoSession": {
+    "message": "No session"
+  },
+  "blockedReturnToFocus": {
+    "message": "Return to focus"
+  },
+  "blockedReturnToPreviousPage": {
+    "message": "Return to previous page"
+  },
+  "blockedSessionEndedNotice": {
+    "message": "The focus session has ended. You can return to the previous page."
+  },
+  "blockedSoftFallback": {
+    "message": "Gentle reminder mode handles this site with a guidance overlay."
+  },
+  "blockedStateUnavailable": {
+    "message": "We couldn't check the session status. Please try again shortly."
+  },
+  "blockedTarget": {
+    "message": "Site"
+  },
+  "blockedTemporaryAllowApplying": {
+    "message": "Applying temporary access."
+  },
+  "blockedTemporaryAllowAria": {
+    "message": "Allow for 5 minutes"
+  },
+  "blockedTemporaryAllowAvailableAnnouncement": {
+    "message": "You can now request a 5-minute temporary allow."
+  },
+  "blockedTemporaryAllowFailed": {
+    "message": "We couldn't apply temporary access. Please try again."
+  },
+  "blockedTemporaryAllowFiveMinutes": {
+    "message": "Allow for 5 minutes"
+  },
+  "blockedTemporaryAllowSuccess": {
+    "message": "You can open this site for 5 minutes. The session rules will apply again afterward."
+  },
+  "blockedTimeRemaining": {
+    "message": "Time left"
+  },
+  "growthBadgeEarned": {
+    "message": "Keepsake earned — $BADGE$",
+    "placeholders": {
+      "badge": {
+        "content": "$1",
+        "example": "First Dive"
+      }
+    }
+  },
+  "growthBadgeEarnedGeneric": {
+    "message": "You earned a new keepsake."
+  },
+  "growthFreezeGranted": {
+    "message": "Droplet shield +1"
+  },
+  "growthFreezeUsed": {
+    "message": "A droplet shield protected your streak."
+  },
+  "growthHalfWay": {
+    "message": "You're halfway to $STAGE$.",
+    "placeholders": {
+      "stage": {
+        "content": "$1",
+        "example": "Young whale"
+      }
+    }
+  },
+  "growthMigration": {
+    "message": "Your growth system is up to date."
+  },
+  "growthSessionCompleted": {
+    "message": "$MINUTES$ min focus complete · +$XP$ XP ($MINUTES$ min × $INTENSITY$)",
+    "placeholders": {
+      "minutes": {
+        "content": "$1",
+        "example": "25"
+      },
+      "xp": {
+        "content": "$2",
+        "example": "25"
+      },
+      "intensity": {
+        "content": "$3",
+        "example": "Gentle reminder"
+      }
+    }
+  },
+  "growthSessionEndedEarly": {
+    "message": "The session ended early. No XP was added."
+  },
+  "growthStageUp": {
+    "message": "You grew into a $STAGE$. Your accumulated focus made this change.",
+    "placeholders": {
+      "stage": {
+        "content": "$1",
+        "example": "Young whale"
+      }
+    }
+  },
+  "growthStreakFreshStart": {
+    "message": "A new sea is open. Your past records remain in the growth log."
+  },
+  "growthStreakRest": {
+    "message": "Taking a rest. One session today will continue your journey."
+  },
+  "growthStreakRestored": {
+    "message": "Welcome back. Your journey continues on day $DAYS$.",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "7"
+      }
+    }
+  },
+  "analysisSettingsSaveFailed": {
+    "message": "We couldn't save the recommendation analysis settings."
+  },
+  "analysisSettingsSaved": {
+    "message": "Recommendation analysis settings saved."
+  },
+  "badgeEarned": {
+    "message": "Earned"
+  },
+  "badgeHidden": {
+    "message": "Hidden keepsake"
+  },
+  "badgeInProgress": {
+    "message": "In progress"
+  },
+  "badgeProgress10Hours": {
+    "message": "$MINUTES$/600 minutes gathered.",
+    "placeholders": {
+      "minutes": {
+        "content": "$1",
+        "example": "125"
+      }
+    }
+  },
+  "badgeProgress50Hours": {
+    "message": "$MINUTES$/3,000 minutes of the journey completed.",
+    "placeholders": {
+      "minutes": {
+        "content": "$1",
+        "example": "750"
+      }
+    }
+  },
+  "badgeProgressFirstSession": {
+    "message": "Complete your first focus session to unlock this keepsake."
+  },
+  "badgeProgressFiveDayWeek": {
+    "message": "Focus on five days in one week to unlock this keepsake."
+  },
+  "badgeProgressSteady4w": {
+    "message": "Build your own rhythm over four weeks to unlock this keepsake."
+  },
+  "badgeProgressStreak30": {
+    "message": "$DAYS$/30 days of the current are flowing.",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "14"
+      }
+    }
+  },
+  "badgeProgressStreak7": {
+    "message": "$DAYS$/7 days of the current are flowing.",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
+  "badgeProgressSurprise": {
+    "message": "It opens quietly during an unexpected journey."
+  },
+  "behaviorSaveFailed": {
+    "message": "We couldn't save the blocking behavior."
+  },
+  "behaviorSaved": {
+    "message": "Blocking behavior saved."
+  },
+  "blockedCategoriesEmpty": {
+    "message": "Category trends will appear as activity builds."
+  },
+  "blockedCategoriesTitle": {
+    "message": "Blocked-attempt categories"
+  },
+  "dashboardDescription": {
+    "message": "Local activity that never leaves your browser."
+  },
+  "dashboardTitle": {
+    "message": "Focus activity"
+  },
+  "focusHourVisitRatio": {
+    "message": "Visits during focus hours $PERCENT$%",
+    "placeholders": {
+      "percent": {
+        "content": "$1",
+        "example": "65"
+      }
+    }
+  },
+  "historyAnalysisComplete": {
+    "message": "Local browsing-history analysis complete."
+  },
+  "historyAnalysisFailed": {
+    "message": "We couldn't analyze browsing history."
+  },
+  "historyAnalyze": {
+    "message": "Analyze browsing history"
+  },
+  "historyAnalyzing": {
+    "message": "Analyzing..."
+  },
+  "historyPermissionAlreadyRevoked": {
+    "message": "Browsing-history access is already revoked."
+  },
+  "historyPermissionRequired": {
+    "message": "Allow browsing-history access to start local recommendation analysis."
+  },
+  "historyPermissionRevoke": {
+    "message": "Revoke browsing-history access"
+  },
+  "historyPermissionRevokeFailed": {
+    "message": "Could not revoke browsing history access."
+  },
+  "historyPermissionRevoked": {
+    "message": "Browsing-history access revoked."
+  },
+  "localDataClear": {
+    "message": "Clear local activity"
+  },
+  "localDataClearConfirm": {
+    "message": "Clear activity"
+  },
+  "localDataClearDescription": {
+    "message": "This clears sessions, intention entries, recommendations, statistics, and the growth log. Synced blocking rules, schedules, and whale growth remain."
+  },
+  "localDataClearFailed": {
+    "message": "We couldn't clear local activity."
+  },
+  "localDataClearTitle": {
+    "message": "Clear activity stored on this device?"
+  },
+  "localDataCleared": {
+    "message": "Activity stored on this device was cleared."
+  },
+  "localDataClearing": {
+    "message": "Clearing..."
+  },
+  "metricBlockedAttempts": {
+    "message": "Blocked attempts"
+  },
+  "metricFocusMinutes": {
+    "message": "Focus minutes"
+  },
+  "metricInterrupted": {
+    "message": "Interrupted"
+  },
+  "metricOverrides": {
+    "message": "Temporary access"
+  },
+  "onboardingReplay": {
+    "message": "View onboarding again"
+  },
+  "onboardingReplayFailed": {
+    "message": "Could not open onboarding."
+  },
+  "optionsLoadFailed": {
+    "message": "Could not load settings."
+  },
+  "recommendationAddFailed": {
+    "message": "We couldn't add $DOMAIN$ to the blocklist.",
+    "placeholders": {
+      "domain": {
+        "content": "$1",
+        "example": "example.com"
+      }
+    }
+  },
+  "recommendationAdded": {
+    "message": "$DOMAIN$ was added to the blocklist.",
+    "placeholders": {
+      "domain": {
+        "content": "$1",
+        "example": "example.com"
+      }
+    }
+  },
+  "recommendationReason": {
+    "message": "Recommendation reason"
+  },
+  "recommendationsEmpty": {
+    "message": "There are no recommendation candidates yet."
+  },
+  "recommendationsMethod": {
+    "message": "Up to 5,000 URLs from actual visits in the last 30 days are grouped by domain, entirely on this device."
+  },
+  "visitsIn30Days": {
+    "message": "Visits in 30 days"
+  },
+  "weeklyFocusAria": {
+    "message": "$WEEK$ week: $MINUTES$ minutes focused",
+    "placeholders": {
+      "week": {
+        "content": "$1",
+        "example": "2026-07-06"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "125"
+      }
+    }
+  },
+  "weeklyFocusEmpty": {
+    "message": "Complete a session to see your weekly trend here."
+  },
+  "weeklyFocusTitle": {
+    "message": "Weekly focus"
+  },
+  "optionsErrorClearDuringSession": {
+    "message": "Local records can be cleared after the active session ends."
+  },
+  "optionsErrorConfigLocked": {
+    "message": "Settings cannot be changed during a focus session."
+  },
+  "optionsErrorFocusHoursInvalid": {
+    "message": "Choose valid, different start and end times."
+  },
+  "optionsErrorHistoryStale": {
+    "message": "Local records changed during analysis, so the result was not saved. Run the analysis again."
+  },
+  "optionsErrorListDeleteMissing": {
+    "message": "Could not find the list to delete. Refresh and try again."
+  },
+  "optionsErrorListDuplicate": {
+    "message": "This list already exists."
+  },
+  "optionsErrorListIdRequired": {
+    "message": "A list ID is required."
+  },
+  "optionsErrorListModeInvalid": {
+    "message": "Choose a valid list mode."
+  },
+  "optionsErrorListUpdateMissing": {
+    "message": "Could not find this list. Refresh and try again."
+  },
+  "optionsErrorRecommendationDomainInvalid": {
+    "message": "Could not identify the domain to block."
+  },
+  "optionsErrorScheduleDeleteMissing": {
+    "message": "Could not find the schedule to delete. Refresh and try again."
+  },
+  "optionsErrorScheduleDuplicate": {
+    "message": "This schedule already exists."
+  },
+  "optionsErrorScheduleIdRequired": {
+    "message": "A schedule ID is required."
+  },
+  "optionsErrorScheduleIntensityInvalid": {
+    "message": "Choose a valid intensity for this schedule."
+  },
+  "optionsErrorScheduleListMissing": {
+    "message": "Could not find the list used by this schedule."
+  },
+  "optionsErrorScheduleUpdateMissing": {
+    "message": "Could not find this schedule. Refresh and try again."
+  },
+  "optionsErrorSoftDelayRange": {
+    "message": "Choose a gentle prompt delay between 3 and 60 seconds."
+  },
+  "optionsErrorTooManyDomains": {
+    "message": "This list has too many domains to activate safely. Remove some domains and try again."
+  },
+  "growthAtDeepestSea": {
+    "message": "You're now sailing the deepest sea."
+  },
+  "growthComplete": {
+    "message": "Complete"
+  },
+  "growthCurrentStage": {
+    "message": "Current stage"
+  },
+  "growthDeepestSeaReached": {
+    "message": "You've reached the deepest sea."
+  },
+  "growthLogEmpty": {
+    "message": "There is no growth activity yet."
+  },
+  "growthLogShow": {
+    "message": "View growth activity"
+  },
+  "growthNextStage": {
+    "message": "Next stage"
+  },
+  "growthPercentToNext": {
+    "message": "$PERCENT$% to $STAGE$",
+    "placeholders": {
+      "stage": {
+        "content": "$1",
+        "example": "Young whale"
+      },
+      "percent": {
+        "content": "$2",
+        "example": "50"
+      }
+    }
+  },
+  "growthRecord": {
+    "message": "Activity"
+  },
+  "growthRemainingXp": {
+    "message": "Remaining XP"
+  },
+  "growthSailingWith": {
+    "message": "Sailing with $STAGE$",
+    "placeholders": {
+      "stage": {
+        "content": "$1",
+        "example": "Calf"
+      }
+    }
+  },
+  "growthSailingWithConsonant": {
+    "message": "Sailing with $STAGE$",
+    "placeholders": {
+      "stage": {
+        "content": "$1",
+        "example": "Egg"
+      }
+    }
+  },
+  "growthSailingWithVowel": {
+    "message": "Sailing with $STAGE$",
+    "placeholders": {
+      "stage": {
+        "content": "$1",
+        "example": "Calf"
+      }
+    }
+  },
+  "growthShieldDescription": {
+    "message": "Shields $COUNT$/2 · Earn one after 7 consecutive focus days. If you take a day off, one is used automatically to protect your streak.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "growthTotalFocus": {
+    "message": "Total focus"
+  },
+  "growthXpToNext": {
+    "message": "$XP$ XP until $STAGE$",
+    "placeholders": {
+      "stage": {
+        "content": "$1",
+        "example": "Young whale"
+      },
+      "xp": {
+        "content": "$2",
+        "example": "50"
+      }
+    }
+  },
+  "petNameLabel": {
+    "message": "Whale name"
+  },
+  "petNameSave": {
+    "message": "Save name"
+  },
+  "petNameSaveFailed": {
+    "message": "We couldn't save the whale's name."
+  },
+  "petNameSaved": {
+    "message": "Whale name saved."
+  },
+  "intensityHard": {
+    "message": "Full block"
+  },
+  "intensityMedium": {
+    "message": "Confirm to continue"
+  },
+  "intensitySoft": {
+    "message": "Gentle reminder"
+  },
+  "petAriaLabel": {
+    "message": "FocusWhale pet, $STAGE$, $MOOD$",
+    "placeholders": {
+      "stage": {
+        "content": "$1",
+        "example": "Calf"
+      },
+      "mood": {
+        "content": "$2",
+        "example": "Happy"
+      }
+    }
+  },
+  "petMoodCelebrate": {
+    "message": "Celebrating"
+  },
+  "petMoodFocus": {
+    "message": "Focusing"
+  },
+  "petMoodHappy": {
+    "message": "Happy"
+  },
+  "petMoodIdle": {
+    "message": "Resting"
+  },
+  "petStageName0": {
+    "message": "Egg"
+  },
+  "petStageName1": {
+    "message": "Calf"
+  },
+  "petStageName2": {
+    "message": "Young whale"
+  },
+  "petStageName3": {
+    "message": "Blue whale"
+  },
+  "petStageName4": {
+    "message": "Star whale"
+  },
+  "popupActiveCurrentIntensity": {
+    "message": "Current setting: $INTENSITY$",
+    "placeholders": {
+      "intensity": {
+        "content": "$1",
+        "example": "Gentle reminder"
+      }
+    }
+  },
+  "popupActiveProgressLabel": {
+    "message": "Session progress"
+  },
+  "popupActiveRemaining": {
+    "message": "Time left $TIME$",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "24:59"
+      }
+    }
+  },
+  "popupActiveStatus": {
+    "message": "In progress"
+  },
+  "popupActiveStrongestIntensity": {
+    "message": "You're already using the strongest setting."
+  },
+  "popupActiveUpgradeButton": {
+    "message": "Upgrade to $INTENSITY$",
+    "placeholders": {
+      "intensity": {
+        "content": "$1",
+        "example": "Full block"
+      }
+    }
+  },
+  "popupActiveUpgradeHint": {
+    "message": "Upgrade only when you need a stronger setting."
+  },
+  "popupBadgeRecent": {
+    "message": "Latest keepsake · $BADGE$",
+    "placeholders": {
+      "badge": {
+        "content": "$1",
+        "example": "First Ripple"
+      }
+    }
+  },
+  "popupBadgeWaiting": {
+    "message": "Waiting for the first keepsake"
+  },
+  "popupCelebrationAckError": {
+    "message": "We couldn't save the completion record. Check your connection and try again."
+  },
+  "popupCelebrationConfirm": {
+    "message": "Got it"
+  },
+  "popupCelebrationMoreChanges": {
+    "message": "$COUNT$ more changes to review.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "popupCelebrationRecentChange": {
+    "message": "What just changed"
+  },
+  "popupCompletionCurrentStage": {
+    "message": "Current stage"
+  },
+  "popupCompletionGrewFromStage": {
+    "message": "Grew from $STAGE$",
+    "placeholders": {
+      "stage": {
+        "content": "$1",
+        "example": "Egg"
+      }
+    }
+  },
+  "popupCompletionGrowingSteadily": {
+    "message": "Growing steadily"
+  },
+  "popupCompletionHeading": {
+    "message": "Your focus helped the whale grow"
+  },
+  "popupCompletionLabel": {
+    "message": "Session complete"
+  },
+  "popupCompletionReachedNewStage": {
+    "message": "You reached a new stage"
+  },
+  "popupCompletionThisSession": {
+    "message": "This session"
+  },
+  "popupCompletionTotalXp": {
+    "message": "Total XP"
+  },
+  "popupCompletionUntilNextGrowth": {
+    "message": "Until the next growth"
+  },
+  "popupDevelopmentPreview": {
+    "message": "Development preview"
+  },
+  "popupDocumentTitle": {
+    "message": "FocusWhale"
+  },
+  "popupEmergencyConfirmWarning": {
+    "message": "Press once more to schedule an emergency end in 5 minutes."
+  },
+  "popupEmergencyRequest": {
+    "message": "Request emergency end"
+  },
+  "popupEmergencyRule": {
+    "message": "Emergency end takes effect after 5 minutes and can be used once per week."
+  },
+  "popupEmergencySaved": {
+    "message": "Emergency end request saved."
+  },
+  "popupEmergencySchedule": {
+    "message": "Schedule end in 5 minutes"
+  },
+  "popupEmergencyScheduling": {
+    "message": "Scheduling..."
+  },
+  "popupEmergencyUntilEnd": {
+    "message": "Ends in $TIME$",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "4:59"
+      }
+    }
+  },
+  "popupErrorEmergencyAlreadyUsed": {
+    "message": "You've already used this week's emergency end request."
+  },
+  "popupErrorEmergencyUnavailable": {
+    "message": "Emergency end is only available during an active full-block session."
+  },
+  "popupErrorIntensityCanOnlyIncrease": {
+    "message": "A running session's intensity can only be increased."
+  },
+  "popupErrorInvalidBackgroundResponse": {
+    "message": "We couldn't verify the background response."
+  },
+  "popupErrorNoActiveSessionForUpgrade": {
+    "message": "There is no active session to upgrade."
+  },
+  "popupErrorRequestFailed": {
+    "message": "We couldn't process the request."
+  },
+  "popupErrorSessionAlreadyRunning": {
+    "message": "A session is already running. Use the intensity upgrade action instead."
+  },
+  "popupFormBlockingMethod": {
+    "message": "Blocking mode"
+  },
+  "popupFormCustomDuration": {
+    "message": "Custom duration"
+  },
+  "popupFormCustomDurationAria": {
+    "message": "Custom duration in minutes"
+  },
+  "popupFormDescription": {
+    "message": "Choose once for today, then get started."
+  },
+  "popupFormDuration": {
+    "message": "Duration"
+  },
+  "popupFormDurationSelection": {
+    "message": "Duration selection"
+  },
+  "popupFormHardNote": {
+    "message": "Emergency end requires two confirmations, takes effect after 5 minutes, and can be used once per week."
+  },
+  "popupFormHeading": {
+    "message": "Start focusing"
+  },
+  "popupFormIntensitySelection": {
+    "message": "Intensity selection"
+  },
+  "popupFormList": {
+    "message": "List"
+  },
+  "popupFreezeCount": {
+    "message": "Shields $COUNT$/2",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "popupGoBack": {
+    "message": "Go back"
+  },
+  "popupGrowthDetails": {
+    "message": "View growth details"
+  },
+  "popupGrowthFreezeExplanation": {
+    "message": "You earn one shield after 7 consecutive focus days. If you take a day off, one shield is used automatically to protect your streak. You can hold up to 2."
+  },
+  "popupGrowthMaxStage": {
+    "message": "You're now sailing the deepest sea."
+  },
+  "popupGrowthNeverRegresses": {
+    "message": "Your whale never gets hurt or loses growth."
+  },
+  "popupGrowthTotalFocusXp": {
+    "message": "Total focus $MINUTES$ min · $XP$ XP",
+    "placeholders": {
+      "minutes": {
+        "content": "$1",
+        "example": "120"
+      },
+      "xp": {
+        "content": "$2",
+        "example": "150"
+      }
+    }
+  },
+  "popupGrowthUntilStage": {
+    "message": "$XP$ XP until $STAGE$",
+    "placeholders": {
+      "stage": {
+        "content": "$1",
+        "example": "Young whale"
+      },
+      "xp": {
+        "content": "$2",
+        "example": "50"
+      }
+    }
+  },
+  "popupLoadFailed": {
+    "message": "We couldn't load the popup."
+  },
+  "popupMilestoneFreeze": {
+    "message": "Shield"
+  },
+  "popupMilestoneFreshStart": {
+    "message": "Fresh start"
+  },
+  "popupMilestoneGrowthLog": {
+    "message": "Growth log"
+  },
+  "popupMilestoneHalfWay": {
+    "message": "Halfway point"
+  },
+  "popupMilestoneNewBadge": {
+    "message": "New keepsake"
+  },
+  "popupMilestoneNewBadgeNamed": {
+    "message": "New keepsake · $BADGE$",
+    "placeholders": {
+      "badge": {
+        "content": "$1",
+        "example": "First Ripple"
+      }
+    }
+  },
+  "popupMilestoneStage": {
+    "message": "Growth"
+  },
+  "popupMilestoneStreakProtected": {
+    "message": "Streak protected"
+  },
+  "popupMilestoneStreakRestored": {
+    "message": "Continue streak"
+  },
+  "popupMinutesPlaceholder": {
+    "message": "min"
+  },
+  "popupMinutesTimesIntensity": {
+    "message": "$MINUTES$ min × $INTENSITY$",
+    "placeholders": {
+      "minutes": {
+        "content": "$1",
+        "example": "25"
+      },
+      "intensity": {
+        "content": "$2",
+        "example": "Gentle reminder"
+      }
+    }
+  },
+  "popupNamePrompt": {
+    "message": "What would you like to call this whale?"
+  },
+  "popupNameSaveError": {
+    "message": "We couldn't save the name."
+  },
+  "popupNameSubmit": {
+    "message": "Name the whale"
+  },
+  "popupNameSuccess": {
+    "message": "Sailing with $NAME$.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Miro"
+      }
+    }
+  },
+  "popupNoticeEmergencySaveFailed": {
+    "message": "We couldn't save the emergency end request."
+  },
+  "popupNoticeEmergencySaved": {
+    "message": "Emergency end request saved."
+  },
+  "popupNoticeIntensityUpgradeFailed": {
+    "message": "We couldn't strengthen the blocking mode."
+  },
+  "popupNoticeIntensityUpgraded": {
+    "message": "Blocking mode strengthened."
+  },
+  "popupNoticeRefreshFailed": {
+    "message": "We couldn't refresh the session status."
+  },
+  "popupNoticeSessionStartFailed": {
+    "message": "We couldn't start the session."
+  },
+  "popupNoticeSessionStarted": {
+    "message": "Session started."
+  },
+  "popupPetGrowthHint": {
+    "message": "Complete focus sessions to help your whale grow."
+  },
+  "popupPetStageLine0": {
+    "message": "The egg is getting ready to hatch"
+  },
+  "popupPetStageLine1": {
+    "message": "Growing into a whale calf"
+  },
+  "popupPetStageLine2": {
+    "message": "A young whale is sailing"
+  },
+  "popupPetStageLine3": {
+    "message": "The blue whale is going deeper"
+  },
+  "popupPetStageLine4": {
+    "message": "Sailing with the star whale"
+  },
+  "popupSaving": {
+    "message": "Saving..."
+  },
+  "popupStartMinutes": {
+    "message": "Start $MINUTES$ min",
+    "placeholders": {
+      "minutes": {
+        "content": "$1",
+        "example": "25"
+      }
+    }
+  },
+  "popupStreakDays": {
+    "message": "Day $DAYS$",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "7"
+      }
+    }
+  },
+  "popupStreakFresh": {
+    "message": "Fresh start"
+  },
+  "popupStreakResting": {
+    "message": "Resting"
+  },
+  "onboardingAllowlistBadge": {
+    "message": "Allow only listed sites"
+  },
+  "onboardingAllowlistBody": {
+    "message": "Edit the domains that should stay available during a session. FocusWhale adds friction to sites outside this list."
+  },
+  "onboardingAllowlistTitle": {
+    "message": "Choose what should stay available"
+  },
+  "onboardingBack": {
+    "message": "Back"
+  },
+  "onboardingBlocklistBadge": {
+    "message": "Block listed sites"
+  },
+  "onboardingBrand": {
+    "message": "FocusWhale"
+  },
+  "onboardingCloseHint": {
+    "message": "You won't need to keep this page open."
+  },
+  "onboardingCloseTab": {
+    "message": "Close tab"
+  },
+  "onboardingCompleteSetupBody": {
+    "message": "FocusWhale is ready. Start a session from the popup whenever you choose."
+  },
+  "onboardingCompleteStartedBody": {
+    "message": "Your 25-minute session is running. Open the FocusWhale popup any time to check the remaining time."
+  },
+  "onboardingCompleteTitle": {
+    "message": "You're ready to focus"
+  },
+  "onboardingCompletionSaveWarning": {
+    "message": "Your session started, but we couldn't save onboarding completion. You can still close this tab and use the popup."
+  },
+  "onboardingContinue": {
+    "message": "Continue"
+  },
+  "onboardingDocumentTitle": {
+    "message": "Welcome to FocusWhale"
+  },
+  "onboardingDomainCount": {
+    "message": "$COUNT$ domains",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
+  "onboardingDomainsHint": {
+    "message": "Enter one domain per line. Pasted links are cleaned automatically."
+  },
+  "onboardingDomainsLabel": {
+    "message": "Domains"
+  },
+  "onboardingDomainsPlaceholder": {
+    "message": "youtube.com\ninstagram.com\nx.com"
+  },
+  "onboardingEmergencyNote": {
+    "message": "Hard sessions include a delayed emergency exit: after confirmation, the session ends in 5 minutes. You can use it once per week."
+  },
+  "onboardingFinishError": {
+    "message": "We couldn't save onboarding completion. Please try again."
+  },
+  "onboardingFinishWithoutSession": {
+    "message": "Finish without starting"
+  },
+  "onboardingFinishing": {
+    "message": "Finishing..."
+  },
+  "onboardingHardBody": {
+    "message": "Keep listed sites blocked for the full session."
+  },
+  "onboardingHardAllowlistBody": {
+    "message": "Keep sites outside this allowance blocked for the full session."
+  },
+  "onboardingLoadErrorBody": {
+    "message": "Reload this tab to try again. Your existing settings were not changed."
+  },
+  "onboardingLoadErrorTitle": {
+    "message": "Setup couldn't open"
+  },
+  "onboardingHardTitle": {
+    "message": "Stay fully blocked"
+  },
+  "onboardingIntensityBody": {
+    "message": "This choice applies only to the first 25-minute session. FocusWhale never raises it automatically."
+  },
+  "onboardingIntensityEyebrow": {
+    "message": "STEP 3 · FIRST SESSION"
+  },
+  "onboardingIntensityLabel": {
+    "message": "Friction level"
+  },
+  "onboardingIntensityTitle": {
+    "message": "Choose how much friction you want"
+  },
+  "onboardingIntroBody": {
+    "message": "FocusWhale adds a thoughtful pause before distracting sites and helps you protect the focus time you choose."
+  },
+  "onboardingIntroEyebrow": {
+    "message": "LOCAL-FIRST FOCUS"
+  },
+  "onboardingIntroPetBody": {
+    "message": "Completed sessions help your whale grow. Rest days and missed days never make it shrink or disappear."
+  },
+  "onboardingIntroPetTitle": {
+    "message": "Growth, never punishment"
+  },
+  "onboardingIntroPrivacyBody": {
+    "message": "FocusWhale has no backend. Sessions and optional history analysis stay on this device; synced preferences may use your browser's sync service."
+  },
+  "onboardingIntroPrivacyTitle": {
+    "message": "Your browsing stays on this device"
+  },
+  "onboardingIntroTitle": {
+    "message": "Meet your focus companion"
+  },
+  "onboardingListBody": {
+    "message": "Edit the domains FocusWhale should add friction to during a session. You can change them later in Settings."
+  },
+  "onboardingListEyebrow": {
+    "message": "STEP 2 · FOCUS LIST"
+  },
+  "onboardingListLabel": {
+    "message": "Focus list"
+  },
+  "onboardingListSaveError": {
+    "message": "We couldn't save the focus list. Please try again."
+  },
+  "onboardingListTitle": {
+    "message": "Choose what should wait"
+  },
+  "onboardingMediumBody": {
+    "message": "Wait briefly and state your reason before continuing."
+  },
+  "onboardingMediumTitle": {
+    "message": "Confirm your intention"
+  },
+  "onboardingPetAria": {
+    "message": "A cheerful FocusWhale companion"
+  },
+  "onboardingProgressAria": {
+    "message": "Step $CURRENT$ of $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "3"
+      }
+    }
+  },
+  "onboardingSaving": {
+    "message": "Saving..."
+  },
+  "onboardingSessionDuration": {
+    "message": "25 minutes"
+  },
+  "onboardingSessionLabel": {
+    "message": "First focus session"
+  },
+  "onboardingSkip": {
+    "message": "Skip setup"
+  },
+  "onboardingSoftBody": {
+    "message": "Pause briefly, then continue if you still choose to."
+  },
+  "onboardingSoftTitle": {
+    "message": "Gentle reminder"
+  },
+  "onboardingStartError": {
+    "message": "We couldn't start the session. Your setup is still here, so you can try again."
+  },
+  "onboardingStartSession": {
+    "message": "Start 25-minute focus"
+  },
+  "onboardingStartingSession": {
+    "message": "Starting session..."
+  },
+  "onboardingStepProgress": {
+    "message": "$CURRENT$ / $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "3"
+      }
+    }
+  },
+  "commonBack": {
+    "message": "Back"
+  },
+  "commonAction": {
+    "message": "Action"
+  },
+  "commonAdding": {
+    "message": "Adding..."
+  },
+  "commonBlock": {
+    "message": "Block"
+  },
+  "commonCancel": {
+    "message": "Cancel"
+  },
+  "commonClose": {
+    "message": "Close"
+  },
+  "commonContinue": {
+    "message": "Continue"
+  },
+  "commonDate": {
+    "message": "Date"
+  },
+  "commonDays": {
+    "message": "Days"
+  },
+  "commonDelete": {
+    "message": "Delete"
+  },
+  "commonDeleting": {
+    "message": "Deleting..."
+  },
+  "commonDomain": {
+    "message": "Domain"
+  },
+  "commonDomains": {
+    "message": "Domains"
+  },
+  "commonDone": {
+    "message": "Done"
+  },
+  "commonEnabled": {
+    "message": "Enabled"
+  },
+  "commonEnd": {
+    "message": "End"
+  },
+  "commonGoBack": {
+    "message": "Go back"
+  },
+  "commonList": {
+    "message": "List"
+  },
+  "commonLoading": {
+    "message": "Loading..."
+  },
+  "commonMinutes": {
+    "message": "$COUNT$ min",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "25"
+      }
+    }
+  },
+  "commonMode": {
+    "message": "Mode"
+  },
+  "commonName": {
+    "message": "Name"
+  },
+  "commonNext": {
+    "message": "Next"
+  },
+  "commonOff": {
+    "message": "Off"
+  },
+  "commonRetry": {
+    "message": "Try again"
+  },
+  "commonRetryAfterError": {
+    "message": "$MESSAGE$ Please try again.",
+    "placeholders": {
+      "message": {
+        "content": "$1",
+        "example": "We couldn't save the setting."
+      }
+    }
+  },
+  "commonReturnToFocus": {
+    "message": "Return to focus"
+  },
+  "commonSave": {
+    "message": "Save"
+  },
+  "commonSaving": {
+    "message": "Saving..."
+  },
+  "commonSettings": {
+    "message": "Settings"
+  },
+  "commonSkip": {
+    "message": "Skip"
+  },
+  "commonStart": {
+    "message": "Start"
+  },
+  "commonStepOf": {
+    "message": "$CURRENT$ of $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "3"
+      }
+    }
+  },
+  "commonTimeRemaining": {
+    "message": "Time remaining"
+  },
+  "commonUse": {
+    "message": "Use"
+  },
+  "categoryCommunity": {
+    "message": "Community"
+  },
+  "categoryDev": {
+    "message": "Development"
+  },
+  "categoryEntertainment": {
+    "message": "Entertainment"
+  },
+  "categoryGame": {
+    "message": "Games"
+  },
+  "categoryNews": {
+    "message": "News"
+  },
+  "categoryShopping": {
+    "message": "Shopping"
+  },
+  "categorySns": {
+    "message": "Social media"
+  },
+  "categoryStudy": {
+    "message": "Study"
+  },
+  "categoryTools": {
+    "message": "Tools"
+  },
+  "categoryUncategorized": {
+    "message": "Uncategorized"
+  },
+  "categoryVideo": {
+    "message": "Video"
+  },
+  "dayFri": {
+    "message": "Fri"
+  },
+  "dayMon": {
+    "message": "Mon"
+  },
+  "daySat": {
+    "message": "Sat"
+  },
+  "daySun": {
+    "message": "Sun"
+  },
+  "dayThu": {
+    "message": "Thu"
+  },
+  "dayTue": {
+    "message": "Tue"
+  },
+  "dayWed": {
+    "message": "Wed"
+  },
+  "modeAllowlistDescription": {
+    "message": "Allowlist - allow only listed sites"
+  },
+  "modeAllowlistShort": {
+    "message": "Allowlist"
+  },
+  "modeBlocklistDescription": {
+    "message": "Blocklist - block only listed sites"
+  },
+  "modeBlocklistShort": {
+    "message": "Blocklist"
+  },
+  "recommendedBlocklistName": {
+    "message": "Recommended blocklist"
+  },
+  "analysisSectionDescription": {
+    "message": "Choose which hours count as focus time for browsing-history recommendations."
+  },
+  "analysisSectionTitle": {
+    "message": "Recommendation analysis settings"
+  },
+  "automationSectionDescription": {
+    "message": "Start sessions automatically on the days and times you choose."
+  },
+  "automationSectionTitle": {
+    "message": "Auto-start"
+  },
+  "behaviorSectionDescription": {
+    "message": "Choose how long the gentle reminder waits."
+  },
+  "behaviorSectionTitle": {
+    "message": "Blocking behavior"
+  },
+  "growthSectionDescription": {
+    "message": "Review the name, growth stage, keepsakes, and recent activity."
+  },
+  "growthSectionTitle": {
+    "message": "Whale growth"
+  },
+  "listsSectionDescription": {
+    "message": "Open a list to edit blocked or allowed domains."
+  },
+  "listsSectionTitle": {
+    "message": "Blocking lists"
+  },
+  "currentIntensity": {
+    "message": "Current intensity"
+  },
+  "domainCount": {
+    "message": "$COUNT$ domains",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
+  "durationHoursMinutes": {
+    "message": "$HOURS$ hr $MINUTES$ min",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "1"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "25"
+      }
+    }
+  },
+  "focusHoursBothRequired": {
+    "message": "Choose both a start and end time for focus hours."
+  },
+  "focusHoursEnd": {
+    "message": "Focus hours end"
+  },
+  "focusHoursMustDiffer": {
+    "message": "Choose different start and end times for focus hours."
+  },
+  "focusHoursStart": {
+    "message": "Focus hours start"
+  },
+  "genericListName": {
+    "message": "List"
+  },
+  "intensityLabel": {
+    "message": "Blocking mode"
+  },
+  "listAdd": {
+    "message": "Add list"
+  },
+  "listAddFailed": {
+    "message": "We couldn't add the list."
+  },
+  "listAdded": {
+    "message": "List added."
+  },
+  "listDeleteBlockedBySchedules": {
+    "message": "$COUNT$ schedules use this list. Change or delete them first.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "listDeleteCloseLabel": {
+    "message": "Close list deletion dialog"
+  },
+  "listDeleteDescription": {
+    "message": "Only the $NAME$ list will be deleted.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Default blocklist"
+      }
+    }
+  },
+  "listDeleteFailed": {
+    "message": "We couldn't delete the list."
+  },
+  "listDeleteRequiresOne": {
+    "message": "At least one blocking list is required. Add a new list before deleting this one."
+  },
+  "listDeleteTitle": {
+    "message": "Delete this list?"
+  },
+  "listDeleted": {
+    "message": "List deleted."
+  },
+  "listNone": {
+    "message": "No list"
+  },
+  "listSaveFailed": {
+    "message": "We couldn't save the list."
+  },
+  "listSaved": {
+    "message": "List saved."
+  },
+  "newListName": {
+    "message": "New list"
+  },
+  "scheduleAdd": {
+    "message": "Add auto-start"
+  },
+  "scheduleAddFailed": {
+    "message": "We couldn't add the auto-start schedule."
+  },
+  "scheduleAdded": {
+    "message": "Auto-start schedule added."
+  },
+  "scheduleDayRequired": {
+    "message": "Select at least one day."
+  },
+  "scheduleDeleteCloseLabel": {
+    "message": "Close auto-start deletion dialog"
+  },
+  "scheduleDeleteDescription": {
+    "message": "Only the $TIME$ schedule will be deleted.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "09:00 - 12:00"
+      }
+    }
+  },
+  "scheduleDeleteFailed": {
+    "message": "We couldn't delete the auto-start schedule."
+  },
+  "scheduleDeleteTitle": {
+    "message": "Delete this auto-start schedule?"
+  },
+  "scheduleDeleted": {
+    "message": "Auto-start schedule deleted."
+  },
+  "scheduleListRequired": {
+    "message": "Choose a blocking list for auto-start."
+  },
+  "scheduleListRequiredFirst": {
+    "message": "Create a list in Blocking rules before adding an auto-start schedule."
+  },
+  "scheduleSaveFailed": {
+    "message": "We couldn't save the auto-start schedule."
+  },
+  "scheduleSaved": {
+    "message": "Auto-start schedule saved."
+  },
+  "scheduleTimesMustDiffer": {
+    "message": "Choose different start and end times."
+  },
+  "scheduleTimesRequired": {
+    "message": "Choose both a start and end time."
+  },
+  "settingsSaveFailed": {
+    "message": "We couldn't save the settings."
+  },
+  "softDelaySecondsLabel": {
+    "message": "Gentle reminder wait time (seconds)"
+  },
+  "optionsDescription": {
+    "message": "Manage focus history, blocking rules, auto-start, and whale growth in one place."
+  },
+  "optionsDocumentTitle": {
+    "message": "FocusWhale Settings"
+  },
+  "optionsLockedDescription": {
+    "message": "Blocking rules, auto-start, and recommendation analysis will be available again when the focus session ends."
+  },
+  "optionsLockedTitle": {
+    "message": "Settings are locked during a session"
+  },
+  "optionsTabAutomation": {
+    "message": "Auto-start"
+  },
+  "optionsTabGrowth": {
+    "message": "Whale growth"
+  },
+  "optionsTabInsights": {
+    "message": "Activity"
+  },
+  "optionsTabLists": {
+    "message": "Blocking rules"
+  },
+  "optionsTablistLabel": {
+    "message": "Settings sections"
+  },
+  "optionsTitle": {
+    "message": "Manage FocusWhale"
+  },
+  "privacySectionDescription": {
+    "message": "Manage data stored on this device and optional permissions."
+  },
+  "privacySectionTitle": {
+    "message": "Privacy and local data"
+  },
+  "recommendationsSectionDescription": {
+    "message": "Analyze recent browsing history only on this device."
+  },
+  "recommendationsSectionTitle": {
+    "message": "Browsing-history recommendations"
+  },
+  "softContinueCountdown": {
+    "message": "Continue in $SECONDS$",
+    "placeholders": {
+      "seconds": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
+  "softPauseDescription": {
+    "message": "This session adds a brief check before opening this site."
+  },
+  "softPauseTitle": {
+    "message": "Pause for a moment"
+  }
+}

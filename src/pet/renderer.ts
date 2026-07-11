@@ -1,4 +1,5 @@
 import spriteManifestData from "../../assets/sprites/manifest.json";
+import { translate } from "../shared/i18n";
 import type { PetState } from "../shared/types";
 
 export const PET_MOODS = ["idle", "happy", "focus", "celebrate"] as const;
@@ -34,18 +35,18 @@ export interface SpriteSheetDimensions {
 const SPRITE_BUILD_URL = new URL("../../assets/sprites/focuswhale-atlas.png", import.meta.url).toString();
 const SPRITE_IMAGE_URL = extensionAssetUrl("assets/focuswhale-atlas.png", SPRITE_BUILD_URL);
 const FALLBACK_ICON_PATH = "icons/focuswhale-128.png";
-const PET_STAGE_LABELS: Record<string, string> = {
-  "0": "고래알",
-  "1": "아기 고래",
-  "2": "어린 고래",
-  "3": "성장한 고래",
-  "4": "별빛 고래"
+const PET_STAGE_LABEL_KEYS: Record<string, string> = {
+  "0": "petStageName0",
+  "1": "petStageName1",
+  "2": "petStageName2",
+  "3": "petStageName3",
+  "4": "petStageName4"
 };
-const PET_MOOD_LABELS: Record<PetMood, string> = {
-  idle: "쉬는 중",
-  happy: "기쁜 상태",
-  focus: "집중하는 중",
-  celebrate: "축하하는 중"
+const PET_MOOD_LABEL_KEYS: Record<PetMood, string> = {
+  idle: "petMoodIdle",
+  happy: "petMoodHappy",
+  focus: "petMoodFocus",
+  celebrate: "petMoodCelebrate"
 };
 const DEFAULT_MANIFEST: SpriteManifest = {
   image: SPRITE_IMAGE_URL,
@@ -257,8 +258,8 @@ export function mountPet(el: HTMLElement, state: PetState, mood: PetMood = "idle
   el.classList.add("fw-pet");
   el.removeAttribute("aria-hidden");
   el.setAttribute("role", "img");
-  const stageLabel = PET_STAGE_LABELS[String(state.stage)] ?? PET_STAGE_LABELS["0"];
-  el.setAttribute("aria-label", `FocusWhale 펫, ${stageLabel}, ${PET_MOOD_LABELS[mood]}`);
+  const stageKey = PET_STAGE_LABEL_KEYS[String(state.stage)] ?? PET_STAGE_LABEL_KEYS["0"];
+  el.setAttribute("aria-label", translate("petAriaLabel", [translate(stageKey), translate(PET_MOOD_LABEL_KEYS[mood])]));
   el.dataset.petRender = "loading";
 
   const sprite = el.ownerDocument.createElement("div");

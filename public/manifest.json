@@ -1,7 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "FocusWhale",
-  "description": "Personal screentime focus assistant for Naver Whale.",
+  "name": "__MSG_appName__",
+  "description": "__MSG_appDescription__",
+  "default_locale": "en",
   "version": "1.0.0",
   "background": {
     "service_worker": "assets/background.js",
@@ -14,6 +15,7 @@
     "128": "icons/focuswhale-128.png"
   },
   "action": {
+    "default_title": "__MSG_appName__",
     "default_popup": "src/pages/popup/index.html",
     "default_icon": {
       "16": "icons/focuswhale-16.png",

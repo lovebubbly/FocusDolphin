@@ -1,8 +1,10 @@
 # FocusWhale Smoke Test
 
-Documentation refresh: **OpenAI Codex (GPT-5)** for product owner **Choi Yunseong (최윤성)**, **2026-07-11 02:29 KST**.
+Documentation refresh: **OpenAI Codex (GPT-5)** for product owner **Choi Yunseong (최윤성)**, **2026-07-11 12:08 KST**.
 
 Use a dedicated Naver Whale or Chromium profile with the freshly built `dist/` loaded unpacked. Do not reuse stale build output.
+
+This checklist now targets the Goal 7 onboarding and Korean/English localization working tree. The older v1.0.0 evidence at the end is retained as historical regression context only.
 
 ## Preconditions
 
@@ -12,9 +14,66 @@ npm test
 npm run build
 ```
 
-Expected automated result for the v1.0.0 candidate: 30 test files / 196 tests; classic `assets/content.js` at 116,276 bytes; exact four-resource WAR allowlist; no source maps or unexpected external URLs.
+Expected automated result for the current Goal 7 candidate: 33 test files / 237 tests; classic `assets/content.js` at 178,301 bytes; 11 verified manifest targets; exact four-resource WAR allowlist; no source maps, root-relative asset URLs, or unexpected external URLs; packaged Pretendard license; onboarding page; and 460-key English/Korean catalogs.
 
-Release artifact: `release/FocusWhale-1.0.0.zip`, 2,694,409 bytes, SHA-256 `241a9863fde194a20d1f0f54dc1a7377bf9314dd40413e5fd1488dab52c97f18`. The checksum passes; its 33 entries / 25 files extract byte-for-byte equal to the exact current `dist/`; `manifest.json` is at the root; and the extracted copy passes a clean visible Whale 4.38 smoke load under extension ID `ejhfobkhmdabjhobogffeineggppeafj`. The popup rendered with no page console errors, the packaged third-party notice opened, and the archive token/path/email scan found no findings. The tested executable files remain byte-identical to the prior release candidate; only the required notice file was added.
+Current release artifact: `release/FocusWhale-1.0.0.zip`, 2,754,338 bytes, SHA-256 `cba02253a1422d8f19ed7ddb16288f0c51a442656cbd02cf459740e68b5656a0`. Its 31 files extract byte-for-byte equal to `dist/`, with `manifest.json` at the root. The archive hygiene scan and production-only dependency audit pass. The ordinary-browser extracted-archive active-session smoke remains pending, so do not submit it yet.
+
+## Goal 7 First-Run And Localization
+
+### First Install, Completion, And Replay
+
+Run once with an English browser UI and once with a Korean browser UI, each in a fresh disposable profile:
+
+1. Load the newly rebuilt `dist/` unpacked.
+2. Confirm onboarding opens on the install event and does not request `history` permission.
+3. Inspect all three steps: local-first pet/privacy introduction, editable blocklist, and explicit intensity choice with optional 25-minute session.
+4. Confirm `soft` is selected by default and no intensity is automatically increased.
+5. Confirm the hard-session emergency note applies only to hard sessions.
+6. Finish without starting a session and inspect `chrome.storage.local.get("focuswhaleOnboarding")`.
+7. Expected: `{ version: 1, completedAt: <positive timestamp>, outcome: "setup_only" }`.
+8. Close and reopen the same unpacked profile. Onboarding must not open again.
+9. Open Options and activate the onboarding replay action. Expected URL ends with `src/pages/onboarding/index.html?replay=1`.
+10. Confirm replay does not clear or masquerade as a new install completion.
+
+Current evidence:
+
+| Check | English | Korean |
+| --- | --- | --- |
+| First-install onboarding | HEADED EXACT PASS | HEADED EXACT PASS |
+| Three-step layout/copy/pet | HEADED EXACT PASS | HEADED EXACT PASS |
+| Completion persistence | HEADED EXACT PASS | HEADED EXACT PASS (`setup_only`) |
+| Once-only reopen guard | HEADED EXACT PASS | HEADED EXACT PASS |
+| Options replay action | HEADED EXACT PASS | HEADED UI PASS; shared launch path automated |
+| Optional history not requested | HEADED EXACT PASS | HEADED EXACT PASS |
+
+### Surface Localization Matrix
+
+Inspect document language, visible copy, product-owned default names, pet sprite, focus order, console, and horizontal overflow. User-authored pet/list names must remain unchanged.
+
+| Surface | English | Korean | Publication status |
+| --- | --- | --- | --- |
+| Onboarding steps 1-3 | PASS | PASS | No key leak, unexpected English/Hangul crossover, overflow, or console error observed |
+| Popup idle at 360 x 600 | PASS | PASS | Default product names localized; pet and CTA visible |
+| Options activity + replay entry | PASS | PASS | No key leak or horizontal overflow observed |
+| Blocked page without active session | PENDING | PASS | Repeat English and all active-session states in a normal browser |
+| Blocked medium/hard | PENDING | PENDING | Requires a current normal-browser session-start pass |
+| Soft overlay | PENDING | PENDING | Requires a current normal-browser session-start pass |
+| Completion overview | PENDING | PENDING | Requires a current normal-browser session-start/completion pass |
+
+### Locale Contract And Offline Assets
+
+1. Confirm `manifest.json` has `default_locale: "en"` and uses `__MSG_appName__` / `__MSG_appDescription__`; the action title must also be localized.
+2. Confirm `_locales/en/messages.json` and `_locales/ko/messages.json` each contain the same 460 keys.
+3. On Korean Whale, compare `chrome.i18n.getUILanguage()` and `chrome.i18n.getMessage("@@ui_locale")`.
+4. If Whale reports `ko-KR` but exposes `en_US` as the runtime catalog, confirm the bundled fallback still renders Korean. This mismatch was reproduced and passed in the current headed Whale run.
+5. Search every visible state for raw message-key identifiers and stale hard-coded source-language copy.
+6. Confirm production output contains no external CSS, font, sprite, catalog, analytics, or other network URL. The build verifier passes this static check; capture a live network log separately before publication.
+
+### Known Harness Boundary
+
+Playwright-launched Whale stalls at `chrome.alarms.create` during session start and consumes roughly 97-100% CPU. The same stall reproduces from pre-Goal-7 commit `acb45b6`, so record it as a harness limitation/pre-existing baseline behavior, not a Goal 7 regression. It is also not a current normal-browser pass. Complete the active popup, blocked, overlay, and completion rows manually in an ordinary visible Whale profile.
+
+Do not record a Google Chrome Goal 7 smoke pass from the attempted run: browser URL policy blocked extension pages before the extension could be exercised.
 
 ## Service-Worker Checks
 
@@ -58,6 +117,7 @@ Expected:
 
 - Sync: settings, site lists, schedules, pet state.
 - Local: active/past sessions, intent entries, daily stats, recommendations, temp allows, growth/ack records, ledgers, emergency use, schedule-occurrence suppression, and short-lived journals.
+- Local onboarding: `focuswhaleOnboarding` with version, completion timestamp, and `skipped`, `setup_only`, or `session_started` outcome.
 - Finalization/settlement journals disappear after successful recovery.
 - No raw browser-history export, page title, or page body is persisted.
 
@@ -76,7 +136,7 @@ Expected:
 1. During the matching medium session, navigate to `https://focuswhale-user:focuswhale-pass@x.com./some/path?private=value#section` using dummy credentials only.
 2. Confirm redirect to the extension blocked page.
 3. Confirm remaining time, domain, focus pet, and medium actions render.
-4. Choose `그래도 열기`.
+4. Choose `그래도 열기` / `Open anyway`.
 5. Confirm the first wait is 30 seconds and blank intent cannot submit.
 6. Enter a non-sensitive reason, wait for enablement, and request access.
 7. Confirm the blocked return target is `https://x.com./some/path`: the path and trailing hostname dot remain, while credentials, query, and source fragment are absent. Then verify continue uses that sanitized HTTP(S) target.
@@ -130,11 +190,13 @@ For a hard session started by an active schedule:
 3. Invoke recommendation analysis; only then should Whale request history permission.
 4. Confirm result rows contain domain/category/visit aggregates only.
 5. Revoke permission and confirm stored core configuration remains.
-6. When idle, confirm `로컬 기록 지우기`; local activity should clear while sync settings/lists/schedules/pet remain. The current week's emergency-use allowance and a still-active schedule suppression must also remain.
+6. When idle, confirm `로컬 기록 지우기` / `Clear local activity`; local activity should clear while sync settings/lists/schedules/pet remain. The current week's emergency-use allowance and a still-active schedule suppression must also remain.
 7. During a session, confirm the same clear request is rejected.
 8. Start an analysis, allow an idle local clear to succeed before the result commits, and confirm the stale recommendation result is not written back. A due session alarm must remain responsive while analysis computes.
 
-## Recorded Exact-Final Browser Evidence
+## Prior v1.0.0 Recorded Browser Evidence
+
+The rows below were recorded for the prior v1.0.0 release executable. They remain useful regression evidence but do not prove the current onboarding/localization build.
 
 Headless and headed checks used isolated disposable profiles. Naver Whale 4.38 / Chromium 148 used development-path extension ID `ojojphoncmkplfcinppanpbbhhfjcpgi`; Chrome for Testing 147 exercised the real optional-permission prompt.
 
@@ -155,8 +217,8 @@ Headless and headed checks used isolated disposable profiles. Naver Whale 4.38 /
 
 Remaining evidence boundary:
 
-- Every technical exact-build row in `QA.md` is now checked. The history-latency and worker-interruption rows are explicitly instrumented evidence rather than unmodified user-flow evidence.
+- Every technical row in the historical v1.0.0 matrix was checked at that time. The history-latency and worker-interruption rows are explicitly instrumented evidence rather than unmodified user-flow evidence.
 - Consumer Google Chrome 148 rejects command-line unpacked-extension loading before FocusWhale runs; Chrome for Testing remains the supported disposable-profile cross-check channel.
-- Product-owner reward/visual judgment, public privacy/store metadata, and publication sign-off are not recorded.
+- Goal 7 still requires the normal-browser active-session localization matrix, a live zero-network trace, refreshed archive proof, product-owner reward/visual judgment, public privacy/store metadata review, and publication sign-off.
 
 Track owner/publication work in [QA.md](QA.md) and [RELEASE_CHECKLIST.md](RELEASE_CHECKLIST.md). Do not infer approval or publication from technical green checks.

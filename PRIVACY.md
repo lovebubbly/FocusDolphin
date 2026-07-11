@@ -1,8 +1,8 @@
 # FocusWhale Privacy Policy
 
-Product owner: **Choi Yunseong (최윤성)**. Repository-accuracy and public-verification refresh prepared by **OpenAI Codex (GPT-5)** on **2026-07-11 10:17 KST**.
+Product owner and requester: **Choi Yunseong (최윤성)**. Repository-accuracy refresh prepared by **OpenAI Codex (GPT-5)** on **2026-07-11 11:56 KST**.
 
-Effective date: July 10, 2026
+Effective date: July 11, 2026
 
 FocusWhale is a local-first Naver Whale and Chromium extension. This policy describes version 1.0.0 as implemented in this repository.
 
@@ -12,6 +12,7 @@ FocusWhale is a local-first Naver Whale and Chromium extension. This policy desc
 - FocusWhale does not sell data or transmit browsing history, session records, or intent text to the developer or to an app-integrated external service. The only browser-managed transmission the extension can request is sync storage for the configuration and pet fields described below.
 - Browsing-history analysis runs inside the extension. Raw history URLs and individual visit records are processed in memory and are not saved by FocusWhale.
 - Settings stored with `chrome.storage.sync` may be transmitted and retained by the browser's sync service when the user enables browser-account sync. That browser-managed sync is not a FocusWhale server.
+- The install-only onboarding does not request browser-history permission. It records only its schema version, completion time, and outcome (`skipped`, `setup_only`, or `session_started`) in local extension storage.
 
 ## Permissions And Their Use
 
@@ -41,11 +42,17 @@ In medium mode, the reason a user types before requesting temporary access is sa
 
 FocusWhale stores focus-hour and overlay settings, user-created blocklists and allowlists, schedules, and pet state. Pet state includes the pet name, XP, growth stage, focus minutes, streak/freeze status, and earned badges. Growth events, settlement ledgers, celebration state, and crash-recovery journals are stored locally.
 
+### Onboarding and language
+
+On first installation, FocusWhale can show a three-step setup flow. The user may skip it, finish setup without starting a session, or explicitly start an optional 25-minute session. The flow can edit the selected focus list and intensity only after the user's action; it does not inspect history, request history permission, or enable remote data processing. FocusWhale stores a versioned local completion record containing only the completion timestamp and outcome so the install flow is not reopened automatically. Options provides a manual replay action.
+
+FocusWhale ships Korean and English message catalogs locally. Browser UI language and the browser-provided extension locale determine which catalog is displayed; unsupported languages fall back to English. Product-authored labels/default names are translated, but user-authored names, domains, schedules, and intent text are not translated or sent elsewhere.
+
 ## Storage Locations
 
 The following configuration and progress data use `chrome.storage.sync`: settings, site lists, schedules, and pet state. If browser sync is enabled, the browser vendor may sync this data across the user's signed-in browsers under the vendor's own privacy terms.
 
-All other FocusWhale data uses `chrome.storage.local`, including active and past sessions, intent entries, daily aggregates, recommendations, category overrides, growth records, temporary allows, emergency-use records, schedule-occurrence suppression, and recovery journals. FocusWhale does not copy these local records to its own server.
+All other FocusWhale data uses `chrome.storage.local`, including active and past sessions, intent entries, daily aggregates, recommendations, category overrides, growth records, temporary allows, emergency-use records, schedule-occurrence suppression, recovery journals, and the onboarding completion record. FocusWhale does not copy these local records to its own server.
 
 ## Retention And Deletion
 
@@ -54,8 +61,8 @@ All other FocusWhale data uses `chrome.storage.local`, including active and past
 - Growth events and celebration acknowledgements are each capped at the newest 500 records. Pending celebrations remain until acknowledged.
 - Session history and its idempotency ledgers retain at most the newest 5,000 session identifiers or records. Medium-mode intent history retains at most the newest 200 entries. Daily aggregates older than 400 days are pruned when new daily activity is recorded.
 - Emergency-use state rolls over by local week. The current derived recommendation list is replaced by the next analysis.
-- FocusWhale Options provides `로컬 기록 지우기`, which removes local activity, recommendation, intent, growth-log, temporary-allow, and recovery data after a confirmation. This action is rejected while a session is active so it cannot undermine an in-progress focus commitment. Synced settings, lists, schedules, and pet progress are intentionally preserved. The current local week's emergency-use allowance and any unexpired suppression for an early-ended scheduled occurrence are also preserved so clearing records cannot reset those two commitment safeguards.
-- FocusWhale Options also provides `방문 기록 권한 해제`. Individual site lists and schedules can be deleted separately.
+- FocusWhale Options provides a localized local-data clear action, which removes local activity, recommendation, intent, growth-log, temporary-allow, recovery, and onboarding-completion data after a confirmation. This action is rejected while a session is active so it cannot undermine an in-progress focus commitment. Synced settings, lists, schedules, and pet progress are intentionally preserved. The current local week's emergency-use allowance and any unexpired suppression for an early-ended scheduled occurrence are also preserved so clearing records cannot reset those two commitment safeguards. Clearing the completion record does not itself reopen onboarding; the flow remains manually replayable from Options.
+- FocusWhale Options also provides a localized browser-history permission revoke action. Individual site lists and schedules can be deleted separately.
 - To remove both local and synced FocusWhale data, use the browser's extension-data and sync controls or remove the extension. Browser-managed synced values may need to be cleared through the browser account's sync controls.
 
 ## Network Activity And Third Parties

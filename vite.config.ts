@@ -13,7 +13,8 @@ export default defineConfig({
         background: resolve(__dirname, "src/background/index.ts"),
         popup: resolve(__dirname, "src/pages/popup/index.html"),
         options: resolve(__dirname, "src/pages/options/index.html"),
-        blocked: resolve(__dirname, "src/pages/blocked/index.html")
+        blocked: resolve(__dirname, "src/pages/blocked/index.html"),
+        onboarding: resolve(__dirname, "src/pages/onboarding/index.html")
       },
       output: {
         entryFileNames: "assets/[name].js",

@@ -14,6 +14,10 @@ FocusWhale 1.0.0 is the first store candidate for the local-first Naver Whale fo
 - Local statistics and optional, on-device browser-history recommendations.
 - Light and dark themes, keyboard support, reduced-motion behavior, and isolated soft overlays.
 - Recovery journals and idempotent settlement for MV3 service-worker interruption.
+- A three-step, install-only onboarding flow for reviewing local-first behavior, editing the initial focus list, and optionally starting a 25-minute session.
+- Complete Korean and English interfaces with localized browser metadata and English fallback.
+
+Onboarding can be skipped, completed without starting a session, or replayed later from Options. It does not request browser-history access; that optional permission remains available only when the user explicitly starts browsing-history analysis.
 
 ## Privacy
 

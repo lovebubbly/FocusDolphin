@@ -1,6 +1,7 @@
 import type { PetState, Session, SiteList } from "../shared/types";
 import { dateKeyInKst, addDays } from "./streak";
-import { BADGE_DEFINITIONS, type BadgeId } from "../shared/gamification";
+import type { BadgeId } from "../shared/gamification";
+import { translate, type SupportedLocale } from "../shared/i18n";
 
 export const BADGE_IDS = {
   firstSession: "first-session",
@@ -113,10 +114,28 @@ export function awardBadges(
   };
 }
 
-export function badgeName(id: string): string {
-  return BADGE_DEFINITIONS[id as BadgeId]?.name ?? id;
+const BADGE_MESSAGE_KEYS: Record<BadgeId, { name: string; description: string }> = {
+  "first-session": { name: "badgeFirstSessionName", description: "badgeFirstSessionDescription" },
+  "first-hard": { name: "badgeFirstHardName", description: "badgeFirstHardDescription" },
+  "focus-10-hours": { name: "badgeFocus10HoursName", description: "badgeFocus10HoursDescription" },
+  "focus-50-hours": { name: "badgeFocus50HoursName", description: "badgeFocus50HoursDescription" },
+  "five-day-week": { name: "badgeFiveDayWeekName", description: "badgeFiveDayWeekDescription" },
+  "allowlist-10": { name: "badgeAllowlist10Name", description: "badgeAllowlist10Description" },
+  "streak-7": { name: "badgeStreak7Name", description: "badgeStreak7Description" },
+  "streak-30": { name: "badgeStreak30Name", description: "badgeStreak30Description" },
+  comeback: { name: "badgeComebackName", description: "badgeComebackDescription" },
+  "first-schedule": { name: "badgeFirstScheduleName", description: "badgeFirstScheduleDescription" },
+  "steady-4w": { name: "badgeSteady4wName", description: "badgeSteady4wDescription" }
+};
+
+export function badgeName(id: string, localeOverride?: SupportedLocale): string {
+  const keys = BADGE_MESSAGE_KEYS[id as BadgeId];
+  return keys ? translate(keys.name, undefined, localeOverride) : id;
 }
 
-export function badgeDescription(id: string): string {
-  return BADGE_DEFINITIONS[id as BadgeId]?.description ?? "새로운 항해의 기록이에요.";
+export function badgeDescription(id: string, localeOverride?: SupportedLocale): string {
+  const keys = BADGE_MESSAGE_KEYS[id as BadgeId];
+  return keys
+    ? translate(keys.description, undefined, localeOverride)
+    : translate("badgeFallbackDescription", undefined, localeOverride);
 }

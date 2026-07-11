@@ -1,6 +1,6 @@
 # Changelog
 
-Documentation refresh: **OpenAI Codex (GPT-5)** for product owner **Choi Yunseong (최윤성)**, **2026-07-11 02:29 KST**.
+Documentation refresh: **OpenAI Codex (GPT-5)** for requester and product owner **Choi Yunseong (최윤성)**, **2026-07-11 11:56 KST**.
 
 All notable FocusWhale changes are documented here. The project has not yet recorded a public store release.
 
@@ -21,6 +21,8 @@ All notable FocusWhale changes are documented here. The project has not yet reco
 - Journaled medium temporary-allow mutations and scheduled-occurrence suppression after early end.
 - Build verifier for manifest targets, exact WAR resources, classic content script, source maps, external URLs, and font licensing.
 - Local Pretendard Variable font and SIL OFL packaging.
+- Install-only three-step onboarding with a versioned local completion record, skip/setup-only outcomes, focus-list editing, an explicit optional 25-minute first session, and an Options replay action.
+- Complete Korean and English catalogs for onboarding, popup, Options, blocked page, soft overlay, pet stages, badges, growth copy, product defaults, validation/errors, and manifest metadata.
 
 ### Changed
 
@@ -41,6 +43,9 @@ All notable FocusWhale changes are documented here. The project has not yet reco
 - Made return-to-focus deterministic through `about:blank`.
 - Preserved weekly emergency usage and active schedule suppression when local activity data is cleared.
 - Sanitized machine-specific `/Users/...` paths from `docs/SNSLOCK_CORE_CONCEPT_PORT_PLAN.md`.
+- Localized manifest name, description, and action title through Chrome `_locales`, with English as the fallback for unsupported browser languages.
+- Preserved user-authored pet/list names, domains, schedules, and intent text while translating product-authored defaults.
+- Hardened the DNR adapter to remove only rules that currently exist and to skip an empty browser update.
 
 ### Fixed
 
@@ -76,28 +81,27 @@ All notable FocusWhale changes are documented here. The project has not yet reco
 - Non-HTTP(S) browser-history items entering domain recommendations.
 - Destructive Options dialogs failing to trap focus and restore it to the invoking control.
 - Low-contrast semantic summaries and incomplete visible-focus treatment found in the headed accessibility sweep.
+- Whale profiles reporting a Korean UI language with a stale English runtime message catalog; the translator now selects the bundled catalog matching the browser UI language.
+- Korean growth-stage particle selection (`알과`, `새끼 고래와`) without changing English output.
 
 ### Verification
 
 - Typecheck pass.
-- 30 Vitest files / 196 tests pass.
+- 33 Vitest files / 237 tests pass.
 - Two-stage production build pass.
-- Classic content script: 116,276 bytes.
+- Classic content script: 178,301 bytes.
 - No source maps or unexpected external URLs in the final bundle.
 - Exact four-resource WAR allowlist.
-- Release ZIP: 2,694,409 bytes, SHA-256 `241a9863fde194a20d1f0f54dc1a7377bf9314dd40413e5fd1488dab52c97f18`; checksum passes; 33 entries / 25 files extract byte-equal to `dist/`; token/path/email scan has no findings. The executable payload is unchanged; the package adds required Tailwind CSS/daisyUI/Vite notices.
-- Exact-final Whale 4.38 passes cover soft, medium, hard, popup emergency, Options, all 20 pet states, adversarial `x.com.`, pre-deadline and overdue browser-process restart, the natural/emergency alarm race, all protected sync fields, and next-occurrence schedule recovery.
-- Instrumented exact-build passes cover a five-second history callback concurrent with a due alarm/local clear and worker replacement at both durable recovery-journal boundaries. The loaded worker hash stayed `f3884cdd70e425b5cb6f061b98c0f4f3acddcf300fbd69c8513fd144fc53d0ad`; each recovery settled exactly once.
-- Chrome for Testing 147 passes the exact-final soft and medium cross-browser paths.
-- Headed Whale exact-build checks pass list-rerender dismissal, blank-intent rejection, Options keyboard/modal focus, normal and reduced completion motion, 13 visual states, 68 contrast checks with a 4.94:1 minimum, 40 px minimum inspected targets, 19 screenshots, and zero page errors.
-- Headed Chrome for Testing 147 accepts the real optional-history prompt, renders controlled domain-only results with extension URLs excluded, revokes permission, and starts a medium session afterward.
-- The notice-inclusive release archive loads in a clean visible Whale 4.38 profile under ID `ejhfobkhmdabjhobogffeineggppeafj`, renders the popup with no page console errors, opens the packaged notice, and retains the exact 116,276-byte content script.
-- Executable release-candidate commit `acb45b6` established the behavioral baseline. Publication-pack commit `6dfb1cd` adds only repository/store collateral and the packaged notice; a fresh `git archive` plus `npm ci` passes typecheck, all 196 tests, build verification, and byte equality with the final extracted package. The exact commit and archive secret scan passes.
+- Build verification requires the onboarding page, both 460-key locale catalogs, localized manifest fields, and English `default_locale` in addition to the existing MV3/package checks.
+- Headed disposable-profile Whale 4.38 visual checks pass English and Korean onboarding, popup, Options, and Korean blocked-page localization with no message-key leakage, horizontal overflow, missing pet, or page-console errors. Install-only completion suppression and explicit Options replay also pass.
+- Playwright-launched Whale 4.38 stalls when session startup reaches `chrome.alarms.create`. The exact executable baseline at `acb45b6` reproduces the same stall, establishing a harness limitation/pre-existing baseline behavior rather than a Goal 7 regression. This result is not a normal-browser session smoke, so that smoke remains required before publication.
+- Commit `acb45b6` remains the pre-Goal-7 behavioral baseline for the previously recorded soft/medium/hard, recovery, DNR, pet, accessibility, and optional-history browser matrix. Those results are historical evidence for unchanged core behavior, not exact-current proof for the bilingual build.
+- The regenerated 2,754,338-byte release ZIP has SHA-256 `cba02253a1422d8f19ed7ddb16288f0c51a442656cbd02cf459740e68b5656a0`; 31 files extract byte-equal to `dist/`, and archive/privacy/dependency scans pass.
 
 ### Not Yet Released
 
-- A verified local release ZIP exists; no store submission or publication is recorded.
-- Whale Store is selected as the first exact-package target. Listing copy, privacy/permission declarations, reviewer instructions, release notes, and exact-build store images are prepared under `store/` and `store-assets/`.
+- The exact bilingual/onboarding archive, checksum, extraction comparison, and static scans are complete; a committed clean rebuild, extracted-archive ordinary-browser load, and normal-browser active-session smoke remain pending. No store submission or publication is recorded.
+- Whale Store is selected as the first target. Listing copy, privacy/permission declarations, reviewer instructions, release notes, and store images under `store/` and `store-assets/` must be rechecked against the final rebuilt bilingual package.
 - GitHub Issues is the public support/privacy contact. The repository `PRIVACY.md` HTTPS page and its Limited Use statement were publicly verified on 2026-07-11; entering those URLs in the publisher submission remains an owner/store step.
 - The repository now records an explicit all-rights-reserved source and original-asset license; third-party licenses remain unchanged.
 - Goal 5 opt-in LLM analysis is not included.

@@ -2,7 +2,7 @@ import { getTyped, setTyped, STORAGE_KEYS } from "../shared/storage";
 import type { PetState } from "../shared/types";
 import { awardBadges } from "./badges";
 import { normalizePetState } from "./defaultState";
-import { appendGrowthEvents, createGrowthEvent, type GrowthEvent } from "./growth";
+import { appendGrowthEvents, createGrowthEvent, DEFAULT_PET_NAME, type GrowthEvent } from "./growth";
 import { reconcileStreakFromSessions, type StreakRecoveryState } from "./streak";
 import {
   runPetStateMutation,
@@ -72,7 +72,7 @@ export function savePetName(rawName: string): Promise<PetState> {
   return runPetStateMutation(async () => {
     await recoverPetReconciliationJournal();
     const current = normalizePetState(await getTyped("sync", STORAGE_KEYS.sync.petState));
-    const name = rawName.trim().slice(0, 24) || "미로";
+    const name = rawName.trim().slice(0, 24) || DEFAULT_PET_NAME;
     const petState = normalizePetState({ ...current, name });
     await setTyped("sync", STORAGE_KEYS.sync.petState, petState);
     return petState;

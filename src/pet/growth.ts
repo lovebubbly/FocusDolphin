@@ -1,5 +1,7 @@
-import { BADGE_DEFINITIONS, currentStageThreshold, stageName } from "../shared/gamification";
+import { currentStageThreshold, stageName } from "../shared/gamification";
+import { translate, type SupportedLocale } from "../shared/i18n";
 import type { Intensity, PetStage } from "../shared/types";
+import { badgeName } from "./badges";
 
 export const GROWTH_LOG_KEY = "growthLog";
 export const PENDING_CELEBRATIONS_KEY = "pendingCelebrations";
@@ -8,6 +10,7 @@ export const PENDING_CELEBRATION_PREFIX = "pendingCelebration:";
 export const CELEBRATION_ACK_PREFIX = "celebrationAck:";
 const MAX_GROWTH_EVENTS = 500;
 const MAX_CELEBRATION_ACKS = 500;
+export const DEFAULT_PET_NAME = "미로";
 
 export type GrowthEventType =
   | "session_completed"
@@ -214,55 +217,62 @@ export function createGrowthEvent(
 
 export function describeGrowthEvent(
   type: GrowthEventType,
-  details: Omit<GrowthEvent, "id" | "ts" | "type" | "text">
+  details: Omit<GrowthEvent, "id" | "ts" | "type" | "text">,
+  localeOverride?: SupportedLocale
 ): string {
   if (type === "session_completed") {
-    return `${details.minutes ?? 0}분 집중 완료 · +${details.xpDelta ?? 0} XP (${details.minutes ?? 0}분 × ${growthIntensityLabel(details.intensity ?? "medium")})`;
+    const minutes = String(details.minutes ?? 0);
+    return translate("growthSessionCompleted", [
+      minutes,
+      String(details.xpDelta ?? 0),
+      growthIntensityLabel(details.intensity ?? "medium", localeOverride)
+    ], localeOverride);
   }
 
   if (type === "stage_up") {
-    return `${stageName(details.stageTo ?? 0)}로 성장했어요. 누적 집중이 만든 변화예요.`;
+    return translate("growthStageUp", stageName(details.stageTo ?? 0, localeOverride), localeOverride);
   }
 
   if (type === "half_way") {
-    return `${stageName(details.stageTo ?? 0)}까지 절반을 지났어요.`;
+    return translate("growthHalfWay", stageName(details.stageTo ?? 0, localeOverride), localeOverride);
   }
 
   if (type === "badge_earned") {
-    const badge = details.badgeId ? BADGE_DEFINITIONS[details.badgeId as keyof typeof BADGE_DEFINITIONS] : undefined;
-    return badge ? `징표 획득 — ${badge.name}` : "새 징표를 얻었어요.";
+    return details.badgeId
+      ? translate("growthBadgeEarned", badgeName(details.badgeId, localeOverride), localeOverride)
+      : translate("growthBadgeEarnedGeneric", undefined, localeOverride);
   }
 
   if (type === "freeze_granted") {
-    return "물방울 보호막 +1";
+    return translate("growthFreezeGranted", undefined, localeOverride);
   }
 
   if (type === "freeze_used") {
-    return "물방울 보호막이 스트릭을 지켜줬어요.";
+    return translate("growthFreezeUsed", undefined, localeOverride);
   }
 
   if (type === "streak_restored") {
-    return `다시 돌아왔어요. ${details.streakTo ?? 1}일째로 이어받았어요.`;
+    return translate("growthStreakRestored", String(details.streakTo ?? 1), localeOverride);
   }
 
   if (type === "streak_rest") {
-    return "쉬어가는 중이에요. 오늘 한 번이면 이어받을 수 있어요.";
+    return translate("growthStreakRest", undefined, localeOverride);
   }
 
   if (type === "streak_fresh_start") {
-    return "새로운 바다가 열렸어요. 지난 기록은 성장 로그에 그대로 있어요.";
+    return translate("growthStreakFreshStart", undefined, localeOverride);
   }
 
   if (type === "session_ended_early") {
-    return "세션을 일찍 마쳤어요. XP는 더하지 않았어요.";
+    return translate("growthSessionEndedEarly", undefined, localeOverride);
   }
 
-  return "성장 시스템이 새로워졌어요.";
+  return translate("growthMigration", undefined, localeOverride);
 }
 
-export function growthProgress(xp: number, stage: PetStage): GrowthProgress {
-  const current = currentStageThreshold(stage);
-  const next = stage < 4 ? currentStageThreshold((stage + 1) as PetStage) : null;
+export function growthProgress(xp: number, stage: PetStage, localeOverride?: SupportedLocale): GrowthProgress {
+  const current = currentStageThreshold(stage, localeOverride);
+  const next = stage < 4 ? currentStageThreshold((stage + 1) as PetStage, localeOverride) : null;
 
   if (!next) {
     return {
@@ -315,14 +325,22 @@ export function crossedHalfWay(previousXp: number, nextXp: number, stage: PetSta
   return previousXp < halfway && nextXp >= halfway && nextXp < next.xp;
 }
 
-export function growthIntensityLabel(intensity: Intensity): string {
+export function growthIntensityLabel(intensity: Intensity, localeOverride?: SupportedLocale): string {
   if (intensity === "soft") {
-    return "가벼운 안내";
+    return translate("intensitySoft", undefined, localeOverride);
   }
   if (intensity === "hard") {
-    return "완전 차단";
+    return translate("intensityHard", undefined, localeOverride);
   }
-  return "확인 후 허용";
+  return translate("intensityMedium", undefined, localeOverride);
+}
+
+export function petDisplayName(name: string | undefined, localeOverride?: SupportedLocale): string {
+  const trimmed = name?.trim();
+  if (!trimmed || trimmed === DEFAULT_PET_NAME) {
+    return translate("defaultPetName", undefined, localeOverride);
+  }
+  return name as string;
 }
 
 function isCelebratoryEvent(event: GrowthEvent): boolean {

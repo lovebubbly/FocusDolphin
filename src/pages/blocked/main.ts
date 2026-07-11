@@ -1,10 +1,12 @@
 import { STORAGE_KEYS, getTyped } from "../../shared/storage";
+import { translate } from "../../shared/i18n";
 import type { Session } from "../../shared/types";
 import { normalizeDomain, sanitizeHttpReturnUrl } from "../../background/rules";
 import { normalizePetState } from "../../pet/defaultState";
 import { mountPet } from "../../pet/renderer";
 
 type RuntimeResponse<T = unknown> = { ok: true } & T | { ok: false; error?: string };
+type LocaleOverride = "ko" | "en";
 type BlockedRuntimeState = {
   activeSession: Session | null;
   pendingEmergency: { sessionId: string; dueAt: number } | null;
@@ -29,15 +31,20 @@ export interface TemporaryAllowCountdown {
 const app = typeof document === "undefined" ? null : document.getElementById("app");
 const originalUrl = typeof window === "undefined" ? null : originalHttpUrlFromHash(window.location.hash);
 const domain = typeof window === "undefined"
-  ? "현재 사이트"
+  ? translate("blockedCurrentSite")
   : (originalUrl ? normalizeDomain(new URL(originalUrl).hostname) : "")
     || normalizeDomain(new URLSearchParams(window.location.search).get("d") ?? "")
-    || "현재 사이트";
+    || translate("blockedCurrentSite");
 let refreshQueue = Promise.resolve();
 let remainingTimer: number | undefined;
 let actionTimer: number | undefined;
 let tempAllowRequestInFlight = false;
 let mediumActionState: MediumActionState | null = null;
+
+if (typeof document !== "undefined") {
+  document.documentElement.lang = translate("appLocale");
+  document.title = translate("blockedDocumentTitle");
+}
 
 if (app) {
   void bootstrapBlockedPage();
@@ -60,7 +67,9 @@ async function bootstrapBlockedPage(): Promise<void> {
 function queueRefresh(): void {
   refreshQueue = refreshQueue.then(refreshBlockedPage).catch((error: unknown) => {
     if (app) {
-      app.textContent = error instanceof Error ? error.message : "차단 페이지를 불러오지 못했습니다.";
+      app.textContent = error instanceof Error
+        ? localizeBlockedRuntimeError(error.message, "blockedLoadFailed")
+        : translate("blockedLoadFailed");
     }
   });
 }
@@ -144,11 +153,11 @@ function baseMarkup(session: Session | null, stateAvailable: boolean): string {
         </div>
         <dl class="stats stats-vertical w-full overflow-hidden border border-base-300 bg-base-200 shadow-none sm:stats-horizontal">
           <div class="stat min-w-0">
-            <dt class="stat-title">대상</dt>
+            <dt class="stat-title">${translate("blockedTarget")}</dt>
             <dd class="stat-value break-all whitespace-normal text-base font-semibold leading-snug tabular-nums">${escapeHtml(domain)}</dd>
           </div>
           <div class="stat">
-            <dt class="stat-title">남은 시간</dt>
+            <dt class="stat-title">${translate("blockedTimeRemaining")}</dt>
             <dd id="remaining-time" class="stat-value text-2xl tabular-nums">${presentation.remaining}</dd>
           </div>
         </dl>
@@ -156,7 +165,7 @@ function baseMarkup(session: Session | null, stateAvailable: boolean): string {
           id="action-area"
           class="space-y-4 border-t border-base-200 pt-5 motion-safe:transition motion-safe:duration-200 motion-safe:ease-out motion-reduce:transition-none"
           role="region"
-          aria-label="차단 선택"
+          aria-label="${translate("blockedActionsAria")}"
           aria-live="polite"
           aria-atomic="false"
           tabindex="-1"
@@ -168,10 +177,10 @@ function baseMarkup(session: Session | null, stateAvailable: boolean): string {
 
 function renderStateUnavailable(): void {
   setActionArea(`
-    <div class="alert alert-warning alert-soft text-sm shadow-none" role="alert"><span>세션 상태를 확인하지 못했습니다. 잠시 후 다시 시도해 주세요.</span></div>
+    <div class="alert alert-warning alert-soft text-sm shadow-none" role="alert"><span>${translate("blockedStateUnavailable")}</span></div>
     <div class="card-actions justify-center gap-2">
-      <button id="retry-state-button" type="button" class="btn btn-primary min-h-10">다시 시도</button>
-      <button id="back-button" type="button" class="btn btn-soft min-h-10 shadow-sm">집중으로 돌아가기</button>
+      <button id="retry-state-button" type="button" class="btn btn-primary min-h-10">${translate("commonRetry")}</button>
+      <button id="back-button" type="button" class="btn btn-soft min-h-10 shadow-sm">${translate("blockedReturnToFocus")}</button>
     </div>
   `, "#retry-state-button");
   document.getElementById("retry-state-button")?.addEventListener("click", queueRefresh);
@@ -180,9 +189,9 @@ function renderStateUnavailable(): void {
 
 function renderNoSession(): void {
   setActionArea(`
-    <div class="alert alert-soft border border-base-300 text-sm shadow-none" role="note"><span>집중 세션이 종료되었습니다. 이전 페이지로 돌아갈 수 있습니다.</span></div>
+    <div class="alert alert-soft border border-base-300 text-sm shadow-none" role="note"><span>${translate("blockedSessionEndedNotice")}</span></div>
     <div class="card-actions justify-center">
-      <button id="exit-button" type="button" class="btn btn-primary min-h-10">이전 페이지로 돌아가기</button>
+      <button id="exit-button" type="button" class="btn btn-primary min-h-10">${translate("blockedReturnToPreviousPage")}</button>
     </div>
   `, "#exit-button");
   document.getElementById("exit-button")?.addEventListener("click", returnToRequestedPage);
@@ -190,9 +199,9 @@ function renderNoSession(): void {
 
 function renderSoftFallback(): void {
   setActionArea(`
-    <p class="text-center text-sm">가벼운 안내 설정에서는 이 사이트를 안내 오버레이로 처리합니다.</p>
+    <p class="text-center text-sm">${translate("blockedSoftFallback")}</p>
     <div class="card-actions justify-center gap-2">
-      <button id="back-button" type="button" class="btn btn-soft min-h-10 shadow-sm">집중으로 돌아가기</button>
+      <button id="back-button" type="button" class="btn btn-soft min-h-10 shadow-sm">${translate("blockedReturnToFocus")}</button>
     </div>
   `, "#back-button");
   document.getElementById("back-button")?.addEventListener("click", goBack);
@@ -213,10 +222,10 @@ function renderMedium(session: Session): void {
   }
 
   setActionArea(`
-    <p class="text-center text-sm">열기 전에 짧은 확인 시간을 둡니다.</p>
+    <p class="text-center text-sm">${translate("blockedMediumPrompt")}</p>
     <div class="card-actions justify-center gap-2">
-      <button id="open-anyway-button" type="button" class="btn btn-primary min-h-10">그래도 열기</button>
-      <button id="back-button" type="button" class="btn btn-soft min-h-10 shadow-sm">집중으로 돌아가기</button>
+      <button id="open-anyway-button" type="button" class="btn btn-primary min-h-10">${translate("blockedOpenAnyway")}</button>
+      <button id="back-button" type="button" class="btn btn-soft min-h-10 shadow-sm">${translate("blockedReturnToFocus")}</button>
     </div>
   `, "#back-button");
 
@@ -240,13 +249,13 @@ function renderMediumFriction(
   setActionArea(`
     <form id="intent-form" class="space-y-3">
       <fieldset class="fieldset">
-        <legend class="fieldset-legend">열어야 하는 이유</legend>
+        <legend class="fieldset-legend">${translate("blockedIntentLegend")}</legend>
         <input id="intent-input" class="input min-h-10 w-full" name="intent" type="text" maxlength="140" autocomplete="off" required aria-describedby="intent-help" />
-        <p id="intent-help" class="label">지금 이 사이트가 필요한 이유를 한 문장으로 적어 주세요.</p>
+        <p id="intent-help" class="label">${translate("blockedIntentHelp")}</p>
       </fieldset>
       <div class="card-actions justify-center gap-2">
-        <button id="allow-button" type="submit" class="btn btn-primary min-h-10" aria-label="5분 임시 허용" aria-describedby="allow-status" disabled><span id="allow-countdown" aria-hidden="true">${temporaryAllowCountdown(state.availableAt).visualText}</span></button>
-        <button id="back-button" type="button" class="btn btn-soft min-h-10 shadow-sm">집중으로 돌아가기</button>
+        <button id="allow-button" type="submit" class="btn btn-primary min-h-10" aria-label="${translate("blockedTemporaryAllowAria")}" aria-describedby="allow-status" disabled><span id="allow-countdown" aria-hidden="true">${temporaryAllowCountdown(state.availableAt).visualText}</span></button>
+        <button id="back-button" type="button" class="btn btn-soft min-h-10 shadow-sm">${translate("blockedReturnToFocus")}</button>
       </div>
       <p id="allow-status" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></p>
     </form>
@@ -282,11 +291,11 @@ function renderHard(session?: Session, pendingEmergency?: BlockedRuntimeState["p
   }
 
   setActionArea(`
-    <div class="alert alert-soft border border-base-300 text-sm shadow-none" role="note"><span>완전 차단 설정에서는 임시 허용을 제공하지 않습니다.</span></div>
-    <p class="text-center text-sm">비상 종료는 5분 뒤 적용되며, 이번 주 1회만 사용할 수 있습니다.</p>
+    <div class="alert alert-soft border border-base-300 text-sm shadow-none" role="note"><span>${translate("blockedHardNoTemporaryAllow")}</span></div>
+    <p class="text-center text-sm">${translate("blockedEmergencyRule")}</p>
     <div class="card-actions justify-center gap-2">
-      <button id="emergency-button" type="button" class="btn btn-error btn-soft min-h-10 text-base-content shadow-sm">비상 종료 요청</button>
-      <button id="hard-back-button" type="button" class="btn btn-soft min-h-10 shadow-sm">집중으로 돌아가기</button>
+      <button id="emergency-button" type="button" class="btn btn-error btn-soft min-h-10 text-base-content shadow-sm">${translate("blockedEmergencyRequest")}</button>
+      <button id="hard-back-button" type="button" class="btn btn-soft min-h-10 shadow-sm">${translate("blockedReturnToFocus")}</button>
     </div>
   `, "#hard-back-button");
 
@@ -298,10 +307,10 @@ function renderHard(session?: Session, pendingEmergency?: BlockedRuntimeState["p
 
 function renderEmergencyConfirmation(): void {
   setActionArea(`
-    <div class="alert alert-warning alert-soft text-sm shadow-none" role="note"><span>한 번 더 누르면 비상 종료가 예약됩니다. 잘못 눌렀다면 되돌아가세요.</span></div>
+    <div class="alert alert-warning alert-soft text-sm shadow-none" role="note"><span>${translate("blockedEmergencyConfirmWarning")}</span></div>
     <div class="card-actions justify-center gap-2">
-      <button id="confirm-emergency-button" type="button" class="btn btn-error min-h-10 shadow-md">5분 뒤 종료 예약</button>
-      <button id="cancel-emergency-button" type="button" class="btn btn-soft min-h-10 shadow-sm">되돌아가기</button>
+      <button id="confirm-emergency-button" type="button" class="btn btn-error min-h-10 shadow-md">${translate("blockedEmergencySchedule")}</button>
+      <button id="cancel-emergency-button" type="button" class="btn btn-soft min-h-10 shadow-sm">${translate("blockedGoBack")}</button>
     </div>
   `, "#cancel-emergency-button");
 
@@ -345,20 +354,20 @@ async function submitTemporaryAllow(intent: string, sessionId: string): Promise<
 
 function renderTempAllowRequesting(): void {
   setActionArea(`
-    <div class="alert alert-soft border border-base-300 text-sm shadow-none" role="status"><span>임시 허용을 적용하고 있습니다.</span></div>
+    <div class="alert alert-soft border border-base-300 text-sm shadow-none" role="status"><span>${translate("blockedTemporaryAllowApplying")}</span></div>
     <div class="card-actions justify-center">
-      <button id="back-button" type="button" class="btn btn-soft min-h-10 shadow-sm">집중으로 돌아가기</button>
+      <button id="back-button" type="button" class="btn btn-soft min-h-10 shadow-sm">${translate("blockedReturnToFocus")}</button>
     </div>
   `, "#back-button");
   document.getElementById("back-button")?.addEventListener("click", goBack);
 }
 
-export function tempAllowFailureMarkup(): string {
+export function tempAllowFailureMarkup(localeOverride?: LocaleOverride): string {
   return `
-    <div class="alert alert-error alert-soft text-sm shadow-none" role="alert"><span>임시 허용을 적용하지 못했습니다. 다시 시도해 주세요.</span></div>
+    <div class="alert alert-error alert-soft text-sm shadow-none" role="alert"><span>${translate("blockedTemporaryAllowFailed", undefined, localeOverride)}</span></div>
     <div class="card-actions justify-center gap-2">
-      <button id="retry-allow-button" type="button" class="btn btn-primary min-h-10">다시 시도</button>
-      <button id="back-button" type="button" class="btn btn-soft min-h-10 shadow-sm">집중으로 돌아가기</button>
+      <button id="retry-allow-button" type="button" class="btn btn-primary min-h-10">${translate("commonRetry", undefined, localeOverride)}</button>
+      <button id="back-button" type="button" class="btn btn-soft min-h-10 shadow-sm">${translate("blockedReturnToFocus", undefined, localeOverride)}</button>
     </div>
   `;
 }
@@ -373,9 +382,9 @@ function renderTempAllowFailure(sessionId: string, intent: string): void {
 
 function renderTempAllowSuccess(): void {
   setActionArea(`
-    <p class="text-center text-sm">5분 동안 열 수 있습니다. 시간이 지나면 세션 규칙이 다시 적용됩니다.</p>
+    <p class="text-center text-sm">${translate("blockedTemporaryAllowSuccess")}</p>
     <div class="card-actions justify-center gap-2">
-      <button id="continue-button" type="button" class="btn btn-primary min-h-10">계속하기</button>
+      <button id="continue-button" type="button" class="btn btn-primary min-h-10">${translate("commonContinue")}</button>
     </div>
   `, "#continue-button");
   document.getElementById("continue-button")?.addEventListener("click", returnToRequestedPage);
@@ -385,9 +394,9 @@ async function requestEmergencyEnd(): Promise<void> {
   const response = await sendRuntime<{ emergencyDueAt?: number }>({ type: "END_SESSION", payload: { reason: "emergency" } });
   if (!response.ok) {
     setActionArea(`
-      <div class="alert alert-warning alert-soft text-sm shadow-none" role="alert"><span>${escapeHtml(response.error ?? "요청을 저장하지 못했습니다. 다시 시도해 주세요.")}</span></div>
+      <div class="alert alert-warning alert-soft text-sm shadow-none" role="alert"><span>${escapeHtml(localizeBlockedRuntimeError(response.error, "blockedEmergencySaveFailed"))}</span></div>
       <div class="card-actions justify-center gap-2">
-        <button id="back-button" type="button" class="btn btn-soft min-h-10 shadow-sm">집중으로 돌아가기</button>
+        <button id="back-button" type="button" class="btn btn-soft min-h-10 shadow-sm">${translate("blockedReturnToFocus")}</button>
       </div>
     `, "#back-button");
     document.getElementById("back-button")?.addEventListener("click", goBack);
@@ -399,7 +408,7 @@ async function requestEmergencyEnd(): Promise<void> {
 
 function renderEmergencyPending(dueAt: number): void {
   setActionArea(`
-    <p class="text-center text-sm">비상 종료 요청이 저장되었습니다. 약 5분 뒤 세션이 종료됩니다.</p>
+    <p class="text-center text-sm">${translate("blockedEmergencyPending")}</p>
     <div id="emergency-countdown" class="text-center text-4xl font-extrabold tabular-nums" role="timer" aria-live="off">${formatCountdown(Math.ceil((dueAt - Date.now()) / 1_000))}</div>
   `);
 
@@ -448,7 +457,7 @@ function startButtonCountdown(
 function startDeadlineCountdown(element: HTMLElement, dueAt: number): void {
   const update = () => {
     const remaining = Math.max(0, Math.ceil((dueAt - Date.now()) / 1_000));
-    element.textContent = remaining > 0 ? formatCountdown(remaining) : "종료 처리 중";
+    element.textContent = remaining > 0 ? formatCountdown(remaining) : translate("blockedEmergencyEnding");
     return remaining;
   };
 
@@ -479,7 +488,7 @@ async function sendRuntime<T>(message: unknown): Promise<RuntimeResponse<T>> {
   try {
     const response: unknown = await chrome.runtime.sendMessage(message);
     if (!response || typeof response !== "object" || !("ok" in response) || typeof response.ok !== "boolean") {
-      return { ok: false, error: "확장 프로그램의 응답을 확인하지 못했습니다." };
+      return { ok: false, error: translate("blockedInvalidExtensionResponse") };
     }
     return response as RuntimeResponse<T>;
   } catch (error) {
@@ -538,25 +547,26 @@ export function originalHttpUrlFromHash(hash: string): string | null {
 export function blockedPagePresentation(
   session: Session | null,
   stateAvailable: boolean,
-  now = Date.now()
+  now = Date.now(),
+  localeOverride?: LocaleOverride
 ): BlockedPagePresentation {
   if (!stateAvailable) {
     return {
-      heading: "세션 상태를 확인하지 못했습니다",
-      remaining: "확인 필요"
+      heading: translate("blockedHeadingStateUnavailable", undefined, localeOverride),
+      remaining: translate("blockedRemainingCheckNeeded", undefined, localeOverride)
     };
   }
 
   if (session?.status === "active") {
     return {
-      heading: "집중 세션이 진행 중입니다",
+      heading: translate("blockedHeadingSessionActive", undefined, localeOverride),
       remaining: formatRemaining(session.endsAt, now)
     };
   }
 
   return {
-    heading: "집중 세션이 종료되었습니다",
-    remaining: "세션 없음"
+    heading: translate("blockedHeadingSessionEnded", undefined, localeOverride),
+    remaining: translate("blockedRemainingNoSession", undefined, localeOverride)
   };
 }
 
@@ -569,13 +579,17 @@ export function shouldPreserveTemporaryAllowView(actionSessionId: string | null,
   );
 }
 
-export function temporaryAllowCountdown(availableAt: number, now = Date.now()): TemporaryAllowCountdown {
+export function temporaryAllowCountdown(
+  availableAt: number,
+  now = Date.now(),
+  localeOverride?: LocaleOverride
+): TemporaryAllowCountdown {
   const remainingSeconds = Math.max(0, Math.ceil((availableAt - now) / 1_000));
   if (remainingSeconds === 0) {
     return {
       available: true,
-      visualText: "5분 임시 허용",
-      announcement: "이제 5분 임시 허용을 요청할 수 있습니다."
+      visualText: translate("blockedTemporaryAllowFiveMinutes", undefined, localeOverride),
+      announcement: translate("blockedTemporaryAllowAvailableAnnouncement", undefined, localeOverride)
     };
   }
 
@@ -594,6 +608,25 @@ function formatCountdown(totalSeconds: number): string {
   const minutes = Math.floor(Math.max(0, totalSeconds) / 60);
   const seconds = Math.max(0, totalSeconds) % 60;
   return `${minutes}:${String(seconds).padStart(2, "0")}`;
+}
+
+function localizeBlockedRuntimeError(error: string | undefined, fallbackKey: string): string {
+  const keyByMessage: Record<string, string> = {
+    "A valid domain is required for temporary allow.": "blockedErrorInvalidDomain",
+    "Temporary allow requires an intent of 1 to 140 characters.": "blockedErrorInvalidIntent",
+    "Temporary allow requires the matching active medium session.": "blockedErrorNoMatchingMediumSession",
+    "The requested domain is not blocked by the active session.": "blockedErrorDomainNotBlocked",
+    "Emergency end is only available during an active hard session.": "blockedErrorEmergencyUnavailable",
+    "\uc774\ubc88 \uc8fc \ube44\uc0c1 \uc885\ub8cc \uc694\uccad\uc740 \uc774\ubbf8 \uc0ac\uc6a9\ud588\uc2b5\ub2c8\ub2e4.": "blockedErrorEmergencyAlreadyUsed",
+    "This action requires a top-level FocusWhale blocked-page tab.": "blockedErrorTopLevelPageRequired",
+    "This action requires the FocusWhale blocked page.": "blockedErrorBlockedPageRequired"
+  };
+  const key = error ? keyByMessage[error] : undefined;
+  if (key) {
+    return translate(key);
+  }
+
+  return error === translate("blockedInvalidExtensionResponse") ? error : translate(fallbackKey);
 }
 
 function escapeHtml(value: string): string {

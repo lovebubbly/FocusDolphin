@@ -1,6 +1,6 @@
 # FocusWhale Decisions
 
-Last refreshed: **2026-07-11 02:29 KST** by **OpenAI Codex (GPT-5)**, for requester and product owner **Choi Yunseong (최윤성)**.
+Last refreshed: **2026-07-11 11:56 KST** by **OpenAI Codex (GPT-5)**, for requester and product owner **Choi Yunseong (최윤성)**.
 
 This file records durable choices that are easy to accidentally undo. New undocumented choices should be added here with rationale.
 
@@ -32,7 +32,7 @@ This file records durable choices that are easy to accidentally undo. New undocu
 
 **Decision:** Treat `x.com` and `twitter.com` as aliases and use regex DNR matching where required.
 
-**Why:** Chromium/Whale behavior showed `x.com` was not reliably covered by the previous domain-only path. The exact-final headless Whale run redirected a synthetic credential-bearing `x.com.` target, preserved the trailing dot/path, stripped sensitive return components, and returned to `about:blank`; Whale's HSTS preload safely upgraded HTTP to HTTPS before DNR capture.
+**Why:** Chromium/Whale behavior showed `x.com` was not reliably covered by the previous domain-only path. The pre-Goal-7 exact-build headless Whale run redirected a synthetic credential-bearing `x.com.` target, preserved the trailing dot/path, stripped sensitive return components, and returned to `about:blank`; Whale's HSTS preload safely upgraded HTTP to HTTPS before DNR capture.
 
 ## D-006: Two-Stage Production Build
 
@@ -48,13 +48,13 @@ This file records durable choices that are easy to accidentally undo. New undocu
 
 ## D-008: Optional History
 
-**Decision:** `history` is optional and requested only when the user starts recommendation analysis. Persist domain aggregates only; never auto-block recommendations.
+**Decision:** `history` is optional and requested only when the user starts recommendation analysis in Options. Onboarding never requests it. Persist domain aggregates only; never auto-block recommendations.
 
 **Why:** Core focus features do not need browsing history, and raw URL/title/timestamp retention would violate data minimization.
 
 ## D-009: Storage And Deletion
 
-**Decision:** Sync settings/lists/schedules/pet state; keep activity/analytics/journals local. Provide history revoke and local-data clear in Options. Reject local clear while a session is active and preserve sync-backed data, the current week's emergency-use allowance, and any unexpired schedule-occurrence suppression.
+**Decision:** Sync settings/lists/schedules/pet state; keep activity/analytics/journals and the versioned onboarding-completion record local. Provide history revoke and local-data clear in Options. Reject local clear while a session is active and preserve sync-backed data, the current week's emergency-use allowance, and any unexpired schedule-occurrence suppression. Clearing local data removes onboarding completion but does not automatically reopen the flow; Options provides explicit replay.
 
 **Why:** Clearing active state/rules mid-session would bypass the selected commitment. Clearing weekly emergency usage or current-occurrence suppression would create a second bypass. Sync-backed configuration/progress is a separate deletion domain.
 
@@ -78,7 +78,7 @@ This file records durable choices that are easy to accidentally undo. New undocu
 
 ## D-013: Evidence Levels
 
-**Decision:** Distinguish isolated headed exact-build, headless exact-build, headless prior-candidate, visible-profile prior-build, automated current, earlier-baseline, and pending evidence in release docs. Record browser/profile, exact artifact boundary, and approval boundary with each run.
+**Decision:** Distinguish isolated headed exact-build, headless exact-build, headless prior-candidate, visible-profile prior-build, automated current, earlier-baseline, harness-limited, and pending evidence in release docs. Record browser/profile, exact artifact boundary, and approval boundary with each run. A browser-automation stall may be classified as a harness limitation only when the exact baseline reproduces it at the same platform API boundary; that classification does not substitute for a normal-browser smoke.
 
 **Why:** Browser-extension behavior cannot be declared exact-final verified solely from unit tests or screenshots of an older build. Even a one-line post-run change makes the earlier binary a prior candidate rather than exact, and a headless temporary-profile result must not be presented as a normal-profile manual run.
 
@@ -162,9 +162,9 @@ This file records durable choices that are easy to accidentally undo. New undocu
 
 ## D-027: Whale-First Exact Package
 
-**Decision:** Submit the exact reviewed 1.0.0 package to Naver Whale Store first. Its store-visible short description remains the current English `manifest.description`; the Korean detailed listing may describe the Korean interface, while a Korean short description requires an owner-authorized manifest localization and rebuilt package. Prepare Chrome Web Store disclosures and images as a secondary baseline, but require a browser-neutral manifest-description rebuild before a Chrome upload. Do not advertise an English interface until localization exists.
+**Decision:** Submit a newly rebuilt, exact reviewed 1.0.0 package to Naver Whale Store first. Manifest name, description, and action title use Chrome `_locales`; English is the default and Korean is selected for Korean browser UI language. Store metadata and imagery may describe both interfaces only after they are rechecked against that exact rebuilt package. Prepare Chrome Web Store disclosures and images as a secondary baseline, but keep browser-neutral wording for any Chrome upload.
 
-**Why:** The current manifest names Naver Whale and the production interface is Korean. A Whale-first submission preserves the reviewed binary and original target while avoiding misleading Chrome or English-language metadata.
+**Why:** Goal 7 added a complete Korean/English interface and localized manifest metadata, so the earlier Korean-only/English-description constraint no longer reflects the product. The existing pre-Goal-7 ZIP is not byte-equal to the bilingual build and cannot be reused as its submission artifact.
 
 ## D-028: Publicly Viewable, All Rights Reserved
 
@@ -174,6 +174,42 @@ This file records durable choices that are easy to accidentally undo. New undocu
 
 ## D-029: Ship Third-Party Notices Without Changing Executable Code
 
-**Decision:** Package exact MIT notices for Tailwind CSS, daisyUI, and the emitted Vite core runtime beside Pretendard's SIL OFL. Keep the fully tested JavaScript, CSS, HTML, manifest, font, icons, and sprite payload byte-identical; add only `licenses/THIRD-PARTY-NOTICES.txt` and repeat the clean-profile archive load.
+**Decision:** Package exact MIT notices for Tailwind CSS, daisyUI, and the emitted Vite core runtime beside Pretendard's SIL OFL. The historical pre-Goal-7 notice refresh kept executable files byte-identical; every later rebuild, including Goal 7, must carry the notices and repeat full archive verification.
 
-**Why:** Public source attribution alone does not satisfy the distribution notice carried by MIT-licensed code and styles in the extension ZIP. A notice-only package refresh closes that compliance gap without reopening application behavior.
+**Why:** Public source attribution alone does not satisfy the distribution notice carried by MIT-licensed code and styles in the extension ZIP. Goal 7 changes the executable package, so its new archive cannot inherit the old byte-equality claim.
+
+## D-030: Install-Only, Versioned Onboarding
+
+**Decision:** Open onboarding automatically only for `runtime.onInstalled` reason `install` and only when a valid current-version local completion record is absent. Record schema version, completion timestamp, and one of `skipped`, `setup_only`, or `session_started`. Offer an explicit replay from Options without treating replay as a new install.
+
+**Why:** New users need a clear first-run path, while updates and ordinary browser restarts must not repeatedly interrupt them. A versioned record supports future schema changes without collecting an account identifier or adding a backend.
+
+## D-031: Explicit First-Session Consent
+
+**Decision:** Onboarding may edit the selected focus list and let the user choose `soft`, `medium`, or `hard`, but it defaults to `soft`, never escalates automatically, and starts the optional 25-minute session only from the dedicated user action. Finishing setup or skipping does not start a session. Onboarding does not request browser-history permission.
+
+**Why:** The first-run experience must teach the commitment model without silently changing browsing behavior or bundling an unrelated sensitive permission request.
+
+## D-032: Korean And English Locale Contract
+
+**Decision:** Ship matching Korean and English catalogs for every product-authored surface and manifest field. Choose Korean for Korean UI language tags and English otherwise; unsupported locales fall back to English. Prefer `chrome.i18n` when its runtime catalog matches the requested language, and use the bundled matching catalog when Whale reports a stale/mismatched runtime catalog. Preserve user-authored values verbatim.
+
+**Why:** A localized release must avoid mixed-language UI and untranslated keys, while respecting names and content the user supplied. The runtime-catalog check addresses an observed Whale profile mismatch without changing the browser's locale settings.
+
+## D-033: No-Op-Safe DNR Adapter
+
+**Decision:** Before a dynamic-rule update, intersect requested removal IDs with currently installed rule IDs. Skip the browser update entirely when there are neither existing removals nor additions.
+
+**Why:** Removing nonexistent IDs or issuing an empty update has no product value and can expose browser-specific no-op behavior. Filtering stays inside the DNR adapter and does not change rule compilation, matching, IDs, or MV3 ownership.
+
+## D-034: Playwright-Launched Whale Alarm Boundary
+
+**Decision:** Record the current Playwright-launched Whale 4.38 stall at `chrome.alarms.create` as a harness limitation/pre-existing baseline behavior because the exact `acb45b6` executable reproduces it identically. Do not present that result as a Goal 7 regression or as proof that normal-browser session start passes.
+
+**Why:** Baseline reproduction isolates the stall from onboarding/localization changes, but an automated harness cannot stand in for the outstanding normal-browser/manual session smoke required for publication.
+
+## D-035: Explicit Tailwind Source Boundary
+
+**Decision:** Disable Tailwind's repository-wide automatic source discovery with `source(none)` and enumerate the production page, content, and pet source paths with `@source`.
+
+**Why:** Documentation vocabulary changed the compiled CSS/content-script bytes even when application source was untouched. An explicit source boundary makes release artifacts reproducible and requires future production directories to be added deliberately.

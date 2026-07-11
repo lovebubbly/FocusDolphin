@@ -17,6 +17,7 @@ import { MutationGeneration, SerialOperationQueue } from "./operationQueue";
 import { requireTrustedBlockedPageSender } from "./blockedPageSender";
 import { runAlarmWithRetry } from "./alarmRetry";
 import { HistoryAnalysisCoordinator } from "./historyAnalysis";
+import { runInstalledLifecycle } from "../pages/onboarding/lifecycle";
 import {
   addRecommendationDomain,
   applySettingsPatch,
@@ -51,9 +52,12 @@ const historyAnalysis = new HistoryAnalysisCoordinator({
   commit: (items) => chrome.storage.local.set(items)
 });
 
-chrome.runtime.onInstalled.addListener(() => {
+chrome.runtime.onInstalled.addListener((details) => {
   void backgroundOperations
-    .run(() => runAlarmWithRetry(SCHEDULE_RECONCILE_ALARM, boot, chrome.alarms))
+    .run(() => runInstalledLifecycle(
+      details.reason,
+      () => runAlarmWithRetry(SCHEDULE_RECONCILE_ALARM, boot, chrome.alarms)
+    ))
     .catch(() => undefined);
 });
 

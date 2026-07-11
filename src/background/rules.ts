@@ -4,9 +4,31 @@ export interface DynamicRuleClient {
   updateDynamicRules(options: chrome.declarativeNetRequest.UpdateRuleOptions): Promise<void>;
 }
 
+type DynamicRulesApi = Pick<
+  typeof chrome.declarativeNetRequest,
+  "getDynamicRules" | "updateDynamicRules"
+>;
+
 export class ChromeDynamicRuleClient implements DynamicRuleClient {
+  constructor(private readonly api: DynamicRulesApi = chrome.declarativeNetRequest) {}
+
   async updateDynamicRules(options: chrome.declarativeNetRequest.UpdateRuleOptions): Promise<void> {
-    await chrome.declarativeNetRequest.updateDynamicRules(options);
+    const requestedRemovalIds = options.removeRuleIds ?? [];
+    const existingIds = requestedRemovalIds.length > 0
+      ? new Set((await this.api.getDynamicRules()).map((rule) => rule.id))
+      : new Set<number>();
+    const removeRuleIds = requestedRemovalIds.filter((id) => existingIds.has(id));
+    const addRules = options.addRules ?? [];
+
+    if (removeRuleIds.length === 0 && addRules.length === 0) {
+      return;
+    }
+
+    await this.api.updateDynamicRules({
+      ...options,
+      removeRuleIds,
+      addRules
+    });
   }
 }
 

@@ -9,6 +9,8 @@ import {
 import { normalizePetState } from "../pet/defaultState";
 import { mountPet } from "../pet/renderer";
 import { LatestRequestGuard } from "../shared/latestRequest";
+import { translate, type SupportedLocale } from "../shared/i18n";
+import { siteListDisplayName } from "../shared/siteLists";
 import overlayStyles from "../styles/overlay.css?inline";
 
 const OVERLAY_ID = "focuswhale-soft-overlay";
@@ -28,11 +30,17 @@ export interface SoftCountdownSnapshot {
   disabled: boolean;
 }
 
-export function softCountdownSnapshot(deadlineMs: number, now = Date.now()): SoftCountdownSnapshot {
+export function softCountdownSnapshot(
+  deadlineMs: number,
+  now = Date.now(),
+  localeOverride?: SupportedLocale
+): SoftCountdownSnapshot {
   const remainingSeconds = Math.max(0, Math.ceil((deadlineMs - now) / 1_000));
   return {
     remainingSeconds,
-    label: remainingSeconds > 0 ? `계속하기 ${remainingSeconds}` : "계속하기",
+    label: remainingSeconds > 0
+      ? translate("softContinueCountdown", String(remainingSeconds), localeOverride)
+      : translate("commonContinue", undefined, localeOverride),
     disabled: remainingSeconds > 0
   };
 }
@@ -164,12 +172,12 @@ function showOverlay(
       <section class="card w-full max-w-md bg-base-100 shadow-xl">
         <div class="card-body gap-4">
           <div id="focuswhale-pet" class="mx-auto grid h-24 w-24 place-items-center" aria-hidden="true"></div>
-          <p class="text-center text-sm font-semibold text-base-content/80">${escapeHtml(siteList.name)} · ${escapeHtml(hostname)}</p>
-          <h1 id="focuswhale-title" class="text-center text-2xl font-extrabold">잠시 멈춤</h1>
-          <p id="focuswhale-description" class="text-center text-sm text-base-content/80">이 세션에서는 이 사이트를 열기 전에 짧은 확인 시간을 둡니다.</p>
+          <p class="text-center text-sm font-semibold text-base-content/80">${escapeHtml(siteListDisplayName(siteList))} · ${escapeHtml(hostname)}</p>
+          <h1 id="focuswhale-title" class="text-center text-2xl font-extrabold">${escapeHtml(translate("softPauseTitle"))}</h1>
+          <p id="focuswhale-description" class="text-center text-sm text-base-content/80">${escapeHtml(translate("softPauseDescription"))}</p>
           <div class="card-actions justify-center gap-2">
-            <button class="btn btn-primary" id="back-button" type="button">되돌아가기</button>
-            <button class="btn btn-soft shadow-sm" id="continue-button" type="button" aria-live="off" disabled>계속하기 ${waitSeconds}</button>
+            <button class="btn btn-primary" id="back-button" type="button">${escapeHtml(translate("commonReturnToFocus"))}</button>
+            <button class="btn btn-soft shadow-sm" id="continue-button" type="button" aria-live="off" disabled>${escapeHtml(translate("softContinueCountdown", String(waitSeconds)))}</button>
           </div>
         </div>
       </section>

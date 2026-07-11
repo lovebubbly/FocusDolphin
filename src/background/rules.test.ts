@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import type { SiteList, TempAllow } from "../shared/types";
 import {
+  ChromeDynamicRuleClient,
   SESSION_RULE_IDS,
   SESSION_RULE_CAPACITY,
   TEMP_ALLOW_RULE_IDS,
@@ -196,5 +197,25 @@ describe("DNR rule client boundary", () => {
       addRules: rules
     });
     expect(TEMP_ALLOW_RULE_IDS[0]).toBe(1000);
+  });
+
+  it("removes only rules that exist and skips empty Whale DNR updates", async () => {
+    const getDynamicRules = vi.fn(async () => [
+      { id: 2 },
+      { id: 1_001 },
+      { id: 9_999 }
+    ] as chrome.declarativeNetRequest.Rule[]);
+    const updateDynamicRules = vi.fn(async () => undefined);
+    const client = new ChromeDynamicRuleClient({ getDynamicRules, updateDynamicRules });
+
+    await client.updateDynamicRules({ removeRuleIds: SESSION_RULE_IDS, addRules: [] });
+    await client.updateDynamicRules({ removeRuleIds: [3, 4], addRules: [] });
+
+    expect(getDynamicRules).toHaveBeenCalledTimes(2);
+    expect(updateDynamicRules).toHaveBeenCalledTimes(1);
+    expect(updateDynamicRules).toHaveBeenCalledWith({
+      removeRuleIds: [2],
+      addRules: []
+    });
   });
 });

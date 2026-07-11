@@ -2,6 +2,7 @@ import type { DailyStats, Schedule, Session, SiteList } from "../../shared/types
 import type { Recommendation } from "../../analytics/recommend";
 import { normalizeDomain } from "../../background/rules";
 import { DEFAULT_SETTINGS, normalizeSettings } from "../../shared/storage";
+import { translate, type SupportedLocale } from "../../shared/i18n";
 
 export interface OptionsSettings {
   focusHours: { startHHMM: string; endHHMM: string };
@@ -43,7 +44,11 @@ export function blockedDomainsFromLists(siteLists: readonly SiteList[]): string[
   );
 }
 
-export function addRecommendationToBlocklist(siteLists: readonly SiteList[], recommendation: Recommendation): SiteList[] {
+export function addRecommendationToBlocklist(
+  siteLists: readonly SiteList[],
+  recommendation: Recommendation,
+  localeOverride?: SupportedLocale
+): SiteList[] {
   const domain = normalizeDomainInput(recommendation.domain);
   if (!domain) {
     return [...siteLists];
@@ -55,7 +60,7 @@ export function addRecommendationToBlocklist(siteLists: readonly SiteList[], rec
       ...siteLists,
       {
         id: "recommended-blocklist",
-        name: "추천 차단 목록",
+        name: translate("recommendedBlocklistName", undefined, localeOverride),
         mode: "blocklist",
         domains: [domain]
       }
@@ -90,13 +95,14 @@ export function normalizeDomainList(value: string): string[] {
 }
 
 export function validateScheduleConfiguration(
-  schedule: Pick<Schedule, "startHHMM" | "endHHMM" | "days" | "listId">
+  schedule: Pick<Schedule, "startHHMM" | "endHHMM" | "days" | "listId">,
+  localeOverride?: SupportedLocale
 ): ScheduleValidationResult {
   if (!isHHMM(schedule.startHHMM) || !isHHMM(schedule.endHHMM)) {
     return {
       valid: false,
       field: "time",
-      message: "시작과 종료 시간을 모두 선택해 주세요."
+      message: translate("scheduleTimesRequired", undefined, localeOverride)
     };
   }
 
@@ -104,7 +110,7 @@ export function validateScheduleConfiguration(
     return {
       valid: false,
       field: "time",
-      message: "시작과 종료 시간을 다르게 선택해 주세요."
+      message: translate("scheduleTimesMustDiffer", undefined, localeOverride)
     };
   }
 
@@ -112,7 +118,7 @@ export function validateScheduleConfiguration(
     return {
       valid: false,
       field: "days",
-      message: "자동 시작 요일을 하나 이상 선택해 주세요."
+      message: translate("scheduleDayRequired", undefined, localeOverride)
     };
   }
 
@@ -120,7 +126,7 @@ export function validateScheduleConfiguration(
     return {
       valid: false,
       field: "list",
-      message: "자동 시작에 사용할 차단 목록을 선택해 주세요."
+      message: translate("scheduleListRequired", undefined, localeOverride)
     };
   }
 

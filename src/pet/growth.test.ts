@@ -10,6 +10,7 @@ import {
   describeGrowthEvent,
   drainPendingCelebrations,
   growthProgress,
+  petDisplayName,
   readPendingCelebrations,
   readGrowthLog
 } from "./growth";
@@ -116,6 +117,19 @@ describe("growth presentation", () => {
       xpDelta: 37,
       intensity: "hard"
     })).toContain("25분 × 완전 차단");
+
+    expect(describeGrowthEvent("session_completed", {
+      minutes: 25,
+      xpDelta: 37,
+      intensity: "hard"
+    }, "en")).toBe("25 min focus complete · +37 XP (25 min × Full block)");
+  });
+
+  it("localizes product-owned pet names without changing user names", () => {
+    expect(petDisplayName("미로", "en")).toBe("Miro");
+    expect(petDisplayName(undefined, "ko")).toBe("미로");
+    expect(petDisplayName("Miro", "ko")).toBe("Miro");
+    expect(petDisplayName("윤성의 고래", "en")).toBe("윤성의 고래");
   });
 
   it("never offers a lower next stage for a non-regressing legacy stage", () => {
@@ -130,6 +144,10 @@ describe("growth presentation", () => {
       nextStageName: "푸른 고래",
       percentToNext: 0,
       remainingXp: 1_800
+    });
+    expect(growthProgress(200, 2, "en")).toMatchObject({
+      currentStageName: "Young whale",
+      nextStageName: "Blue whale"
     });
     expect(crossedHalfWay(1_000, 4_000, 4)).toBe(false);
   });

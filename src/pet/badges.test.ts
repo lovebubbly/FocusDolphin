@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { PetState, Session, SiteList } from "../shared/types";
-import { awardBadges, BADGE_IDS } from "./badges";
+import { awardBadges, badgeDescription, badgeName, BADGE_IDS } from "./badges";
 import { normalizePetState } from "./defaultState";
 
 const SITE_LISTS: SiteList[] = [
@@ -37,6 +37,12 @@ function completedSession(id: string, listId: string, start: string, minutes: nu
 }
 
 describe("awardBadges", () => {
+  it("presents badge copy in either supported locale", () => {
+    expect(badgeName(BADGE_IDS.firstSession, "ko")).toBe("첫 물결");
+    expect(badgeName(BADGE_IDS.firstSession, "en")).toBe("First Ripple");
+    expect(badgeDescription(BADGE_IDS.firstSession, "en")).toContain("first ripple");
+  });
+
   it("awards every collection badge without removing existing badges", () => {
     const sessions: Session[] = [
       completedSession("s1", "allow", "2026-06-29T09:00:00+09:00", 300, true),

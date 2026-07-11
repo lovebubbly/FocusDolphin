@@ -19,19 +19,30 @@ describe("soft overlay timing", () => {
   it("derives countdown state from an absolute deadline after delayed ticks", () => {
     const deadlineMs = 10_000;
 
-    expect(softCountdownSnapshot(deadlineMs, 0)).toEqual({
+    expect(softCountdownSnapshot(deadlineMs, 0, "ko")).toEqual({
       remainingSeconds: 10,
       label: "계속하기 10",
       disabled: true
     });
-    expect(softCountdownSnapshot(deadlineMs, 9_501)).toEqual({
+    expect(softCountdownSnapshot(deadlineMs, 9_501, "ko")).toEqual({
       remainingSeconds: 1,
       label: "계속하기 1",
       disabled: true
     });
-    expect(softCountdownSnapshot(deadlineMs, 12_000)).toEqual({
+    expect(softCountdownSnapshot(deadlineMs, 12_000, "ko")).toEqual({
       remainingSeconds: 0,
       label: "계속하기",
+      disabled: false
+    });
+
+    expect(softCountdownSnapshot(deadlineMs, 0, "en")).toEqual({
+      remainingSeconds: 10,
+      label: "Continue in 10",
+      disabled: true
+    });
+    expect(softCountdownSnapshot(deadlineMs, 12_000, "en")).toEqual({
+      remainingSeconds: 0,
+      label: "Continue",
       disabled: false
     });
   });

@@ -1,4 +1,5 @@
 import type { Intensity, PetStage } from "./types";
+import { translate, type SupportedLocale } from "./i18n";
 
 export const PET_STAGE_THRESHOLDS: Array<{ stage: PetStage; xp: number; name: string }> = [
   { stage: 4, xp: 6_000, name: "별고래" },
@@ -82,17 +83,26 @@ export const FORBIDDEN_WELLNESS_COPY = [
   "하지 않으면"
 ];
 
-export function stageName(stage: PetStage): string {
-  return PET_STAGE_THRESHOLDS.find((entry) => entry.stage === stage)?.name ?? "알";
+export function stageName(stage: PetStage, localeOverride?: SupportedLocale): string {
+  return translate(`petStageName${stage}`, undefined, localeOverride);
 }
 
-export function nextStageThreshold(xp: number): { stage: PetStage; xp: number; name: string } | null {
+export function nextStageThreshold(
+  xp: number,
+  localeOverride?: SupportedLocale
+): { stage: PetStage; xp: number; name: string } | null {
   const safeXp = Math.max(0, xp);
-  return [...PET_STAGE_THRESHOLDS]
+  const threshold = [...PET_STAGE_THRESHOLDS]
     .reverse()
     .find((entry) => entry.xp > safeXp) ?? null;
+  return threshold ? { ...threshold, name: stageName(threshold.stage, localeOverride) } : null;
 }
 
-export function currentStageThreshold(stage: PetStage): { stage: PetStage; xp: number; name: string } {
-  return PET_STAGE_THRESHOLDS.find((entry) => entry.stage === stage) ?? PET_STAGE_THRESHOLDS[PET_STAGE_THRESHOLDS.length - 1];
+export function currentStageThreshold(
+  stage: PetStage,
+  localeOverride?: SupportedLocale
+): { stage: PetStage; xp: number; name: string } {
+  const threshold = PET_STAGE_THRESHOLDS.find((entry) => entry.stage === stage)
+    ?? PET_STAGE_THRESHOLDS[PET_STAGE_THRESHOLDS.length - 1];
+  return { ...threshold, name: stageName(threshold.stage, localeOverride) };
 }

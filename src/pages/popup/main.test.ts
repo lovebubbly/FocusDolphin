@@ -9,6 +9,7 @@ import {
   dismissPopupCelebrations,
   fallbackRuntimeState,
   intensityLabel,
+  localizedGrowthEventText,
   loadPopupModel,
   mergeCelebrationDismissal,
   mergePetNameSave,
@@ -49,7 +50,7 @@ describe("popup celebration state", () => {
 
     const next = await dismissPopupCelebrations(model, async () => {
       throw new Error("storage unavailable");
-    });
+    }, "ko");
 
     expect(next.celebrations).toEqual(model.celebrations);
     expect(next.celebrationAckError).toContain("다시 시도");
@@ -227,17 +228,41 @@ describe("popup interaction helpers", () => {
       nextSnoozeDelayMin: 15
     };
 
-    expect(activeSessionClockSnapshot(session, 31_000)).toEqual({
+    expect(activeSessionClockSnapshot(session, 31_000, "ko")).toEqual({
       remainingText: "남은 시간 0:30",
+      progress: 50
+    });
+    expect(activeSessionClockSnapshot(session, 31_000, "en")).toEqual({
+      remainingText: "Time left 0:30",
       progress: 50
     });
   });
 
-  it("presents internal intensity values with clear Korean labels", () => {
-    expect(["soft", "medium", "hard"].map((value) => intensityLabel(value as Session["intensity"]))).toEqual([
+  it("presents internal intensity values with clear Korean and English labels", () => {
+    expect(["soft", "medium", "hard"].map((value) => intensityLabel(value as Session["intensity"], "ko"))).toEqual([
       "가벼운 안내",
       "확인 후 허용",
       "완전 차단"
     ]);
+    expect(["soft", "medium", "hard"].map((value) => intensityLabel(value as Session["intensity"], "en"))).toEqual([
+      "Gentle reminder",
+      "Confirm to continue",
+      "Full block"
+    ]);
+  });
+
+  it("localizes persisted growth events from stable event fields", () => {
+    const event = {
+      id: "completed",
+      ts: 1,
+      type: "session_completed",
+      minutes: 25,
+      xpDelta: 30,
+      intensity: "medium",
+      text: "25분 집중 완료"
+    } as const;
+
+    expect(localizedGrowthEventText(event, "ko")).toBe("25분 집중 완료 · +30 XP (25분 × 확인 후 허용)");
+    expect(localizedGrowthEventText(event, "en")).toBe("25 min focus complete · +30 XP (25 min × Confirm to continue)");
   });
 });

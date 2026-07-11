@@ -44,6 +44,10 @@ describe("options model helpers", () => {
       ...lists,
       { id: "recommended-blocklist", name: "추천 차단 목록", mode: "blocklist", domains: ["youtube.com"] }
     ]);
+    expect(addRecommendationToBlocklist(lists, rec, "en")).toEqual([
+      ...lists,
+      { id: "recommended-blocklist", name: "Recommended blocklist", mode: "blocklist", domains: ["youtube.com"] }
+    ]);
   });
 
   it("dedupes blocked domains and locks options during any active session", () => {
@@ -103,6 +107,17 @@ describe("options model helpers", () => {
     expect(validateScheduleConfiguration({ ...valid, listId: "" })).toMatchObject({
       valid: false,
       field: "list"
+    });
+
+    expect(validateScheduleConfiguration({ ...valid, days: [] }, "ko")).toEqual({
+      valid: false,
+      field: "days",
+      message: "요일을 하나 이상 선택해 주세요."
+    });
+    expect(validateScheduleConfiguration({ ...valid, days: [] }, "en")).toEqual({
+      valid: false,
+      field: "days",
+      message: "Select at least one day."
     });
   });
 

@@ -15,13 +15,22 @@ These are paste-ready explanations for store review. They describe version 1.0.0
 | Permission | Reviewer justification |
 | --- | --- |
 | `declarativeNetRequest` | Creates and removes session-scoped main-frame redirect and temporary-allow rules for domains chosen by the user. It does not inspect request bodies or transmit request data. |
-| `storage` | Stores settings, lists, schedules, and whale progress in browser sync; stores session state, bounded statistics, recommendations, temporary allows, and recovery records locally. |
+| `storage` | Stores settings, lists, schedules, and whale progress in browser sync; stores session state, onboarding completion, bounded statistics, recommendations, temporary allows, and recovery records locally. |
 | `alarms` | Reliably handles session deadlines, scheduled starts, temporary-allow expiry, delayed emergency ending, and MV3 recovery while the service worker sleeps. |
 | Optional `history` | Requested only when the user starts recommendation analysis. It processes up to the most recent 30 days locally into domain-level aggregates. Raw URLs and visit records are not persisted or transmitted, the permission can be revoked, and core focus features work without it. |
 | `http://*/*`, `https://*/*` | Broad HTTP(S) access is necessary because users may configure any domain and allowlist mode applies to every web origin outside the selected list. Access excludes non-web schemes. |
 | Content script on HTTP(S) pages | Reads extension-owned session state and the current hostname so user rules can apply to arbitrary domains, already-open pages, and single-page-app navigation. It shows an overlay or redirects only on a match. It does not extract page text, forms, passwords, messages, or other page content. |
 
 `web_accessible_resources` exposes only the internal blocked page, whale atlas, local font, and icon required by redirects and the isolated soft overlay. There is no wildcard resource path.
+
+## Onboarding Disclosure
+
+- A bundled onboarding tab opens only for a fresh install. Updates and ordinary browser starts do not open it automatically.
+- The three steps explain local-first behavior, let the user review or edit the initial focus list, and offer an optional 25-minute first session.
+- Users may skip setup or finish without starting a session. The flow can be replayed from Options without resetting existing data.
+- Onboarding stores only a local version, completion time, and outcome (`skipped`, `setup_only`, or `session_started`) in addition to choices the user explicitly saves.
+- Onboarding does not request `history` or any other optional permission. Browser-history access remains user-triggered only from the recommendation analysis control in Options.
+- The interface follows the browser's supported Korean or English locale. No language preference is sent to a developer service.
 
 ## Chrome Privacy Dashboard
 
