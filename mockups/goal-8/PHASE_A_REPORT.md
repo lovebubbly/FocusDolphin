@@ -1,6 +1,6 @@
 # Goal 8 Phase A Report
 
-Status: **TECHNICALLY READY — PRODUCT-OWNER APPROVAL REQUIRED**
+Status: **APPROVED — PHASE B AUTHORIZED**
 
 Prepared by: OpenAI Codex (GPT-5), for Choi Yunseong
 
@@ -66,20 +66,20 @@ Production authored CSS remains 79 lines for the four surface entry files, `src/
 | Rules are scannable trigger-to-protection rows | PASS | Desktop overview, focused editor, locked narrow state |
 | Review is locally truthful | PASS | Populated and empty Review, explicit attempted-target framing |
 | Whale remains the atmospheric/reward hero | PASS | Real atlas across Session, Review, interventions, onboarding |
-| Dark-first with light parity | READY FOR OWNER REVIEW | Dark system plus representative light matrix |
+| Dark-first with light parity | APPROVED | Dark system plus representative light matrix |
 | English/Korean parity | PASS | Static locale switch plus 84-combination sweep |
 | Accessibility boundaries | PASS | AA token contrast, 40 px targets, keyboard-native controls, reduced motion |
 | External network load | PASS | No external requests in served or direct-file review |
 | Runtime and wellness invariants | PASS | Phase A production diff is empty; copy meaning preserved |
-| Product-owner approval | PENDING | Must name approver, date, exact commit, and exceptions |
+| Product-owner approval | PASS | Choi Yunseong approved every presented state on 2026-07-11 with no exceptions; the public-history terminology cleanup requested on 2026-07-12 did not alter layout or visual output |
 
 ## Approval Record
 
-To authorize Phase B, record all four fields in the approval response:
+Phase B was authorized with this complete record:
 
-- Approver: pending
-- Date: pending
-- Exact Phase A commit: pending
-- Approved states / requested exceptions: pending
-
-Until that approval is explicit, production UI implementation remains prohibited.
+- Approver: Choi Yunseong
+- Date: 2026-07-11
+- Sanitized public Phase A commit: `e7274a1339a7f6849ace807c2fdaeeee33d031e8`
+- Approved states: all presented states
+- Requested exceptions: none
+- Approval record: Choi Yunseong approved all presented states on 2026-07-11 with no exceptions, then requested the terminology-only public-history cleanup on 2026-07-12.

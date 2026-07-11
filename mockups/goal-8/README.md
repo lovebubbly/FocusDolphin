@@ -1,6 +1,6 @@
 # Goal 8 Phase A Mockups
 
-Status: **AWAITING PRODUCT-OWNER APPROVAL**
+Status: **APPROVED FOR PHASE B**
 
 Prepared by: OpenAI Codex (GPT-5), requested by Choi Yunseong
 
@@ -62,14 +62,14 @@ Representative frozen images live in [`previews/`](./previews/). The HTML pages 
 
 - [x] All canonical pages open offline with no console error or missing asset.
 - [x] English and Korean representative states show no overflow.
-- [ ] Dark-first hierarchy and representative light parity are approved.
+- [x] Dark-first hierarchy and representative light parity are approved.
 - [x] Popup frames remain `360 x 580` with at most one visible primary CTA.
 - [x] Rules and Review use truthful existing data semantics.
 - [x] Medium/hard/overlay wording and emergency behavior are unchanged in meaning.
 - [x] Production diff guard remains empty.
-- [ ] Product-owner approval is recorded.
+- [x] Product-owner approval is recorded.
 
-The two unchecked items are deliberately owner-gated. Technical evidence and the complete acceptance matrix are in [`PHASE_A_REPORT.md`](./PHASE_A_REPORT.md).
+Choi Yunseong approved all presented states on 2026-07-11 with no exceptions. The sanitized public Phase A commit is `e7274a1339a7f6849ace807c2fdaeeee33d031e8`; the terminology-only cleanup requested on 2026-07-12 did not alter layout or visual output. Technical evidence and the complete approval record are in [`PHASE_A_REPORT.md`](./PHASE_A_REPORT.md).
 
 Production diff guard:
 
