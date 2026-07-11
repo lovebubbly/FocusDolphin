@@ -100,7 +100,7 @@ All notable FocusWhale changes are documented here. The project has not yet reco
 
 ### Not Yet Released
 
-- The exact bilingual/onboarding archive, checksum, extraction comparison, and static scans are complete; a committed clean rebuild, extracted-archive ordinary-browser load, and normal-browser active-session smoke remain pending. No store submission or publication is recorded.
+- Executable commit `bc62727` passes a detached clean `npm ci` rebuild, typecheck, 237 tests, build verification, and byte comparison with all 31 archive files. Extracted-archive ordinary-browser load and normal-browser active-session smoke remain pending. No store submission or publication is recorded.
 - Whale Store is selected as the first target. Listing copy, privacy/permission declarations, reviewer instructions, release notes, and store images under `store/` and `store-assets/` must be rechecked against the final rebuilt bilingual package.
 - GitHub Issues is the public support/privacy contact. The repository `PRIVACY.md` HTTPS page and its Limited Use statement were publicly verified on 2026-07-11; entering those URLs in the publisher submission remains an owner/store step.
 - The repository now records an explicit all-rights-reserved source and original-asset license; third-party licenses remain unchanged.

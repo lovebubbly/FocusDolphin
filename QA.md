@@ -1,8 +1,8 @@
 # FocusWhale QA Evidence And Checklist
 
-Last refreshed: **2026-07-11 12:08 KST** by **OpenAI Codex (GPT-5)**, for requester and product owner **Choi Yunseong (최윤성)**.
+Last refreshed: **2026-07-11 12:15 KST** by **OpenAI Codex (GPT-5)**, for requester and product owner **Choi Yunseong (최윤성)**.
 
-Current evidence boundary: **Goal 7 onboarding and Korean/English localization working tree on `codex/goal-7-onboarding-i18n`, rebuilt and checked on 2026-07-11**. The older v1.0.0 release evidence is retained below as a historical regression baseline and does not prove the current Goal 7 binary.
+Current evidence boundary: **Goal 7 onboarding and Korean/English localization executable commit `bc62727` on `codex/goal-7-onboarding-i18n`, rebuilt and checked on 2026-07-11**. The older v1.0.0 release evidence is retained below as a historical regression baseline and does not prove the current Goal 7 binary.
 
 ## Evidence Labels
 

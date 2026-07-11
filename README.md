@@ -8,7 +8,7 @@ The product is deliberately non-punitive: users choose the intensity, the hard-m
 
 The current source and production build identify as **version 1.0.0**. This is a local release candidate, not a claim of store publication.
 
-Verified on the 2026-07-11 12:08 KST Goal 7 tree:
+Verified on the 2026-07-11 12:15 KST Goal 7 tree:
 
 - `npm run typecheck`: pass.
 - `npm test`: pass, **33 test files / 237 tests**.
@@ -178,13 +178,13 @@ The live Whale development extension used for final-candidate checks had ID `ojo
 
 ## Packaging And Publication
 
-The current `release/FocusWhale-1.0.0.zip` is **2,754,338 bytes** with SHA-256 `cba02253a1422d8f19ed7ddb16288f0c51a442656cbd02cf459740e68b5656a0`. Its 31-file extracted tree is byte-for-byte equal to the current `dist/`, `manifest.json` is at the archive root, required third-party notices are present, and scans found no token, private-key, personal-email, machine-path, source-map, TypeScript, test, profile, or bundled-dependency leakage. The production-only dependency audit reports zero vulnerabilities. Exact English and Korean onboarding screenshots are included under [store-assets/](store-assets/); the four older core-flow composites remain prior-build collateral and require refresh or explicit owner approval. The archive has not yet passed the outstanding ordinary-browser active-session smoke, and this is not a store-submitted release. [GitHub Issues](https://github.com/lovebubbly/FocusWhale/issues) remains the public support/privacy channel, and [the repository privacy policy](https://github.com/lovebubbly/FocusWhale/blob/main/PRIVACY.md) was publicly verified on 2026-07-11.
+Executable commit `bc62727` rebuilds cleanly after `npm ci`: typecheck, all 237 tests, build verification, and a byte-for-byte comparison of all 31 output files pass. The current `release/FocusWhale-1.0.0.zip` is **2,754,338 bytes** with SHA-256 `cba02253a1422d8f19ed7ddb16288f0c51a442656cbd02cf459740e68b5656a0`. `manifest.json` is at the archive root, required third-party notices are present, and scans found no token, private-key, personal-email, machine-path, source-map, TypeScript, test, profile, or bundled-dependency leakage. The production-only dependency audit reports zero vulnerabilities. Exact English and Korean onboarding screenshots are included under [store-assets/](store-assets/); the four older core-flow composites remain prior-build collateral and require refresh or explicit owner approval. The archive has not yet passed the outstanding ordinary-browser active-session smoke, and this is not a store-submitted release. [GitHub Issues](https://github.com/lovebubbly/FocusWhale/issues) remains the public support/privacy channel, and [the repository privacy policy](https://github.com/lovebubbly/FocusWhale/blob/main/PRIVACY.md) was publicly verified on 2026-07-11.
 
 The repository is publicly viewable but **all rights are reserved** under [LICENSE](LICENSE); no open-source license is granted for FocusWhale's original work. Pretendard remains under SIL OFL; Tailwind CSS, daisyUI, and the Vite core runtime retain their MIT notices in the shipped `licenses/` directory; generated sprite provenance is recorded separately.
 
 ## Documentation Provenance
 
 - Product owner and repository maintainer: **Choi Yunseong (최윤성)** (`Yunseong Choi` in Git history).
-- This release/handoff and store-preparation refresh was prepared by **OpenAI Codex (GPT-5)**, at Choi Yunseong's request and last refreshed on **2026-07-11 12:08 KST**.
+- This release/handoff and store-preparation refresh was prepared by **OpenAI Codex (GPT-5)**, at Choi Yunseong's request and last refreshed on **2026-07-11 12:15 KST**.
 - Evidence comes from the local repository, current automated gates, current headed locale/lifecycle checks, and the pre-Goal-7 exact-build ledger in `QA.md`; owner and publication checks remain labeled explicitly.
 - Code authorship remains defined by Git history. Documentation attribution does not imply product-owner approval of every Codex assessment.

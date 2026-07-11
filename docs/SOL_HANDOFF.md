@@ -5,7 +5,7 @@
 > - Product owner and requester: **Choi Yunseong (최윤성)**
 > - Prepared and consolidated by: **OpenAI Codex (GPT-5)**
 > - Original document created: **2026-07-09 21:11:44 KST**
-> - Current release-preparation refresh: **2026-07-11 12:08 KST**
+> - Current release-preparation refresh: **2026-07-11 12:15 KST**
 > - Time zone: **Asia/Seoul (UTC+09:00)**
 > - Evidence basis: local source, current automated/static gates, current headed disposable-profile Whale locale/lifecycle checks, and the pre-Goal-7 `acb45b6` browser/recovery baseline recorded in `QA.md`
 > - Approval caveat: this handoff does not claim product-owner approval, store review, or publication
@@ -28,7 +28,7 @@ On the current Goal 7 build, headed disposable-profile Whale 4.38 visual checks 
 
 Playwright-launched Whale 4.38 stalls when session startup reaches `chrome.alarms.create`. An identical run of the exact `acb45b6` baseline reproduces the same stall. Treat this as a **harness limitation/pre-existing baseline behavior**, not a Goal 7 regression. It is also not a normal-browser session pass; a normal-browser/manual current-build session smoke remains a publication gate.
 
-The candidate is **not store-published**. The current archive is 2,754,338 bytes with SHA-256 `cba02253a1422d8f19ed7ddb16288f0c51a442656cbd02cf459740e68b5656a0`; its 31-file extracted tree is byte-equal to `dist/`, carries all required notices, and passes token/private-key/personal-path/content-exclusion scans plus a production-only dependency audit. Exact 1280 x 800 onboarding captures exist in both languages. A committed clean rebuild, extracted-archive ordinary-browser active-session smoke, refresh or owner approval of four prior-build core-flow composites, and owner approval remain required before upload. Whale Store remains the first target; no publisher-dashboard entry, upload, review, or publication is recorded.
+The candidate is **not store-published**. Executable commit `bc62727` passes a detached clean `npm ci` rebuild, typecheck, all 237 tests, build verification, and byte comparison against every packaged file. The current archive is 2,754,338 bytes with SHA-256 `cba02253a1422d8f19ed7ddb16288f0c51a442656cbd02cf459740e68b5656a0`; its 31-file extracted tree carries all required notices and passes token/private-key/personal-path/content-exclusion scans plus a production-only dependency audit. Exact 1280 x 800 onboarding captures exist in both languages. An extracted-archive ordinary-browser active-session smoke, refresh or owner approval of four prior-build core-flow composites, and owner approval remain required before upload. Whale Store remains the first target; no publisher-dashboard entry, upload, review, or publication is recorded.
 
 ## Evidence Discipline
 
@@ -251,7 +251,7 @@ The full ticket-by-ticket audit is `docs/NOTION_ISSUE_TRIAGE.md`. High-level sta
 
 ## Current QA Boundary
 
-Automated current, verified 2026-07-11 12:08 KST:
+Automated current, verified 2026-07-11 12:15 KST:
 
 - typecheck, 33 Vitest files / 237 tests, and the two-stage production build pass;
 - 460-key Korean/English catalog parity, declared placeholders, manifest localization, computed-key families, and referenced-key coverage pass;
