@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en" data-theme="focuswhale-preview">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Goal 8 · Blocked states</title>
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="./mockup.css" />
+    <link rel="stylesheet" href="./mockup-assets.css" />
+    <script defer src="./mockup.js"></script>
+  </head>
+  <body class="mockup-stage m-0 font-sans">
+    <nav class="mockup-controls" aria-label="Mockup controls">
+      <a class="btn btn-ghost btn-sm" href="./index.html">← Goal 8</a>
+      <strong>Interventions · stable card, changing action region</strong>
+      <div class="flex gap-2">
+        <div class="join">
+          <button class="btn btn-sm join-item" type="button" data-locale-button="en">EN</button>
+          <button class="btn btn-sm join-item" type="button" data-locale-button="ko">KO</button>
+        </div>
+        <div class="join">
+          <button class="btn btn-sm join-item" type="button" data-theme-button="focuswhale-preview">Dark</button>
+          <button class="btn btn-sm join-item" type="button" data-theme-button="focuswhale-preview-light">Light</button>
+        </div>
+      </div>
+    </nav>
+
+    <main class="mockup-gallery">
+      <header class="mx-auto max-w-2xl space-y-2 text-center text-white">
+        <p class="text-sm font-bold uppercase text-primary" data-locale="en">A calm pause before continuing</p>
+        <p class="text-sm font-bold uppercase text-primary" data-locale="ko">계속하기 전의 차분한 멈춤</p>
+        <h1 class="text-3xl font-black" data-locale="en">Return to focus stays visually first.</h1>
+        <h1 class="text-3xl font-black" data-locale="ko">집중으로 돌아가는 선택이 언제나 먼저.</h1>
+      </header>
+
+      <div class="mockup-grid">
+        <figure class="mockup-figure">
+          <div class="narrow-frame fw-depth grid place-items-center bg-base-300 p-5 text-base-content" data-theme-surface data-theme="focuswhale-preview">
+            <section class="card w-full border border-primary/15 bg-base-100 shadow-xl" aria-labelledby="medium-title">
+              <div class="card-body items-center gap-5 p-6 text-center">
+                <div class="grid h-28 w-28 place-items-center rounded-full bg-base-200">
+                  <div class="pet-sprite" style="--pet-row: 12; --pet-duration: 1000ms" role="img" aria-label="Focused young whale"></div>
+                </div>
+                <div>
+                  <p class="text-xs font-bold uppercase text-primary">FocusWhale</p>
+                  <h1 id="medium-title" class="mt-2 text-2xl font-black" data-locale="en">Focus session in progress</h1>
+                  <h1 class="mt-2 text-2xl font-black" data-locale="ko">집중 세션이 진행 중입니다</h1>
+                </div>
+                <div class="stats stats-horizontal w-full overflow-hidden bg-base-200 text-left">
+                  <div class="stat px-4 py-3"><div class="stat-title" data-locale="en">Site</div><div class="stat-title" data-locale="ko">대상</div><div class="stat-value break-all text-base">x.com</div></div>
+                  <div class="stat px-4 py-3"><div class="stat-title" data-locale="en">Time left</div><div class="stat-title" data-locale="ko">남은 시간</div><div class="stat-value text-2xl tabular-nums">24:37</div></div>
+                </div>
+                <p class="text-sm text-base-content/65" data-locale="en">Take a brief check-in before opening this site.</p>
+                <p class="text-sm text-base-content/65" data-locale="ko">열기 전에 짧은 확인 시간을 둡니다.</p>
+                <div class="grid w-full gap-2">
+                  <button class="btn btn-primary min-h-11 w-full" type="button" data-locale="en">Return to focus</button>
+                  <button class="btn btn-primary min-h-11 w-full" type="button" data-locale="ko">집중으로 돌아가기</button>
+                  <button class="btn btn-ghost min-h-11 w-full" type="button" data-locale="en">Open anyway</button>
+                  <button class="btn btn-ghost min-h-11 w-full" type="button" data-locale="ko">그래도 열기</button>
+                </div>
+              </div>
+            </section>
+          </div>
+          <figcaption>Medium · initial. The copy remains non-punitive, and Return to focus replaces temporary access as the visual primary.</figcaption>
+        </figure>
+
+        <figure class="mockup-figure">
+          <div class="narrow-frame fw-depth grid place-items-center bg-base-300 p-5 text-base-content" data-theme-surface data-theme="focuswhale-preview">
+            <section class="card w-full border border-primary/15 bg-base-100 shadow-xl" aria-labelledby="friction-title">
+              <div class="card-body gap-5 p-6">
+                <div class="text-center">
+                  <p class="text-xs font-bold uppercase text-primary">x.com · 24:37</p>
+                  <h1 id="friction-title" class="mt-2 text-2xl font-black" data-locale="en">Take a brief check-in</h1>
+                  <h1 class="mt-2 text-2xl font-black" data-locale="ko">잠깐 확인해 볼까요</h1>
+                </div>
+                <fieldset class="fieldset">
+                  <legend class="fieldset-legend"><span data-locale="en">Why you need to open it</span><span data-locale="ko">열어야 하는 이유</span></legend>
+                  <textarea class="textarea min-h-24 w-full" aria-describedby="intent-help">I need to send the project link to a teammate.</textarea>
+                  <p id="intent-help" class="text-xs leading-5 text-base-content/60" data-locale="en">Write one sentence about why you need this site right now.</p>
+                  <p class="text-xs leading-5 text-base-content/60" data-locale="ko">지금 이 사이트가 필요한 이유를 한 문장으로 적어 주세요.</p>
+                </fieldset>
+                <div class="grid gap-2">
+                  <button class="btn btn-primary min-h-11 w-full" type="button" data-locale="en">Return to focus</button>
+                  <button class="btn btn-primary min-h-11 w-full" type="button" data-locale="ko">집중으로 돌아가기</button>
+                  <button class="btn btn-soft min-h-11 w-full" type="button" disabled data-locale="en">Allow for 5 minutes · 0:18</button>
+                  <button class="btn btn-soft min-h-11 w-full" type="button" disabled data-locale="ko">5분 임시 허용 · 0:18</button>
+                </div>
+              </div>
+            </section>
+          </div>
+          <figcaption>Medium · intent/countdown. Domain and remaining time stay in place while the action region advances.</figcaption>
+        </figure>
+
+        <figure class="mockup-figure">
+          <div class="narrow-frame fw-depth grid place-items-center bg-base-300 p-5 text-base-content" data-theme-surface data-theme="focuswhale-preview">
+            <section class="card w-full border border-success/25 bg-base-100 shadow-xl">
+              <div class="card-body items-center gap-5 p-6 text-center">
+                <div class="pet-sprite" style="--pet-row: 7; --pet-duration: 900ms" role="img" aria-label="Happy young whale"></div>
+                <div>
+                  <span class="badge badge-success badge-soft" data-locale="en">Temporary access ready</span>
+                  <span class="badge badge-success badge-soft" data-locale="ko">임시 허용 준비됨</span>
+                  <h1 class="mt-4 text-2xl font-black" data-locale="en">You can open x.com for 5 minutes</h1>
+                  <h1 class="mt-4 text-2xl font-black" data-locale="ko">x.com을 5분 동안 열 수 있습니다</h1>
+                  <p class="mt-3 text-sm leading-6 text-base-content/65" data-locale="en">The session rules will apply again afterward.</p>
+                  <p class="mt-3 text-sm leading-6 text-base-content/65" data-locale="ko">시간이 지나면 세션 규칙이 다시 적용됩니다.</p>
+                </div>
+                <button class="btn btn-primary min-h-11 w-full" type="button" data-locale="en">Continue</button>
+                <button class="btn btn-primary min-h-11 w-full" type="button" data-locale="ko">계속</button>
+              </div>
+            </section>
+          </div>
+          <figcaption>Medium · success. The granted five-minute window and automatic rule return are explicit.</figcaption>
+        </figure>
+
+        <figure class="mockup-figure">
+          <div class="narrow-frame fw-depth grid place-items-center bg-base-300 p-5 text-base-content" data-theme-surface data-theme="focuswhale-preview">
+            <section class="card w-full border border-error/20 bg-base-100 shadow-xl" aria-labelledby="hard-title">
+              <div class="card-body items-center gap-5 p-6 text-center">
+                <div class="grid h-28 w-28 place-items-center rounded-full bg-base-200">
+                  <div class="pet-sprite" style="--pet-row: 12; --pet-duration: 1000ms" role="img" aria-label="Focused young whale"></div>
+                </div>
+                <div>
+                  <span class="badge badge-error badge-soft" data-locale="en">Full block</span>
+                  <span class="badge badge-error badge-soft" data-locale="ko">완전 차단</span>
+                  <h1 id="hard-title" class="mt-3 text-2xl font-black" data-locale="en">Focus session in progress</h1>
+                  <h1 class="mt-3 text-2xl font-black" data-locale="ko">집중 세션이 진행 중입니다</h1>
+                </div>
+                <div class="stats stats-horizontal w-full overflow-hidden bg-base-200 text-left">
+                  <div class="stat px-4 py-3"><div class="stat-title" data-locale="en">Site</div><div class="stat-title" data-locale="ko">대상</div><div class="stat-value break-all text-base">x.com</div></div>
+                  <div class="stat px-4 py-3"><div class="stat-title" data-locale="en">Time left</div><div class="stat-title" data-locale="ko">남은 시간</div><div class="stat-value text-2xl tabular-nums">1:18:04</div></div>
+                </div>
+                <div class="alert alert-soft text-left text-sm"><span data-locale="en">Temporary access is not available in full-block mode.</span><span data-locale="ko">완전 차단 설정에서는 임시 허용을 제공하지 않습니다.</span></div>
+                <button class="btn btn-primary min-h-11 w-full" type="button" data-locale="en">Return to focus</button>
+                <button class="btn btn-primary min-h-11 w-full" type="button" data-locale="ko">집중으로 돌아가기</button>
+                <button class="btn btn-error btn-soft min-h-11 w-full" type="button" data-locale="en">Request emergency end</button>
+                <button class="btn btn-error btn-soft min-h-11 w-full" type="button" data-locale="ko">비상 종료 요청</button>
+                <p class="text-xs leading-5 text-base-content/55" data-locale="en">Emergency end takes effect after 5 minutes and can be used once per week.</p>
+                <p class="text-xs leading-5 text-base-content/55" data-locale="ko">비상 종료는 5분 뒤 적용되며, 이번 주 1회만 사용할 수 있습니다.</p>
+              </div>
+            </section>
+          </div>
+          <figcaption>Hard · initial. No temporary access; emergency is visible but deliberately secondary.</figcaption>
+        </figure>
+
+        <figure class="mockup-figure">
+          <div class="narrow-frame fw-depth grid place-items-center bg-base-300 p-5 text-base-content" data-theme-surface data-theme="focuswhale-preview">
+            <section class="card w-full border border-error/25 bg-base-100 shadow-xl">
+              <div class="card-body gap-5 p-6 text-center">
+                <div class="mx-auto pet-sprite" style="--pet-row: 12; --pet-duration: 1000ms" role="img" aria-label="Focused young whale"></div>
+                <div class="alert alert-error alert-soft text-left text-sm leading-6">
+                  <span data-locale="en">Press once more to schedule an emergency end. Go back if you pressed it by mistake.</span>
+                  <span data-locale="ko">한 번 더 누르면 비상 종료가 예약됩니다. 잘못 눌렀다면 되돌아가세요.</span>
+                </div>
+                <button class="btn btn-primary min-h-11 w-full" type="button" data-locale="en">Return to focus</button>
+                <button class="btn btn-primary min-h-11 w-full" type="button" data-locale="ko">집중으로 돌아가기</button>
+                <button class="btn btn-error min-h-11 w-full" type="button" data-locale="en">Schedule end in 5 minutes</button>
+                <button class="btn btn-error min-h-11 w-full" type="button" data-locale="ko">5분 뒤 종료 예약</button>
+                <p class="text-xs text-base-content/55">x.com · 1:18:04</p>
+              </div>
+            </section>
+          </div>
+          <figcaption>Hard · confirmation. The second press changes color and wording, making accidental activation difficult.</figcaption>
+        </figure>
+
+        <figure class="mockup-figure">
+          <div class="narrow-frame fw-depth grid place-items-center bg-base-300 p-5 text-base-content" data-theme-surface data-theme="focuswhale-preview">
+            <section class="card w-full border border-warning/25 bg-base-100 shadow-xl">
+              <div class="card-body items-center gap-5 p-6 text-center">
+                <div class="pet-sprite" style="--pet-row: 2" role="img" aria-label="Resting young whale"></div>
+                <span class="badge badge-warning badge-soft" data-locale="en">Emergency end saved</span>
+                <span class="badge badge-warning badge-soft" data-locale="ko">비상 종료 요청 저장됨</span>
+                <h1 class="text-2xl font-black" data-locale="en">The session will end in about 5 minutes</h1>
+                <h1 class="text-2xl font-black" data-locale="ko">약 5분 뒤 세션이 종료됩니다</h1>
+                <p class="text-5xl font-black tabular-nums">4:59</p>
+                <p class="text-sm leading-6 text-base-content/60" data-locale="en">The request is durable. You can close this page.</p>
+                <p class="text-sm leading-6 text-base-content/60" data-locale="ko">요청은 저장되었습니다. 이 페이지를 닫아도 됩니다.</p>
+              </div>
+            </section>
+          </div>
+          <figcaption>Hard · pending. The durable five-minute delay is the only dominant information.</figcaption>
+        </figure>
+
+        <figure class="mockup-figure">
+          <div class="narrow-frame fw-depth grid place-items-center bg-base-300 p-5 text-base-content" data-theme-surface data-theme="focuswhale-preview">
+            <section class="card w-full border border-base-100/10 bg-base-100 shadow-xl">
+              <div class="card-body items-center gap-5 p-6 text-center">
+                <div class="pet-sprite" style="--pet-row: 2" role="img" aria-label="Resting young whale"></div>
+                <h1 class="text-2xl font-black" data-locale="en">Focus session ended</h1>
+                <h1 class="text-2xl font-black" data-locale="ko">집중 세션이 종료되었습니다</h1>
+                <p class="text-sm leading-6 text-base-content/65" data-locale="en">The focus session has ended. You can return to the previous page.</p>
+                <p class="text-sm leading-6 text-base-content/65" data-locale="ko">집중 세션이 종료되었습니다. 이전 페이지로 돌아갈 수 있습니다.</p>
+                <button class="btn btn-primary min-h-11 w-full" type="button" data-locale="en">Return to previous page</button>
+                <button class="btn btn-primary min-h-11 w-full" type="button" data-locale="ko">이전 페이지로 돌아가기</button>
+              </div>
+            </section>
+          </div>
+          <figcaption>Ended/no-session fallback · truthful status and one safe return action.</figcaption>
+        </figure>
+      </div>
+    </main>
+  </body>
+</html>

@@ -1,0 +1,164 @@
+@font-face {
+  font-family: "Pretendard Variable";
+  src: url("../../assets/fonts/PretendardVariable.woff2") format("woff2-variations");
+  font-display: swap;
+  font-weight: 45 920;
+}
+
+.pet-sprite {
+  --pet-size: 96px;
+  --pet-row: 2;
+  width: var(--pet-size);
+  height: var(--pet-size);
+  flex: 0 0 var(--pet-size);
+  background-image: url("../../assets/sprites/focuswhale-atlas.png");
+  background-position: 0 calc(var(--pet-row) * var(--pet-size) * -1);
+  background-size: calc(var(--pet-size) * 4) calc(var(--pet-size) * 20);
+  image-rendering: auto;
+  animation: pet-swim var(--pet-duration, 1200ms) steps(4) infinite;
+}
+
+.pet-sprite-lg {
+  --pet-size: 128px;
+}
+
+.pet-sprite-xl {
+  --pet-size: 160px;
+}
+
+@keyframes pet-swim {
+  to {
+    background-position-x: calc(var(--pet-size) * -4);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pet-sprite {
+    animation: none;
+  }
+}
+
+.mockup-stage {
+  min-height: 100vh;
+  background-color: var(--color-base-300);
+  background-image:
+    linear-gradient(color-mix(in oklab, var(--color-base-content) 2.5%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in oklab, var(--color-base-content) 2.5%, transparent) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+.mockup-controls {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 56px;
+  padding: 8px 16px;
+  border-bottom: 1px solid color-mix(in oklab, var(--color-base-content) 8%, transparent);
+  background: color-mix(in oklab, var(--color-base-300) 92%, transparent);
+  color: var(--color-base-content);
+  backdrop-filter: blur(14px);
+}
+
+.mockup-controls a,
+.mockup-controls button {
+  min-height: 40px;
+}
+
+.capture .mockup-controls {
+  display: none;
+}
+
+.mockup-gallery {
+  display: grid;
+  gap: 32px;
+  width: min(100%, 1480px);
+  margin: 0 auto;
+  padding: 32px 20px 64px;
+}
+
+.mockup-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 360px), 1fr));
+  align-items: start;
+  gap: 28px;
+}
+
+.mockup-grid-wide {
+  grid-template-columns: 1fr;
+}
+
+.mockup-figure {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  margin: 0;
+}
+
+.mockup-figure > figcaption {
+  width: min(100%, 720px);
+  color: color-mix(in oklab, var(--color-base-content) 70%, transparent);
+  font-size: 13px;
+  line-height: 1.45;
+  text-align: left;
+}
+
+.popup-frame {
+  width: 360px;
+  height: 580px;
+  overflow: hidden;
+}
+
+.desktop-frame {
+  width: min(100%, 1280px);
+  min-height: 760px;
+  overflow: hidden;
+}
+
+.narrow-frame {
+  width: 390px;
+  min-height: 720px;
+  overflow: hidden;
+}
+
+.host-page {
+  background: linear-gradient(135deg, var(--color-base-100), var(--color-base-300));
+  color: var(--color-base-content);
+}
+
+.host-page-dark {
+  background: linear-gradient(135deg, var(--color-base-200), var(--color-base-100));
+  color: var(--color-base-content);
+}
+
+html[lang="ko"] [data-locale="en"],
+html[lang="en"] [data-locale="ko"] {
+  display: none !important;
+}
+
+@media (max-width: 760px) {
+  .mockup-gallery {
+    padding-inline: 8px;
+  }
+
+  html.capture {
+    scrollbar-width: none;
+  }
+
+  html.capture::-webkit-scrollbar {
+    display: none;
+  }
+
+  .capture .mockup-gallery {
+    padding-inline: 0;
+  }
+
+  .popup-frame,
+  .narrow-frame {
+    width: min(100%, 390px);
+  }
+}

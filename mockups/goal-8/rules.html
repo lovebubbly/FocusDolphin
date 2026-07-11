@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="en" data-theme="focuswhale-preview">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Goal 8 · Rules</title>
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="./mockup.css" />
+    <link rel="stylesheet" href="./mockup-assets.css" />
+    <script defer src="./mockup.js"></script>
+  </head>
+  <body class="mockup-stage m-0 font-sans">
+    <nav class="mockup-controls" aria-label="Mockup controls">
+      <a class="btn btn-ghost btn-sm" href="./index.html">← Goal 8</a>
+      <strong>Rules · 720px workspace</strong>
+      <div class="flex gap-2">
+        <div class="join">
+          <button class="btn btn-sm join-item" type="button" data-locale-button="en">EN</button>
+          <button class="btn btn-sm join-item" type="button" data-locale-button="ko">KO</button>
+        </div>
+        <div class="join">
+          <button class="btn btn-sm join-item" type="button" data-theme-button="focuswhale-preview">Dark</button>
+          <button class="btn btn-sm join-item" type="button" data-theme-button="focuswhale-preview-light">Light</button>
+        </div>
+      </div>
+    </nav>
+
+    <main class="mockup-gallery">
+      <header class="mx-auto max-w-2xl space-y-2 text-center text-white">
+        <p class="text-sm font-bold uppercase text-primary">Configure future behavior</p>
+        <h1 class="text-3xl font-black" data-locale="en">Triggers lead to protected targets.</h1>
+        <h1 class="text-3xl font-black" data-locale="ko">언제 시작해 무엇을 지킬지 한눈에.</h1>
+      </header>
+
+      <div class="mockup-grid mockup-grid-wide">
+        <figure class="mockup-figure">
+          <div class="desktop-frame fw-depth bg-base-300 text-base-content" data-theme-surface data-theme="focuswhale-preview">
+            <main class="mx-auto grid w-full max-w-[720px] gap-7 px-5 py-8">
+              <header class="flex items-start justify-between gap-5">
+                <div class="space-y-1">
+                  <p class="text-sm font-bold">FocusWhale</p>
+                  <h1 class="text-3xl font-black" data-locale="en">Rules</h1>
+                  <h1 class="text-3xl font-black" data-locale="ko">규칙</h1>
+                  <p class="text-sm text-base-content/60" data-locale="en">Choose what future sessions protect and when they begin.</p>
+                  <p class="text-sm text-base-content/60" data-locale="ko">앞으로의 세션이 언제 시작하고 무엇을 지킬지 정합니다.</p>
+                </div>
+                <button class="btn btn-ghost min-h-10" type="button" data-locale="en">Preferences</button>
+                <button class="btn btn-ghost min-h-10" type="button" data-locale="ko">환경설정</button>
+              </header>
+
+              <div class="tabs tabs-box bg-base-200 p-1" role="tablist" aria-label="Options sections">
+                <button class="tab min-h-10 flex-1" role="tab" type="button" data-locale="en">Review</button>
+                <button class="tab min-h-10 flex-1" role="tab" type="button" data-locale="ko">리뷰</button>
+                <button class="tab tab-active min-h-10 flex-1" role="tab" type="button" aria-selected="true" data-locale="en">Rules</button>
+                <button class="tab tab-active min-h-10 flex-1" role="tab" type="button" aria-selected="true" data-locale="ko">규칙</button>
+              </div>
+
+              <section class="grid gap-4" aria-labelledby="scheduled-rules-title">
+                <div class="flex items-end justify-between gap-4">
+                  <div>
+                    <h2 id="scheduled-rules-title" class="text-xl font-black" data-locale="en">Scheduled focus</h2>
+                    <h2 class="text-xl font-black" data-locale="ko">예약 집중</h2>
+                    <p class="text-sm text-base-content/60" data-locale="en">Each schedule points to one reusable target list.</p>
+                    <p class="text-sm text-base-content/60" data-locale="ko">각 일정은 하나의 재사용 가능한 대상 목록을 가리킵니다.</p>
+                  </div>
+                  <button class="btn btn-primary min-h-10" type="button" data-locale="en">New schedule</button>
+                  <button class="btn btn-primary min-h-10" type="button" data-locale="ko">일정 만들기</button>
+                </div>
+
+                <div class="list overflow-hidden rounded-box border border-base-100/10 bg-base-100 shadow-sm">
+                  <div class="list-row min-h-20 items-center gap-3 border-b border-base-200 px-4 py-3">
+                    <label class="grid min-h-10 min-w-10 cursor-pointer place-items-center"><input class="toggle toggle-primary" type="checkbox" checked aria-label="Monday to Friday 09:00 schedule enabled" data-en-label="Monday to Friday 09:00 schedule enabled" data-ko-label="월요일부터 금요일 09시 일정 사용" /></label>
+                    <div class="min-w-0 flex-1">
+                      <div class="flex flex-wrap items-center gap-2">
+                        <p class="font-bold" data-locale="en">Mon–Fri · 09:00–12:00</p>
+                        <p class="font-bold" data-locale="ko">월–금 · 09:00–12:00</p>
+                        <span class="badge badge-success badge-soft badge-sm whitespace-nowrap" data-locale="en">Enabled</span>
+                        <span class="badge badge-success badge-soft badge-sm whitespace-nowrap" data-locale="ko">사용 중</span>
+                      </div>
+                      <p class="mt-1 text-sm text-base-content/60" data-locale="en">Default blocklist · 6 domains</p>
+                      <p class="mt-1 text-sm text-base-content/60" data-locale="ko">기본 차단 목록 · 도메인 6개</p>
+                    </div>
+                    <span class="badge badge-primary badge-soft whitespace-normal text-center" data-locale="en">Confirm to continue</span>
+                    <span class="badge badge-primary badge-soft whitespace-normal text-center" data-locale="ko">확인 후 허용</span>
+                    <button class="btn btn-ghost btn-sm min-h-10" type="button" data-locale="en">Edit</button>
+                    <button class="btn btn-ghost btn-sm min-h-10" type="button" data-locale="ko">수정</button>
+                  </div>
+
+                  <div class="list-row min-h-20 items-center gap-3 px-4 py-3 opacity-70">
+                    <label class="grid min-h-10 min-w-10 cursor-pointer place-items-center"><input class="toggle toggle-primary" type="checkbox" aria-label="Saturday and Sunday 10:00 schedule disabled" data-en-label="Saturday and Sunday 10:00 schedule disabled" data-ko-label="토요일과 일요일 10시 일정 중지" /></label>
+                    <div class="min-w-0 flex-1">
+                      <div class="flex flex-wrap items-center gap-2">
+                        <p class="font-bold" data-locale="en">Sat–Sun · 10:00–12:00</p>
+                        <p class="font-bold" data-locale="ko">토–일 · 10:00–12:00</p>
+                        <span class="badge badge-soft badge-sm whitespace-nowrap" data-locale="en">Paused</span>
+                        <span class="badge badge-soft badge-sm whitespace-nowrap" data-locale="ko">일시 중지</span>
+                      </div>
+                      <p class="mt-1 text-sm text-base-content/60" data-locale="en">Research allowlist · 4 domains</p>
+                      <p class="mt-1 text-sm text-base-content/60" data-locale="ko">리서치 허용 목록 · 도메인 4개</p>
+                    </div>
+                    <span class="badge badge-soft whitespace-normal text-center" data-locale="en">Gentle reminder</span>
+                    <span class="badge badge-soft whitespace-normal text-center" data-locale="ko">가벼운 안내</span>
+                    <button class="btn btn-ghost btn-sm min-h-10" type="button" data-locale="en">Edit</button>
+                    <button class="btn btn-ghost btn-sm min-h-10" type="button" data-locale="ko">수정</button>
+                  </div>
+                </div>
+              </section>
+
+              <section class="grid gap-4" aria-labelledby="target-lists-title">
+                <div class="flex items-end justify-between gap-4 border-t border-base-100/10 pt-6">
+                  <div>
+                    <h2 id="target-lists-title" class="text-xl font-black" data-locale="en">Target lists</h2>
+                    <h2 class="text-xl font-black" data-locale="ko">대상 목록</h2>
+                    <p class="text-sm text-base-content/60" data-locale="en">Reusable collections for manual and scheduled sessions.</p>
+                    <p class="text-sm text-base-content/60" data-locale="ko">직접 시작과 예약 세션에서 함께 쓰는 목록입니다.</p>
+                  </div>
+                  <button class="btn btn-soft btn-sm min-h-10" type="button" data-locale="en">New list</button>
+                  <button class="btn btn-soft btn-sm min-h-10" type="button" data-locale="ko">목록 추가</button>
+                </div>
+                <div class="overflow-hidden rounded-box border border-base-100/10 bg-base-100">
+                  <div class="grid min-h-14 grid-cols-[minmax(0,1fr)_auto] items-center gap-2 border-b border-base-200 px-4 py-3 sm:grid-cols-[1fr_auto_auto_auto] sm:gap-3">
+                    <strong class="truncate" data-locale="en">Default blocklist</strong>
+                    <strong class="truncate" data-locale="ko">기본 차단 목록</strong>
+                    <span class="badge badge-soft">Blocklist</span>
+                    <span class="text-sm text-base-content/60" data-locale="en">6 domains · 1 schedule</span>
+                    <span class="text-sm text-base-content/60" data-locale="ko">도메인 6개 · 일정 1개</span>
+                    <button class="btn btn-ghost btn-sm min-h-10" type="button" data-locale="en">Edit</button>
+                    <button class="btn btn-ghost btn-sm min-h-10" type="button" data-locale="ko">수정</button>
+                  </div>
+                  <div class="grid min-h-14 grid-cols-[minmax(0,1fr)_auto] items-center gap-2 px-4 py-3 sm:grid-cols-[1fr_auto_auto_auto] sm:gap-3">
+                    <strong class="truncate" data-locale="en">Research allowlist</strong>
+                    <strong class="truncate" data-locale="ko">리서치 허용 목록</strong>
+                    <span class="badge badge-soft">Allowlist</span>
+                    <span class="text-sm text-base-content/60" data-locale="en">4 domains · 1 schedule</span>
+                    <span class="text-sm text-base-content/60" data-locale="ko">도메인 4개 · 일정 1개</span>
+                    <button class="btn btn-ghost btn-sm min-h-10" type="button" data-locale="en">Edit</button>
+                    <button class="btn btn-ghost btn-sm min-h-10" type="button" data-locale="ko">수정</button>
+                  </div>
+                </div>
+              </section>
+            </main>
+          </div>
+          <figcaption>Rules overview · schedules are trigger-to-protection rows; target lists remain distinct reusable data instead of becoming a second runtime.</figcaption>
+        </figure>
+
+        <figure class="mockup-figure">
+          <div class="desktop-frame fw-depth relative bg-base-300 text-base-content" data-theme-surface data-theme="focuswhale-preview">
+            <div class="absolute inset-0 bg-base-300/85 backdrop-blur-sm"></div>
+            <dialog class="modal modal-open absolute inset-0" open aria-labelledby="rule-editor-title">
+              <div class="modal-box max-w-xl border border-base-100/10 bg-base-100">
+                <div class="flex items-start justify-between gap-4">
+                  <div>
+                    <p class="text-xs font-bold uppercase text-primary" data-locale="en">Scheduled focus</p>
+                    <p class="text-xs font-bold uppercase text-primary" data-locale="ko">예약 집중</p>
+                    <h1 id="rule-editor-title" class="mt-1 text-2xl font-black" data-locale="en">Edit Mon–Fri schedule</h1>
+                    <h1 class="mt-1 text-2xl font-black" data-locale="ko">월–금 일정 수정</h1>
+                  </div>
+                  <button class="btn btn-ghost btn-sm min-h-10 min-w-10" type="button" aria-label="Close">×</button>
+                </div>
+
+                <form class="mt-6 grid gap-5">
+                  <div class="grid gap-3 sm:grid-cols-2">
+                    <label class="fieldset">
+                      <span class="fieldset-legend" data-locale="en">Starts</span>
+                      <span class="fieldset-legend" data-locale="ko">시작</span>
+                      <input class="input w-full" type="time" value="09:00" />
+                    </label>
+                    <label class="fieldset">
+                      <span class="fieldset-legend" data-locale="en">Ends</span>
+                      <span class="fieldset-legend" data-locale="ko">종료</span>
+                      <input class="input w-full" type="time" value="12:00" />
+                    </label>
+                  </div>
+                  <fieldset class="fieldset">
+                    <legend class="fieldset-legend"><span data-locale="en">Days</span><span data-locale="ko">요일</span></legend>
+                    <div class="grid grid-cols-4 gap-2 sm:grid-cols-7">
+                      <button class="btn btn-soft fw-selected min-h-10 min-w-10 px-0 text-primary" type="button" aria-pressed="true"><span data-locale="en">M</span><span data-locale="ko">월</span></button>
+                      <button class="btn btn-soft fw-selected min-h-10 min-w-10 px-0 text-primary" type="button" aria-pressed="true"><span data-locale="en">T</span><span data-locale="ko">화</span></button>
+                      <button class="btn btn-soft fw-selected min-h-10 min-w-10 px-0 text-primary" type="button" aria-pressed="true"><span data-locale="en">W</span><span data-locale="ko">수</span></button>
+                      <button class="btn btn-soft fw-selected min-h-10 min-w-10 px-0 text-primary" type="button" aria-pressed="true"><span data-locale="en">T</span><span data-locale="ko">목</span></button>
+                      <button class="btn btn-soft fw-selected min-h-10 min-w-10 px-0 text-primary" type="button" aria-pressed="true"><span data-locale="en">F</span><span data-locale="ko">금</span></button>
+                      <button class="btn min-h-10 min-w-10 px-0" type="button" aria-pressed="false"><span data-locale="en">S</span><span data-locale="ko">토</span></button>
+                      <button class="btn min-h-10 min-w-10 px-0" type="button" aria-pressed="false"><span data-locale="en">S</span><span data-locale="ko">일</span></button>
+                    </div>
+                  </fieldset>
+                  <label class="fieldset">
+                    <span class="fieldset-legend" data-locale="en">Protected targets</span>
+                    <span class="fieldset-legend" data-locale="ko">보호 대상</span>
+                    <select class="select w-full"><option>Default blocklist · 6 domains</option></select>
+                  </label>
+                  <fieldset class="fieldset">
+                    <legend class="fieldset-legend"><span data-locale="en">Blocking mode</span><span data-locale="ko">차단 방식</span></legend>
+                    <div class="join grid grid-cols-3">
+                      <input class="btn join-item h-auto min-h-11 whitespace-normal px-2 text-xs leading-4" type="radio" name="edit-intensity" aria-label="Gentle reminder" data-en-label="Gentle reminder" data-ko-label="가벼운 안내" />
+                      <input class="btn join-item h-auto min-h-11 whitespace-normal px-2 text-xs leading-4" type="radio" name="edit-intensity" aria-label="Confirm to continue" data-en-label="Confirm to continue" data-ko-label="확인 후 허용" checked />
+                      <input class="btn join-item h-auto min-h-11 whitespace-normal px-2 text-xs leading-4" type="radio" name="edit-intensity" aria-label="Full block" data-en-label="Full block" data-ko-label="완전 차단" />
+                    </div>
+                  </fieldset>
+                </form>
+
+                <div class="modal-action">
+                  <button class="btn btn-ghost min-h-10" type="button" data-locale="en">Cancel</button>
+                  <button class="btn btn-ghost min-h-10" type="button" data-locale="ko">취소</button>
+                  <button class="btn btn-primary min-h-10" type="button" data-locale="en">Save schedule</button>
+                  <button class="btn btn-primary min-h-10" type="button" data-locale="ko">일정 저장</button>
+                </div>
+              </div>
+            </dialog>
+          </div>
+          <figcaption>Focused schedule editor · the title is derived from stored days and time; no new name field or runtime entity is implied.</figcaption>
+        </figure>
+
+        <figure class="mockup-figure">
+          <div class="narrow-frame fw-depth flex items-center bg-base-300 px-4 text-base-content" data-theme-surface data-theme="focuswhale-preview">
+            <section class="card w-full border border-primary/15 bg-base-100 shadow-xl">
+              <div class="card-body items-center gap-5 text-center">
+                <div class="pet-sprite" style="--pet-row: 12; --pet-duration: 1000ms" role="img" aria-label="Focused young whale"></div>
+                <div>
+                  <p class="text-sm font-bold text-primary" data-locale="en">Session in progress</p>
+                  <p class="text-sm font-bold text-primary" data-locale="ko">세션 진행 중</p>
+                  <h1 class="mt-2 text-4xl font-black tabular-nums">24:37</h1>
+                  <p class="mt-2 text-sm text-base-content/65" data-locale="en">Rules stay locked until this session ends.</p>
+                  <p class="mt-2 text-sm text-base-content/65" data-locale="ko">이 세션이 끝날 때까지 규칙은 잠겨 있습니다.</p>
+                </div>
+                <div class="w-full rounded-box bg-base-200 p-3 text-left text-sm">
+                  <div class="flex justify-between gap-3"><span data-locale="en">Targets</span><span data-locale="ko">대상</span><strong data-locale="en">Default blocklist</strong><strong data-locale="ko">기본 차단 목록</strong></div>
+                  <div class="mt-2 flex justify-between gap-3"><span data-locale="en">Mode</span><span data-locale="ko">방식</span><strong data-locale="en">Confirm first</strong><strong data-locale="ko">확인 후 허용</strong></div>
+                </div>
+                <button class="btn btn-primary min-h-11 w-full" type="button" data-locale="en">Return to session</button>
+                <button class="btn btn-primary min-h-11 w-full" type="button" data-locale="ko">세션으로 돌아가기</button>
+              </div>
+            </section>
+          </div>
+          <figcaption>Active-session lock · the existing full lock remains; no rule mutation or bypass is introduced.</figcaption>
+        </figure>
+      </div>
+    </main>
+  </body>
+</html>

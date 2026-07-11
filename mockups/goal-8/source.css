@@ -1,0 +1,127 @@
+@import "tailwindcss" source(none);
+
+@source "./*.html";
+
+@plugin "daisyui" {
+  themes: false;
+}
+
+@plugin "daisyui/theme" {
+  name: "focuswhale-preview";
+  default: true;
+  color-scheme: dark;
+  --color-base-100: #172022;
+  --color-base-200: #101617;
+  --color-base-300: #070b0c;
+  --color-base-content: #f2f7f7;
+  --color-primary: #a9e8f6;
+  --color-primary-content: #071012;
+  --color-secondary: #9de9c8;
+  --color-secondary-content: #07120e;
+  --color-accent: #f2d58d;
+  --color-accent-content: #171105;
+  --color-neutral: #2d393b;
+  --color-neutral-content: #f2f7f7;
+  --color-info: #8bc8f4;
+  --color-info-content: #071018;
+  --color-success: #83d9ad;
+  --color-success-content: #07120d;
+  --color-warning: #e7c576;
+  --color-warning-content: #171104;
+  --color-error: #ef9a9a;
+  --color-error-content: #180707;
+  --radius-selector: 0.75rem;
+  --radius-field: 0.625rem;
+  --radius-box: 0.75rem;
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+  --border: 1px;
+  --depth: 1;
+  --noise: 0;
+}
+
+@plugin "daisyui/theme" {
+  name: "focuswhale-preview-light";
+  color-scheme: light;
+  --color-base-100: #ffffff;
+  --color-base-200: #f3f6f6;
+  --color-base-300: #e5ebeb;
+  --color-base-content: #172022;
+  --color-primary: #287f89;
+  --color-primary-content: #ffffff;
+  --color-secondary: #387d65;
+  --color-secondary-content: #ffffff;
+  --color-accent: #896b2d;
+  --color-accent-content: #ffffff;
+  --color-neutral: #d4dddd;
+  --color-neutral-content: #172022;
+  --color-info: #3977a6;
+  --color-info-content: #ffffff;
+  --color-success: #347b56;
+  --color-success-content: #ffffff;
+  --color-warning: #856510;
+  --color-warning-content: #ffffff;
+  --color-error: #a74646;
+  --color-error-content: #ffffff;
+  --radius-selector: 0.75rem;
+  --radius-field: 0.625rem;
+  --radius-box: 0.75rem;
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+  --border: 1px;
+  --depth: 1;
+  --noise: 0;
+}
+
+@theme {
+  --font-sans: "Pretendard Variable", ui-sans-serif, system-ui, sans-serif;
+}
+
+@layer base {
+  html {
+    font-family: var(--font-sans);
+  }
+
+  body {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+@layer components {
+  .fw-atmosphere {
+    background:
+      radial-gradient(ellipse at 50% 8%, color-mix(in oklab, var(--color-primary) 22%, transparent), transparent 46%),
+      linear-gradient(180deg, color-mix(in oklab, var(--color-base-100) 76%, var(--color-primary)), var(--color-base-200));
+  }
+
+  .fw-depth {
+    box-shadow: 0 18px 50px color-mix(in oklab, var(--color-base-300) 70%, transparent);
+  }
+
+  .fw-selected {
+    box-shadow: 0 0 0 1px color-mix(in oklab, var(--color-primary) 64%, transparent),
+      0 10px 30px color-mix(in oklab, var(--color-primary) 13%, transparent);
+  }
+}
+
+@layer utilities {
+  [data-theme="focuswhale-preview-light"] :is(
+    .text-base-content\/50,
+    .text-base-content\/55,
+    .text-base-content\/60,
+    .text-base-content\/65
+  ) {
+    color: color-mix(in oklab, var(--color-base-content) 76%, transparent);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}

@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en" data-theme="focuswhale-preview">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Goal 8 · Preferences</title>
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="./mockup.css" />
+    <link rel="stylesheet" href="./mockup-assets.css" />
+    <script defer src="./mockup.js"></script>
+  </head>
+  <body class="mockup-stage m-0 font-sans">
+    <nav class="mockup-controls" aria-label="Mockup controls">
+      <a class="btn btn-ghost btn-sm" href="./index.html">← Goal 8</a>
+      <strong>Preferences · secondary workspace</strong>
+      <div class="flex gap-2">
+        <div class="join"><button class="btn btn-sm join-item" type="button" data-locale-button="en">EN</button><button class="btn btn-sm join-item" type="button" data-locale-button="ko">KO</button></div>
+        <div class="join"><button class="btn btn-sm join-item" type="button" data-theme-button="focuswhale-preview">Dark</button><button class="btn btn-sm join-item" type="button" data-theme-button="focuswhale-preview-light">Light</button></div>
+      </div>
+    </nav>
+
+    <main class="mockup-gallery">
+      <figure class="mockup-figure">
+        <div class="desktop-frame fw-depth bg-base-300 text-base-content" data-theme-surface data-theme="focuswhale-preview">
+          <main class="mx-auto grid w-full max-w-[720px] gap-7 px-5 py-8">
+            <header class="flex items-start justify-between gap-5">
+              <div><p class="text-sm font-bold">FocusWhale</p><h1 class="mt-2 text-3xl font-black" data-locale="en">Preferences</h1><h1 class="mt-2 text-3xl font-black" data-locale="ko">환경설정</h1><p class="mt-1 text-sm text-base-content/60" data-locale="en">Browser-specific controls stay available without becoming the product's front door.</p><p class="mt-1 text-sm text-base-content/60" data-locale="ko">브라우저 제어 기능은 유지하되 제품의 첫 화면이 되지는 않습니다.</p></div>
+              <a class="btn btn-ghost min-h-10" href="./review.html" data-locale="en">Done</a><a class="btn btn-ghost min-h-10" href="./review.html" data-locale="ko">완료</a>
+            </header>
+
+            <section class="grid gap-4 border-t border-base-100/10 pt-6">
+              <div><h2 class="text-xl font-black" data-locale="en">Session behavior</h2><h2 class="text-xl font-black" data-locale="ko">세션 동작</h2><p class="text-sm text-base-content/60" data-locale="en">These choices affect future sessions only.</p><p class="text-sm text-base-content/60" data-locale="ko">이 선택은 앞으로 시작할 세션에만 적용됩니다.</p></div>
+              <div class="grid gap-4 sm:grid-cols-3">
+                <label class="fieldset"><span class="fieldset-legend" data-locale="en">Focus hours start</span><span class="fieldset-legend" data-locale="ko">집중 시간 시작</span><input class="input w-full" type="time" value="09:00" /></label>
+                <label class="fieldset"><span class="fieldset-legend" data-locale="en">Focus hours end</span><span class="fieldset-legend" data-locale="ko">집중 시간 종료</span><input class="input w-full" type="time" value="18:00" /></label>
+                <label class="fieldset"><span class="fieldset-legend" data-locale="en">Soft wait</span><span class="fieldset-legend" data-locale="ko">소프트 대기</span><div class="join"><input class="input join-item min-w-0 flex-1" type="number" value="10" min="3" max="60" /><span class="join-item grid place-items-center border border-base-300 bg-base-200 px-3 text-sm" data-locale="en">sec</span><span class="join-item grid place-items-center border border-base-300 bg-base-200 px-3 text-sm" data-locale="ko">초</span></div></label>
+              </div>
+              <div><button class="btn btn-primary min-h-10" type="button" data-locale="en">Save preferences</button><button class="btn btn-primary min-h-10" type="button" data-locale="ko">환경설정 저장</button></div>
+            </section>
+
+            <section class="grid gap-4 border-t border-base-100/10 pt-6">
+              <div><h2 class="text-xl font-black" data-locale="en">Optional visit-history analysis</h2><h2 class="text-xl font-black" data-locale="ko">선택적 방문 기록 분석</h2><p class="text-sm leading-6 text-base-content/60" data-locale="en">Permission is requested only when you choose Analyze. Recent history is aggregated locally into advisory target suggestions.</p><p class="text-sm leading-6 text-base-content/60" data-locale="ko">분석을 직접 선택할 때만 권한을 요청합니다. 최근 기록은 기기 안에서 집계되어 대상 제안으로만 사용됩니다.</p></div>
+              <div class="flex flex-wrap items-center gap-3 rounded-box border border-base-100/10 bg-base-100 p-4">
+                <div class="min-w-0 flex-1"><strong data-locale="en">History access</strong><strong data-locale="ko">방문 기록 접근</strong><p class="mt-1 text-sm text-base-content/60" data-locale="en">Not granted</p><p class="mt-1 text-sm text-base-content/60" data-locale="ko">허용하지 않음</p></div>
+                <button class="btn btn-soft min-h-10" type="button" data-locale="en">Analyze visit history</button><button class="btn btn-soft min-h-10" type="button" data-locale="ko">방문 기록 분석</button>
+                <button class="btn btn-ghost min-h-10" type="button" disabled data-locale="en">Revoke</button><button class="btn btn-ghost min-h-10" type="button" disabled data-locale="ko">철회</button>
+              </div>
+            </section>
+
+            <section class="grid gap-4 border-t border-base-100/10 pt-6">
+              <div><h2 class="text-xl font-black" data-locale="en">Privacy and local data</h2><h2 class="text-xl font-black" data-locale="ko">개인정보와 로컬 데이터</h2><p class="text-sm text-base-content/60" data-locale="en">Review setup again or clear local activity records. Synced lists and whale growth are preserved.</p><p class="text-sm text-base-content/60" data-locale="ko">설정을 다시 보거나 로컬 활동 기록을 지웁니다. 동기화 목록과 고래 성장은 유지됩니다.</p></div>
+              <div class="overflow-hidden rounded-box border border-base-100/10 bg-base-100">
+                <div class="flex min-h-16 items-center justify-between gap-4 border-b border-base-200 px-4"><div><strong data-locale="en">Replay onboarding</strong><strong data-locale="ko">온보딩 다시 보기</strong><p class="text-sm text-base-content/55" data-locale="en">Review the three setup steps without changing completion history.</p><p class="text-sm text-base-content/55" data-locale="ko">완료 기록을 바꾸지 않고 세 단계 설정을 다시 봅니다.</p></div><button class="btn btn-soft btn-sm min-h-10" type="button" data-locale="en">Open</button><button class="btn btn-soft btn-sm min-h-10" type="button" data-locale="ko">열기</button></div>
+                <div class="flex min-h-16 items-center justify-between gap-4 px-4"><div><strong data-locale="en">Clear local activity</strong><strong data-locale="ko">로컬 활동 기록 지우기</strong><p class="text-sm text-base-content/55" data-locale="en">Removes local sessions, attempts, recommendations, and acknowledgements.</p><p class="text-sm text-base-content/55" data-locale="ko">로컬 세션, 차단 시도, 추천, 확인 기록을 삭제합니다.</p></div><button class="btn btn-error btn-soft btn-sm min-h-10" type="button" data-locale="en">Clear…</button><button class="btn btn-error btn-soft btn-sm min-h-10" type="button" data-locale="ko">지우기…</button></div>
+              </div>
+              <div class="alert alert-soft text-sm leading-6"><span data-locale="en">Local clearing is unavailable while a focus session is active. It cannot reset this week's emergency-use allowance.</span><span data-locale="ko">집중 세션 중에는 로컬 기록을 지울 수 없습니다. 이번 주 비상 종료 사용 기록도 초기화되지 않습니다.</span></div>
+            </section>
+          </main>
+        </div>
+        <figcaption>Preferences · browser internals remain available but subordinate to Review and Rules; optional history is still explicit and local-first.</figcaption>
+      </figure>
+    </main>
+  </body>
+</html>

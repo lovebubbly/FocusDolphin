@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en" data-theme="focuswhale-preview">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Goal 8 · Soft overlay</title>
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="./mockup.css" />
+    <link rel="stylesheet" href="./mockup-assets.css" />
+    <script defer src="./mockup.js"></script>
+  </head>
+  <body class="mockup-stage m-0 font-sans">
+    <nav class="mockup-controls" aria-label="Mockup controls">
+      <a class="btn btn-ghost btn-sm" href="./index.html">← Goal 8</a>
+      <strong>Soft overlay · Shadow DOM visual contract</strong>
+      <div class="join">
+        <button class="btn btn-sm join-item" type="button" data-locale-button="en">EN</button>
+        <button class="btn btn-sm join-item" type="button" data-locale-button="ko">KO</button>
+      </div>
+    </nav>
+
+    <main class="mockup-gallery">
+      <header class="mx-auto max-w-2xl space-y-2 text-center text-white">
+        <p class="text-sm font-bold uppercase text-primary">A short pause over any host page</p>
+        <h1 class="text-3xl font-black" data-locale="en">Isolated, readable, and easy to leave.</h1>
+        <h1 class="text-3xl font-black" data-locale="ko">어떤 페이지에서도 또렷하고, 쉽게 돌아갈 수 있게.</h1>
+      </header>
+
+      <div class="mockup-grid mockup-grid-wide">
+        <figure class="mockup-figure">
+          <div class="desktop-frame host-page relative overflow-hidden" data-theme="focuswhale-preview-light" aria-label="Light host page with waiting overlay">
+            <div class="mx-auto max-w-4xl px-8 py-10 opacity-70">
+              <div class="h-8 w-44 rounded bg-slate-300"></div>
+              <div class="mt-8 grid gap-8 sm:grid-cols-[1fr_280px]">
+                <div class="space-y-4"><div class="h-10 rounded bg-slate-300"></div><div class="h-48 rounded bg-slate-200"></div><div class="h-28 rounded bg-slate-200"></div></div>
+                <div class="h-72 rounded bg-slate-200"></div>
+              </div>
+            </div>
+            <div class="absolute inset-0 grid place-items-center bg-base-300/80 p-7" data-theme="focuswhale-preview" role="dialog" aria-modal="true" aria-labelledby="overlay-wait-title">
+              <section class="card w-full max-w-md border border-primary/15 bg-base-100 text-base-content shadow-2xl" data-theme-surface data-theme="focuswhale-preview">
+                <div class="card-body items-center gap-4 text-center">
+                  <div class="grid h-24 w-24 place-items-center rounded-full bg-base-200">
+                    <div class="pet-sprite" style="--pet-row: 12; --pet-duration: 1000ms" role="img" aria-label="Focused young whale"></div>
+                  </div>
+                  <p class="text-xs font-bold text-primary" data-locale="en">Default blocklist · youtube.com</p>
+                  <p class="text-xs font-bold text-primary" data-locale="ko">기본 차단 목록 · youtube.com</p>
+                  <h1 id="overlay-wait-title" class="text-2xl font-black" data-locale="en">Pause for a moment</h1>
+                  <h1 class="text-2xl font-black" data-locale="ko">잠시 멈춤</h1>
+                  <p class="text-sm leading-6 text-base-content/65" data-locale="en">This session adds a short check-in before you open this site.</p>
+                  <p class="text-sm leading-6 text-base-content/65" data-locale="ko">이 세션에서는 이 사이트를 열기 전에 짧은 확인 시간을 둡니다.</p>
+                  <div class="grid w-full gap-2 sm:grid-cols-2">
+                    <button class="btn btn-primary min-h-11" type="button" data-locale="en">Return to focus</button>
+                    <button class="btn btn-primary min-h-11" type="button" data-locale="ko">집중으로 돌아가기</button>
+                    <button class="btn btn-soft min-h-11" type="button" disabled data-locale="en">Continue · 8</button>
+                    <button class="btn btn-soft min-h-11" type="button" disabled data-locale="ko">계속하기 · 8</button>
+                  </div>
+                </div>
+              </section>
+            </div>
+          </div>
+          <figcaption>Waiting on a light host · the compiled theme remains isolated and the host page cannot change FocusWhale typography or controls.</figcaption>
+        </figure>
+
+        <figure class="mockup-figure">
+          <div class="desktop-frame host-page-dark relative overflow-hidden" data-theme="focuswhale-preview" aria-label="Dark host page with ready overlay">
+            <div class="mx-auto max-w-4xl px-8 py-10 opacity-65">
+              <div class="h-8 w-44 rounded bg-zinc-700"></div>
+              <div class="mt-8 grid grid-cols-3 gap-5"><div class="h-60 rounded bg-zinc-800"></div><div class="h-60 rounded bg-zinc-800"></div><div class="h-60 rounded bg-zinc-800"></div></div>
+            </div>
+            <div class="absolute inset-0 grid place-items-center bg-base-300/80 p-7" data-theme="focuswhale-preview" role="dialog" aria-modal="true" aria-labelledby="overlay-ready-title">
+              <section class="card w-full max-w-md border border-primary/15 bg-base-100 text-base-content shadow-2xl" data-theme-surface data-theme="focuswhale-preview">
+                <div class="card-body items-center gap-4 text-center">
+                  <div class="grid h-24 w-24 place-items-center rounded-full bg-base-200">
+                    <div class="pet-sprite" style="--pet-row: 12; --pet-duration: 1000ms" role="img" aria-label="Focused young whale"></div>
+                  </div>
+                  <span class="badge badge-primary badge-soft" data-locale="en">Check-in complete</span>
+                  <span class="badge badge-primary badge-soft" data-locale="ko">확인 시간 완료</span>
+                  <h1 id="overlay-ready-title" class="text-2xl font-black" data-locale="en">Pause for a moment</h1>
+                  <h1 class="text-2xl font-black" data-locale="ko">잠시 멈춤</h1>
+                  <p class="text-sm leading-6 text-base-content/65" data-locale="en">This session adds a short check-in before you open this site.</p>
+                  <p class="text-sm leading-6 text-base-content/65" data-locale="ko">이 세션에서는 이 사이트를 열기 전에 짧은 확인 시간을 둡니다.</p>
+                  <div class="grid w-full gap-2 sm:grid-cols-2">
+                    <button class="btn btn-primary min-h-11" type="button" data-locale="en">Return to focus</button>
+                    <button class="btn btn-primary min-h-11" type="button" data-locale="ko">집중으로 돌아가기</button>
+                    <button class="btn btn-soft min-h-11" type="button" data-locale="en">Continue</button>
+                    <button class="btn btn-soft min-h-11" type="button" data-locale="ko">계속하기</button>
+                  </div>
+                </div>
+              </section>
+            </div>
+          </div>
+          <figcaption>Ready on a dark host · the hierarchy stays identical when Continue becomes available.</figcaption>
+        </figure>
+      </div>
+    </main>
+  </body>
+</html>

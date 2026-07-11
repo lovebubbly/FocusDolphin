@@ -213,3 +213,15 @@ This file records durable choices that are easy to accidentally undo. New undocu
 **Decision:** Disable Tailwind's repository-wide automatic source discovery with `source(none)` and enumerate the production page, content, and pet source paths with `@source`.
 
 **Why:** Documentation vocabulary changed the compiled CSS/content-script bytes even when application source was untouched. An explicit source boundary makes release artifacts reproducible and requires future production directories to be added deliberately.
+
+## D-036: External References Inform Structure, Not Product Identity
+
+**Decision:** Translate the directly observed mobile focus-product hierarchy into three FocusWhale browser jobs: Session in the toolbar popup and intervention surfaces, Rules in Options, and Review in Options. Keep Preferences secondary. Adopt dark-first spatial hierarchy, one dominant action, large time typography, compact rule rows, and restrained selected/hero emphasis without copying another product's navigation, scores, imagery, copy, branding, permissions, or platform-specific semantics.
+
+**Why:** The useful evidence is the separation of act now, configure future behavior, and understand the day. FocusWhale has different browser capabilities, a local-only privacy contract, explicit intensity meanings, a whale identity, and no defensible composite score. Literal mobile or visual copying would weaken those boundaries rather than polish the existing product.
+
+## D-037: Goal 8 Mockup Approval Freezes Production
+
+**Decision:** Keep Goal 8 Phase A under `mockups/goal-8/` with offline local assets, real Korean/English copy, dark-first and representative light states, the current `384 x 1,920` atlas, and an explicit approval record. Do not change `src/`, `public/`, package metadata, Vite configuration, or build verification until the product owner approves an exact mockup commit. Preserve the archived Goal 6 files separately. Production starts from the existing 79-line custom-CSS baseline and must consolidate rather than add an independent visual layer.
+
+**Why:** The approved mockups become the structural layout contract for a broad cross-surface redesign. Freezing production prevents partial implementation from outrunning product review and preserves a clear audit trail for every runtime, accessibility, localization, and release invariant.
