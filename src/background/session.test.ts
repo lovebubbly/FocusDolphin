@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { STORAGE_KEYS } from "../shared/storage";
 import type { Session, SiteList, TempAllow } from "../shared/types";
+import { reconcilePetGamification } from "../pet/reconcile";
 import {
   type AlarmClient,
   type EventPublisher,
@@ -911,6 +912,32 @@ describe("snooze delay", () => {
     ]);
     expect(localStore["dailyStats:2026-07-06"]).toMatchObject({ focusMinutes: 25 });
     expect(rewards.settleCompleted).toHaveBeenCalledTimes(1);
+  });
+
+  it("keeps completion-unlocked badges associated through finalization and later reconciliation", async () => {
+    const endsAt = Date.parse("2026-07-06T10:00:00+09:00");
+    const session = { ...completedCandidate("hard-milestones", endsAt), intensity: "hard" } satisfies Session;
+    localStore[STORAGE_KEYS.local.activeSession] = session;
+    syncStore[STORAGE_KEYS.sync.siteLists] = [focusList()];
+    const managerWithRealRewards = new SessionManager(dnrClient, alarms, publisher);
+
+    await managerWithRealRewards.getState(endsAt + 1);
+    await reconcilePetGamification();
+
+    const badgeEvents = Object.values(localStore).filter((value): value is {
+      type: string;
+      badgeId: string;
+      sessionId?: string;
+    } => Boolean(value && typeof value === "object" && (value as { type?: string }).type === "badge_earned"));
+    expect(badgeEvents).toEqual(expect.arrayContaining([
+      expect.objectContaining({ badgeId: "first-session", sessionId: session.id }),
+      expect.objectContaining({ badgeId: "first-hard", sessionId: session.id })
+    ]));
+    expect(
+      badgeEvents
+        .filter((event) => event.badgeId === "first-session" || event.badgeId === "first-hard")
+        .every((event) => event.sessionId === session.id)
+    ).toBe(true);
   });
 
   it("attributes a cross-midnight session to each local calendar day exactly once", async () => {

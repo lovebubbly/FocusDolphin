@@ -3,6 +3,7 @@ import type { Session } from "../../shared/types";
 import {
   acknowledgePopupCelebrations,
   activeSessionClockSnapshot,
+  activeSessionTimerValue,
   celebrationBatch,
   clearPopupCelebrations,
   coerceCustomDuration,
@@ -13,6 +14,7 @@ import {
   loadPopupModel,
   mergeCelebrationDismissal,
   mergePetNameSave,
+  stepDuration,
   type PopupModel
 } from "./main";
 
@@ -81,15 +83,36 @@ describe("popup celebration state", () => {
     expect(merged.celebrationAckError).toBeUndefined();
   });
 
-  it("shows and acknowledges one completed-session batch at a time", () => {
+  it("acknowledges only the completed-session milestones that were rendered", () => {
     const events = [
       { id: "s1-complete", type: "session_completed", sessionId: "s1", ts: 1 },
       { id: "s1-stage", type: "stage_up", sessionId: "s1", ts: 1 },
+      { id: "s1-badge", type: "badge_earned", badgeId: "first-session", sessionId: "s1", ts: 1 },
+      { id: "s1-half", type: "half_way", sessionId: "s1", ts: 1 },
+      { id: "s1-freeze", type: "freeze_granted", sessionId: "s1", ts: 1 },
+      { id: "s1-hard", type: "badge_earned", badgeId: "first-hard", sessionId: "s1", ts: 1 },
       { id: "s2-complete", type: "session_completed", sessionId: "s2", ts: 2 },
       { id: "global-badge", type: "badge_earned", ts: 2 }
     ] as unknown as PopupModel["celebrations"];
 
-    expect(celebrationBatch(events).map((event) => event.id)).toEqual(["s1-complete", "s1-stage"]);
+    const batch = celebrationBatch(events);
+    expect(batch.map((event) => event.id)).toEqual([
+      "s1-complete",
+      "s1-stage",
+      "s1-badge",
+      "s1-half",
+      "s1-freeze"
+    ]);
+
+    const remaining = mergeCelebrationDismissal(
+      { celebrations: events } as unknown as PopupModel,
+      batch.map((event) => event.id)
+    ).celebrations;
+    expect(remaining.map((event) => event.id)).toEqual([
+      "s1-hard",
+      "s2-complete",
+      "global-badge"
+    ]);
   });
 
   it("merges a saved pet name into the current popup model without dropping pending UI", () => {
@@ -215,6 +238,13 @@ describe("popup interaction helpers", () => {
     expect(coerceCustomDuration("", 25)).toBe(25);
   });
 
+  it("keeps the Goal 8 duration stepper inside the supported 1-240 minute range", () => {
+    expect(stepDuration(25, -1)).toBe(24);
+    expect(stepDuration(25, 1)).toBe(26);
+    expect(stepDuration(1, -1)).toBe(1);
+    expect(stepDuration(240, 1)).toBe(240);
+  });
+
   it("updates the active clock from a stable session snapshot", () => {
     const session: Session = {
       id: "active",
@@ -236,6 +266,7 @@ describe("popup interaction helpers", () => {
       remainingText: "Time left 0:30",
       progress: 50
     });
+    expect(activeSessionTimerValue(session, 31_000)).toBe("0:30");
   });
 
   it("presents internal intensity values with clear Korean and English labels", () => {

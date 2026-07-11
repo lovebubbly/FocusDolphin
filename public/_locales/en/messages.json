@@ -391,7 +391,7 @@
     "message": "We couldn't analyze browsing history."
   },
   "historyAnalyze": {
-    "message": "Analyze browsing history"
+    "message": "Analyze visit history"
   },
   "historyAnalyzing": {
     "message": "Analyzing..."
@@ -403,13 +403,22 @@
     "message": "Allow browsing-history access to start local recommendation analysis."
   },
   "historyPermissionRevoke": {
-    "message": "Revoke browsing-history access"
+    "message": "Revoke"
   },
   "historyPermissionRevokeFailed": {
     "message": "Could not revoke browsing history access."
   },
   "historyPermissionRevoked": {
     "message": "Browsing-history access revoked."
+  },
+  "historyPermissionTitle": {
+    "message": "History access"
+  },
+  "historyPermissionGranted": {
+    "message": "Granted"
+  },
+  "historyPermissionNotGranted": {
+    "message": "Not granted"
   },
   "localDataClear": {
     "message": "Clear local activity"
@@ -917,7 +926,7 @@
     "message": "You're now sailing the deepest sea."
   },
   "popupGrowthNeverRegresses": {
-    "message": "Your whale never gets hurt or loses growth."
+    "message": "Your whale keeps every bit of growth you've earned."
   },
   "popupGrowthTotalFocusXp": {
     "message": "Total focus $MINUTES$ min · $XP$ XP",
@@ -1187,10 +1196,10 @@
     "message": "LOCAL-FIRST FOCUS"
   },
   "onboardingIntroPetBody": {
-    "message": "Completed sessions help your whale grow. Rest days and missed days never make it shrink or disappear."
+    "message": "Completed sessions add to your whale's growth. On rest days, your progress stays right where it is."
   },
   "onboardingIntroPetTitle": {
-    "message": "Growth, never punishment"
+    "message": "Growth at your pace"
   },
   "onboardingIntroPrivacyBody": {
     "message": "FocusWhale has no backend. Sessions and optional history analysis stay on this device; synced preferences may use your browser's sync service."
@@ -1602,7 +1611,7 @@
     "message": "New list"
   },
   "scheduleAdd": {
-    "message": "Add auto-start"
+    "message": "New schedule"
   },
   "scheduleAddFailed": {
     "message": "We couldn't add the auto-start schedule."
@@ -1698,7 +1707,7 @@
     "message": "Analyze recent browsing history only on this device."
   },
   "recommendationsSectionTitle": {
-    "message": "Browsing-history recommendations"
+    "message": "Optional visit-history analysis"
   },
   "softContinueCountdown": {
     "message": "Continue in $SECONDS$",
@@ -1709,10 +1718,263 @@
       }
     }
   },
+  "softCheckInComplete": {
+    "message": "Check-in complete"
+  },
   "softPauseDescription": {
     "message": "This session adds a brief check before opening this site."
   },
   "softPauseTitle": {
     "message": "Pause for a moment"
+  },
+  "goal8PopupTargets": {
+    "message": "Targets"
+  },
+  "goal8PopupSiteCount": {
+    "message": "$COUNT$ sites",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "6"
+      }
+    }
+  },
+  "goal8PopupEndsAt": {
+    "message": "Ends at $TIME$",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "10:30"
+      }
+    }
+  },
+  "goal8PopupSource": {
+    "message": "Source"
+  },
+  "goal8PopupSourceManual": {
+    "message": "Manual"
+  },
+  "goal8PopupSourceSchedule": {
+    "message": "Automatic"
+  },
+  "goal8PopupImmutableNote": {
+    "message": "This session cannot be shortened or weakened."
+  },
+  "goal8PopupUpgradeSummary": {
+    "message": "Need a stronger setting?"
+  },
+  "goal8PopupKeepFocusing": {
+    "message": "Keep focusing"
+  },
+  "goal8PopupDurationDecrease": {
+    "message": "Decrease duration by one minute"
+  },
+  "goal8PopupDurationIncrease": {
+    "message": "Increase duration by one minute"
+  },
+  "goal8PopupMilestoneNew": {
+    "message": "New"
+  },
+  "goal8CommonEdit": {
+    "message": "Edit"
+  },
+  "goal8OptionsTabReview": {
+    "message": "Review"
+  },
+  "goal8OptionsTabRules": {
+    "message": "Rules"
+  },
+  "goal8OptionsReviewTitle": {
+    "message": "Review"
+  },
+  "goal8OptionsReviewDescription": {
+    "message": "Local records from completed sessions and interventions."
+  },
+  "goal8OptionsRulesTitle": {
+    "message": "Rules"
+  },
+  "goal8OptionsRulesDescription": {
+    "message": "Choose what future sessions protect and when they begin."
+  },
+  "goal8OptionsPreferencesTitle": {
+    "message": "Preferences"
+  },
+  "goal8OptionsPreferencesDescription": {
+    "message": "Browser-specific controls stay available without becoming the product's front door."
+  },
+  "goal8OptionsPreferencesAction": {
+    "message": "Preferences"
+  },
+  "goal8OptionsDoneAction": {
+    "message": "Done"
+  },
+  "goal8ReviewEmptyTitle": {
+    "message": "Your first review starts after a session"
+  },
+  "goal8ReviewEmptyDescription": {
+    "message": "Completed focus minutes and intervention records will appear here. Nothing is sent outside the browser."
+  },
+  "goal8ReviewOpenSession": {
+    "message": "Open Session from the toolbar"
+  },
+  "goal8ReviewThisWeek": {
+    "message": "This week"
+  },
+  "goal8ReviewFocusMinutesUnit": {
+    "message": "focus min"
+  },
+  "goal8ReviewCompletedSessions": {
+    "message": "$COUNT$ completed sessions helped $NAME$ keep growing.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "4"
+      },
+      "name": {
+        "content": "$2",
+        "example": "Miro"
+      }
+    }
+  },
+  "goal8ReviewStreakBadge": {
+    "message": "Day $DAYS$",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "7"
+      }
+    }
+  },
+  "goal8ReviewShieldBadge": {
+    "message": "Shields $COUNT$/2",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "goal8GrowthNeverRegresses": {
+    "message": "Every bit of growth stays with your whale, including on rest days."
+  },
+  "goal8GrowthLatestBadge": {
+    "message": "Latest · $BADGE$",
+    "placeholders": {
+      "badge": {
+        "content": "$1",
+        "example": "First Ripple"
+      }
+    }
+  },
+  "goal8GrowthDetails": {
+    "message": "Growth details"
+  },
+  "goal8OptionsSessionInProgress": {
+    "message": "Session in progress"
+  },
+  "goal8OptionsLockedRulesDescription": {
+    "message": "Rules stay locked until this session ends."
+  },
+  "goal8OptionsTargetsLabel": {
+    "message": "Targets"
+  },
+  "goal8OptionsReturnToSession": {
+    "message": "Return to session"
+  },
+  "goal8PreferencesSessionTitle": {
+    "message": "Session behavior"
+  },
+  "goal8PreferencesSessionDescription": {
+    "message": "These choices affect future sessions only."
+  },
+  "goal8PreferencesSave": {
+    "message": "Save preferences"
+  },
+  "goal8PreferencesSaved": {
+    "message": "Preferences saved."
+  },
+  "goal8PreferencesReplayDescription": {
+    "message": "Review the three setup steps without changing completion history."
+  },
+  "goal8PreferencesClearDescription": {
+    "message": "Removes local sessions, attempts, recommendations, and acknowledgements."
+  },
+  "goal8PreferencesOpen": {
+    "message": "Open"
+  },
+  "goal8RulesScheduledTitle": {
+    "message": "Scheduled focus"
+  },
+  "goal8RulesScheduledDescription": {
+    "message": "Each schedule points to one reusable target list."
+  },
+  "goal8RulesSchedulesEmpty": {
+    "message": "No scheduled focus yet."
+  },
+  "goal8RulesTargetsTitle": {
+    "message": "Target lists"
+  },
+  "goal8RulesTargetsDescription": {
+    "message": "Reusable collections for manual and scheduled sessions."
+  },
+  "goal8RulesScheduleCount": {
+    "message": "$COUNT$ schedules",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "goal8RulesScheduleCountOne": {
+    "message": "1 schedule"
+  },
+  "goal8RulesScheduleEnabledLabel": {
+    "message": "$TRIGGER$ schedule enabled",
+    "placeholders": {
+      "trigger": {
+        "content": "$1",
+        "example": "Mon–Fri · 09:00–12:00"
+      }
+    }
+  },
+  "goal8RulesWeekdays": {
+    "message": "Mon–Fri"
+  },
+  "goal8RulesWeekend": {
+    "message": "Sat–Sun"
+  },
+  "goal8RulesEveryDay": {
+    "message": "Every day"
+  },
+  "goal8MetricCompleted": {
+    "message": "Completed"
+  },
+  "goal8ReviewEightWeekTitle": {
+    "message": "Eight-week focus"
+  },
+  "goal8ReviewEightWeekDescription": {
+    "message": "Recorded focus minutes by week"
+  },
+  "goal8ReviewTargetsTitle": {
+    "message": "Attempted targets"
+  },
+  "goal8ReviewTargetsDescription": {
+    "message": "Blocked attempts, not passive browsing"
+  },
+  "goal8ReviewTargetsEmpty": {
+    "message": "Blocked-attempt targets will appear here."
+  },
+  "goal8OnboardingProgressIntro": {
+    "message": "LOCAL-FIRST FOCUS"
+  },
+  "goal8OnboardingProgressList": {
+    "message": "FOCUS LIST"
+  },
+  "goal8OnboardingProgressSession": {
+    "message": "FIRST SESSION"
+  },
+  "goal8OnboardingSetupComplete": {
+    "message": "Setup complete"
   }
 }

@@ -1,6 +1,6 @@
 # FocusWhale Decisions
 
-Last refreshed: **2026-07-11 11:56 KST** by **OpenAI Codex (GPT-5)**, for requester and product owner **Choi Yunseong (최윤성)**.
+Last refreshed: **2026-07-12 KST** by **OpenAI Codex (GPT-5)**, for requester and product owner **Choi Yunseong (최윤성)**.
 
 This file records durable choices that are easy to accidentally undo. New undocumented choices should be added here with rationale.
 
@@ -225,3 +225,27 @@ This file records durable choices that are easy to accidentally undo. New undocu
 **Decision:** Keep Goal 8 Phase A under `mockups/goal-8/` with offline local assets, real Korean/English copy, dark-first and representative light states, the current `384 x 1,920` atlas, and an explicit approval record. Do not change `src/`, `public/`, package metadata, Vite configuration, or build verification until the product owner approves an exact mockup commit. Preserve the archived Goal 6 files separately. Production starts from the existing 79-line custom-CSS baseline and must consolidate rather than add an independent visual layer.
 
 **Why:** The approved mockups become the structural layout contract for a broad cross-surface redesign. Freezing production prevents partial implementation from outrunning product review and preserves a clear audit trail for every runtime, accessibility, localization, and release invariant.
+
+## D-038: Preserve Theme IDs While Transplanting Goal 8 Tokens
+
+**Decision:** Keep the production theme identifiers `focuswhale` and `focuswhale-dark`, keep operating-system color-scheme selection, and replace their token values and surface composition with the approved Goal 8 direction. Raw color values remain confined to the daisyUI theme declarations. Production pages and the shadow-DOM overlay consume semantic daisyUI/Tailwind classes instead of a second palette.
+
+**Why:** Existing pages, the content-script shadow root, and browser QA already depend on those identifiers. Preserving the contract avoids a cosmetic redesign creating a theme-selection migration while still making the approved token system authoritative.
+
+## D-039: Rules Is A Projection Of Existing Runtime Data
+
+**Decision:** Present `Rules` as a trigger-to-protection view derived from the existing `Schedule[]` and `SiteList[]` contracts. Do not add a Rule entity, duplicate storage, or a second service-worker path. Editors continue to send the existing entity-scoped schedule/list messages.
+
+**Why:** The Goal 8 information architecture needs a scannable job-oriented surface, not a new domain model. A projection keeps runtime ownership, active-session locking, DNR compilation, and existing recovery guarantees unchanged.
+
+## D-040: Review Uses Only Locally Defensible Measurements
+
+**Decision:** Review may show recorded focus minutes, completed-session counts, blocked attempts, temporary-access counts, attempted domains/categories, streak/growth, badges, and local recommendations. The eight-week chart labels `DailyStats.focusMinutes` as recorded minutes because interrupted or emergency-ended sessions can contribute partial time. The latest badge is selected by `badgeAwards[badge].earnedAt`, not array order. Do not introduce scores, time-saved estimates, passive screen-time claims, or external analytics.
+
+**Why:** Goal 8 improves comprehension without manufacturing measurements the extension does not collect. Precise labels and authoritative timestamps keep the review useful and auditable.
+
+## D-041: Outcome States Own Their Visual Hierarchy
+
+**Decision:** Keep 96 px as the default pet render size, with explicit 128 px large and 160 px hero variants. Completed-session, temporary-access, and emergency-pending states may change the pet mood and collapse the generic active-session shell so the outcome becomes dominant. These states remain additive and non-punitive. Rest, interruption, and emergency use never shrink, harm, or regress the whale.
+
+**Why:** The whale should communicate state rather than decorate every screen identically. Explicit renderer geometry prevents layout-specific CSS from distorting the atlas, while the wellness invariant prevents stronger visual feedback from becoming pressure or punishment.

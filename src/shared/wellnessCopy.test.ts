@@ -19,6 +19,12 @@ const ENGLISH_FORBIDDEN_WELLNESS_COPY = [
   "gets sick",
   "will regress",
   "lose your progress",
+  "punishment",
+  "shrink",
+  "disappear",
+  "gets hurt",
+  "loses growth",
+  "harms",
   "if you don't"
 ];
 

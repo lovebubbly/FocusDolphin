@@ -1,10 +1,10 @@
 # FocusWhale Smoke Test
 
-Documentation refresh: **OpenAI Codex (GPT-5)** for product owner **Choi Yunseong (최윤성)**, **2026-07-11 12:15 KST**.
+Documentation refresh: **OpenAI Codex (GPT-5)** for product owner **Choi Yunseong (최윤성)**, **2026-07-12 KST**.
 
 Use a dedicated Naver Whale or Chromium profile with the freshly built `dist/` loaded unpacked. Do not reuse stale build output.
 
-This checklist now targets the Goal 7 onboarding and Korean/English localization working tree. The older v1.0.0 evidence at the end is retained as historical regression context only.
+This checklist targets Goal 8 on `codex/goal-8-web-product-polish`. Phase A commit `e7274a1` was approved by Choi Yunseong on 2026-07-11 for every presented state, with no exceptions. The approval fixes the visual contract; it does not replace executable, package, or publication verification. Older Goal 7 and v1.0.0 evidence is retained as historical regression context only.
 
 ## Preconditions
 
@@ -14,11 +14,26 @@ npm test
 npm run build
 ```
 
-Expected automated result for the current Goal 7 candidate: 33 test files / 237 tests; classic `assets/content.js` at 178,301 bytes; 11 verified manifest targets; exact four-resource WAR allowlist; no source maps, root-relative asset URLs, or unexpected external URLs; packaged Pretendard license; onboarding page; and 460-key English/Korean catalogs.
+Expected automated result for the frozen Goal 8 candidate: 33 test files / 250 tests; 42,956-byte `assets/background.js` with SHA-256 `172ca0d895958575048e022f1ef3051fb76d46b74ff1efe1ba80c731ab6f1d0e`; 25,240-byte `assets/popup.js` with SHA-256 `e191845b3f549fe92007c61d1002b10d233847751616c6bc04b277f566b16390`; classic `assets/content.js` at 194,791 bytes with SHA-256 `1e61912aa791d63278fa79a8233ef5118c537e302e0c73d3f2948dc9f515b2df`; 11 verified manifest targets; exact four-resource WAR allowlist; no source maps, root-relative asset URLs, or unexpected external URLs; packaged Pretendard license; onboarding page; 530-key English/Korean catalogs; 115 authored production surface CSS lines; and raw colors only in theme declarations.
 
-Current release artifact: `release/FocusWhale-1.0.0.zip`, 2,754,338 bytes, SHA-256 `cba02253a1422d8f19ed7ddb16288f0c51a442656cbd02cf459740e68b5656a0`. Its 31 files extract byte-for-byte equal to `dist/`, with `manifest.json` at the root. The archive hygiene scan and production-only dependency audit pass. The ordinary-browser extracted-archive active-session smoke remains pending, so do not submit it yet.
+Current release artifact boundary: the existing `release/FocusWhale-1.0.0.zip` predates Goal 8. Do not submit, relabel, or use it as evidence for this branch. After selecting the executable commit, rebuild in a clean checkout, regenerate/rescan the ZIP, compare it byte-for-byte, and repeat the critical flows from the extracted archive.
 
-## Goal 7 First-Run And Localization
+## Goal 8 Current Exact-Build Matrix
+
+Environment: visible Naver Whale 4.38.386.14 / Chromium 148, isolated disposable profiles, frozen rebuilt `dist/`, development-path extension ID `ojojphoncmkplfcinppanpbbhhfjcpgi`. Every suite checked the background fingerprint above. Local evidence is under ignored `output/goal-8-final/`; profiles and CDP ports were cleaned after use.
+
+| Surface / behavior | Result | Exact evidence boundary |
+| --- | --- | --- |
+| Onboarding Steps 1-3, completion, persistence, replay, keyboard, 128/160 px pets | PASS | English; light/dark and reduced-motion representatives; no optional-history request |
+| Popup idle at 360 x 580, medium start, hard upgrade, hard confirmation/pending | PASS | English; 161/161 popup/onboarding assertions; zero page/request errors |
+| True 25-minute hard completion and growth acknowledgement | PASS | +37 XP once; First Ripple and First Deep Dive tied to the session; final popup 32/32 regression preserves extra milestones across two acknowledgement screens and reload |
+| Review empty/populated, truthful stats, growth and latest badge | PASS | English; seeded storage matched visible output; 128/160 px pets |
+| Rules desktop/390 px, editors, modal keyboard/focus, active lock | PASS | English; no mid-word break or overflow; background inert during modal |
+| Preferences optional-history status | PASS | English; no permission prompt on load; Revoke disabled when absent |
+| Blocked medium/hard and soft overlay | PASS | Korean exact headed suite: live aliases, real 30-second medium gate/allow, hard long clock/safe exits/pending/weekly bound, overlay isolation/focus/inert/session ownership, theme/motion representatives, zero extension errors |
+| Local-only/static network boundary | PASS | Build verifier plus zero failed requests/extension diagnostics in completed exact suites |
+
+## Goal 7 First-Run And Localization (Historical)
 
 ### First Install, Completion, And Replay
 
@@ -179,9 +194,10 @@ For a hard session started by an active schedule:
 1. Let a short session finish naturally.
 2. Open the popup and confirm one completion overview.
 3. Confirm awarded XP, count-up, progress, `celebrate` mood, and any milestones.
-4. Dismiss, toggle list mode, and reopen the popup.
-5. Confirm the same overview does not return and XP did not duplicate.
-6. In the pet fixture/options, inspect all five stages across `idle`, `happy`, `focus`, and `celebrate`.
+4. For a first 25-minute hard completion, confirm First Ripple and First Deep Dive carry the completed session ID and appear in the same acknowledgement batch.
+5. Dismiss, toggle list mode, and reopen the popup.
+6. Confirm the same overview does not return and XP/milestones did not duplicate.
+7. In the pet fixture/options, inspect all five stages across `idle`, `happy`, `focus`, and `celebrate`.
 
 ### Optional History And Clear Controls
 

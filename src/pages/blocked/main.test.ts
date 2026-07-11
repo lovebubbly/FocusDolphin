@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 import type { Session } from "../../shared/types";
 import {
+  blockedOutcomePresentation,
   blockedPagePresentation,
+  formatCountdown,
   originalHttpUrlFromHash,
   shouldPreserveTemporaryAllowView,
   shouldRefreshBlockedPage,
@@ -88,6 +90,36 @@ describe("temporary allow countdown", () => {
       available: true,
       visualText: "Allow for 5 minutes",
       announcement: "You can now request a 5-minute temporary allow."
+    });
+  });
+});
+
+describe("blocked page countdown formatting", () => {
+  it("uses M:SS below one hour and H:MM:SS at one hour or longer", () => {
+    expect(formatCountdown(0)).toBe("0:00");
+    expect(formatCountdown(65)).toBe("1:05");
+    expect(formatCountdown(3_599)).toBe("59:59");
+    expect(formatCountdown(3_600)).toBe("1:00:00");
+    expect(formatCountdown(4_684)).toBe("1:18:04");
+  });
+});
+
+describe("blocked outcome presentation", () => {
+  it("makes temporary access a happy success outcome", () => {
+    expect(blockedOutcomePresentation("temporary-allow", "en")).toEqual({
+      badge: "Allow for 5 minutes",
+      borderClass: "border-success/25",
+      message: "You can open this site for 5 minutes. The session rules will apply again afterward.",
+      petMood: "happy"
+    });
+  });
+
+  it("makes a durable emergency request a resting pending outcome", () => {
+    expect(blockedOutcomePresentation("emergency-pending", "ko")).toEqual({
+      badge: "비상 종료 요청",
+      borderClass: "border-warning/25",
+      message: "비상 종료 요청이 저장되었습니다. 약 5분 뒤 세션이 종료됩니다.",
+      petMood: "idle"
     });
   });
 });

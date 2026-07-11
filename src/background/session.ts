@@ -1,7 +1,7 @@
 import { STORAGE_KEYS, getTyped, setTyped } from "../shared/storage";
 import type { EndSessionReason } from "../shared/messaging";
 import type { DailyStats, Intensity, Session, SiteList, TempAllow } from "../shared/types";
-import { settleCompletedSessionXp } from "../pet/xpEngine";
+import { reconcilePetGamification } from "../pet/reconcile";
 import {
   type DynamicRuleClient,
   applySessionRules,
@@ -103,7 +103,7 @@ export class RuntimeEventPublisher implements EventPublisher {
 
 class PetSessionRewards implements SessionRewards {
   async settleCompleted(): Promise<void> {
-    await settleCompletedSessionXp();
+    await reconcilePetGamification();
   }
 }
 

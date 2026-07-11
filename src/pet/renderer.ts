@@ -4,6 +4,11 @@ import type { PetState } from "../shared/types";
 
 export const PET_MOODS = ["idle", "happy", "focus", "celebrate"] as const;
 export const PET_STAGE_KEYS = ["0", "1", "2", "3", "4"] as const;
+export const PET_RENDER_SIZES = {
+  default: 96,
+  large: 128,
+  hero: 160
+} as const;
 
 export type PetMood = typeof PET_MOODS[number];
 
@@ -30,6 +35,17 @@ export interface SpriteManifestValidation {
 export interface SpriteSheetDimensions {
   width: number;
   height: number;
+}
+
+export interface PetRenderOptions {
+  size?: number;
+}
+
+export interface SpriteRenderGeometry {
+  frameWidth: number;
+  frameHeight: number;
+  sheetWidth: number;
+  sheetHeight: number;
 }
 
 const SPRITE_BUILD_URL = new URL("../../assets/sprites/focuswhale-atlas.png", import.meta.url).toString();
@@ -229,19 +245,44 @@ function ensurePetStyles(styleRoot: Document | ShadowRoot): void {
   }
 }
 
-function applyManifest(root: HTMLElement, sprite: HTMLElement, manifest: SpriteManifest, state: PetState, mood: PetMood): void {
+export function spriteRenderGeometry(
+  manifest: SpriteManifest,
+  requestedWidth = manifest.frameWidth
+): SpriteRenderGeometry {
+  const frameWidth = Number.isFinite(requestedWidth) && requestedWidth > 0
+    ? requestedWidth
+    : manifest.frameWidth;
+  const scale = frameWidth / manifest.frameWidth;
+  const frameHeight = manifest.frameHeight * scale;
+  return {
+    frameWidth,
+    frameHeight,
+    sheetWidth: frameWidth * manifest.columns,
+    sheetHeight: frameHeight * manifest.rows
+  };
+}
+
+function applyManifest(
+  root: HTMLElement,
+  sprite: HTMLElement,
+  manifest: SpriteManifest,
+  state: PetState,
+  mood: PetMood,
+  options: PetRenderOptions
+): void {
   const stage = manifest.stages[String(state.stage)] ?? manifest.stages["0"];
   const animation = stage[mood] ?? stage.idle;
+  const geometry = spriteRenderGeometry(manifest, options.size);
   const customProperties: Record<string, string> = {
-    "--fw-frame-w": `${manifest.frameWidth}px`,
-    "--fw-frame-h": `${manifest.frameHeight}px`,
-    "--fw-sheet-w": `${manifest.frameWidth * manifest.columns}px`,
-    "--fw-sheet-h": `${manifest.frameHeight * manifest.rows}px`,
+    "--fw-frame-w": `${geometry.frameWidth}px`,
+    "--fw-frame-h": `${geometry.frameHeight}px`,
+    "--fw-sheet-w": `${geometry.sheetWidth}px`,
+    "--fw-sheet-h": `${geometry.sheetHeight}px`,
     "--fw-image": `url("${manifest.image}")`,
-    "--fw-row-offset": `${animation.row * manifest.frameHeight * -1}px`,
+    "--fw-row-offset": `${animation.row * geometry.frameHeight * -1}px`,
     "--fw-duration": `${animation.durationMs}ms`,
     "--fw-frames": String(animation.frames),
-    "--fw-end-x": `${animation.frames * manifest.frameWidth * -1}px`
+    "--fw-end-x": `${animation.frames * geometry.frameWidth * -1}px`
   };
 
   for (const [property, propertyValue] of Object.entries(customProperties)) {
@@ -250,7 +291,12 @@ function applyManifest(root: HTMLElement, sprite: HTMLElement, manifest: SpriteM
   }
 }
 
-export function mountPet(el: HTMLElement, state: PetState, mood: PetMood = "idle"): void {
+export function mountPet(
+  el: HTMLElement,
+  state: PetState,
+  mood: PetMood = "idle",
+  options: PetRenderOptions = {}
+): void {
   const nodeRoot = el.getRootNode();
   const styleRoot = nodeRoot instanceof ShadowRoot ? nodeRoot : el.ownerDocument;
   ensurePetStyles(styleRoot);
@@ -274,7 +320,7 @@ export function mountPet(el: HTMLElement, state: PetState, mood: PetMood = "idle
   fallback.draggable = false;
 
   el.append(sprite, fallback);
-  applyManifest(el, sprite, SPRITE_MANIFEST, state, mood);
+  applyManifest(el, sprite, SPRITE_MANIFEST, state, mood, options);
 
   const loadRecord = preloadSprite(SPRITE_MANIFEST);
   if (loadRecord.state === "loaded") {

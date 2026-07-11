@@ -6,35 +6,36 @@ The product is deliberately non-punitive: users choose the intensity, the hard-m
 
 ## Release Status
 
-The current source and production build identify as **version 1.0.0**. This is a local release candidate, not a claim of store publication.
+The current source and production build identify as **version 1.0.0**. Goal 8 is a technically verified branch candidate, not a claim of store publication.
 
-Verified on the 2026-07-11 12:15 KST Goal 7 tree:
+Choi Yunseong approved the complete Goal 8 Phase A visual contract at exact commit `e7274a1` on 2026-07-11, with no exceptions. Phase B implements that contract across Session, Rules, Review, Preferences, blocked, overlay, onboarding, and completion states while retaining the existing MV3, wellness, privacy, and storage contracts.
 
-- `npm run typecheck`: pass.
-- `npm test`: pass, **33 test files / 237 tests**.
+Verified on the frozen 2026-07-12 Goal 8 production bundle:
+
 - `npm run build`: pass, including the two-stage extension/content build and release verifier.
-- `assets/content.js`: classic IIFE, **178,301 bytes**; no module imports/exports.
-- Production output: no source maps and no unexpected external network URLs.
-- Manifest web-accessible resources: exactly four allowlisted files.
-- English and Korean locale catalogs contain the same **460 message keys**; the build verifier requires both catalogs, the onboarding page, an English `default_locale`, and localized manifest fields.
-- Pretendard Variable and its SIL Open Font License are packaged locally.
+- `npm run typecheck`: pass.
+- `npm test`: pass, **33 test files / 250 tests**.
+- `assets/content.js`: classic IIFE, **194,791 bytes**, SHA-256 `1e61912aa791d63278fa79a8233ef5118c537e302e0c73d3f2948dc9f515b2df`.
+- `assets/background.js`: **42,956 bytes**, SHA-256 `172ca0d895958575048e022f1ef3051fb76d46b74ff1efe1ba80c731ab6f1d0e`.
+- `assets/popup.js`: **25,240 bytes**, SHA-256 `e191845b3f549fe92007c61d1002b10d233847751616c6bc04b277f566b16390`.
+- Production output has no source maps, root-relative asset URLs, or unexpected external network URLs; the manifest exposes exactly four allowlisted web resources.
+- English and Korean locale catalogs contain the same **530 message keys**, with placeholder parity and production-reference coverage.
+- Authored production surface CSS is **115 lines**; raw colors are confined to the daisyUI theme declarations.
+- Pretendard Variable and its SIL Open Font License remain packaged locally.
 
-The pre-Goal-7 executable baseline at commit `acb45b6` retains the recorded core session, recovery, DNR, pet, accessibility, and optional-history browser evidence in [QA.md](QA.md). On the current Goal 7 build, headed disposable-profile Whale 4.38 visual checks passed the English and Korean onboarding flows, popup, Options, and Korean blocked page with the expected locale, no untranslated message-key leakage, no horizontal overflow, visible pet artwork, and no page-console errors. The onboarding completion record also prevented an automatic second opening, while the Options replay action reopened the flow intentionally.
+The comprehensive visible Naver Whale 4.38 / Chromium 148 popup/onboarding suite passed **161/161** assertions against the same unchanged background and UI system, including true hard-session completion, `+37 XP`, session-associated first-session/first-hard badges, keyboard access, light/dark representatives, reduced motion, and zero page/request errors. Final review then changed only popup milestone batching; the rebuilt final popup hash passed a separate **32/32** exact headed regression with five associated milestones, truthful deferred count, two keyboard acknowledgement screens, reload persistence, and the standard two-milestone case. Review, Rules at desktop and 390 px, Preferences permission behavior, active-session locking, modal focus restoration, light/dark/reduced-motion representatives, and truthful local metrics passed with zero extension diagnostics. Korean medium/hard/overlay QA passed live `x.com` aliases, the real 30-second gate and five-minute allow, both hard safe exits, pending/weekly bounds, Shadow DOM isolation, keyboard/inert/focus restoration, session ownership, and clean zero-session/zero-DNR teardown. The exact evidence boundary is in [QA.md](QA.md).
 
-One browser-automation boundary remains explicit: Playwright-launched Whale 4.38 stalls when the extension reaches `chrome.alarms.create`. An identical run of the exact `acb45b6` baseline reproduces the same stall, so this is recorded as a harness limitation/pre-existing baseline behavior rather than a Goal 7 regression. It is not evidence that a normal user-browser session succeeds or fails, and the current Goal 7 session-start path still needs a normal-browser/manual smoke before publication.
-
-Still pending before publication:
-
-- Complete a normal-browser/manual current-build session start, alarm, blocking, and completion smoke.
-- Load the extracted bilingual/onboarding archive in an ordinary Whale profile and complete the active-session localization smoke; refresh the four older core-flow store composites.
-- Enter the verified public privacy-policy and support URLs in the Whale publisher submission.
-- Record product-owner approval of the prepared store copy, disclosures, and exact-build imagery.
-- Upload the exact package to the selected store and complete its review process.
+The old `release/FocusWhale-1.0.0.zip` and existing store imagery predate Goal 8. They are historical artifacts and must not be submitted or relabeled as this candidate. Publication still requires a clean-checkout rebuild of the selected executable commit, a regenerated and rescanned archive, an extracted-archive critical-flow smoke, refreshed store imagery, product-owner approval of the exact package/listing/disclosures, publisher upload, and store review.
 
 Goal 5 opt-in LLM analysis remains intentionally out of scope and is not a v1.0.0 publication blocker.
 
 ## Features
 
+- Goal 8 job-oriented UI: Session in the toolbar popup, Rules and Review in Options, and secondary Preferences.
+- Product-owner-approved dark-first/light-parity visual system with the whale as the only expressive color focus, one dominant action per state, and no copied third-party branding, scores, navigation, or mobile-only claims.
+- Session-first popup with a duration stepper, target summary, explicit intensity choice, radial active timer, immutable target/mode/source facts, two-step hard emergency control, and post-session growth acknowledgement.
+- Rules as a compact projection of existing schedules and target lists, with focused editors and the same service-worker-owned active-session lock.
+- Locally truthful Review with current-week focus, completed sessions, attempts, temporary access, eight-week recorded focus, attempted domains/categories, whale growth, and timestamp-derived latest badges.
 - Manual and scheduled focus sessions.
 - Install-only, three-step onboarding with a versioned local completion record, skip/setup-only outcomes, an optional first 25-minute session, and an Options replay action.
 - Korean and English UI across onboarding, popup, Options, blocked page, soft overlay, pet stages, badges, growth copy, defaults, errors, and manifest metadata. Unsupported browser locales fall back to English.
@@ -119,9 +120,11 @@ Do not enter confidential or identifying information in the medium-mode intent f
 
 Production UI uses Tailwind CSS 4, daisyUI 5, and locally bundled Pretendard Variable. The supported production themes are the default light theme and `focuswhale-dark`.
 
+Goal 8 keeps the compatible `focuswhale` and `focuswhale-dark` theme identifiers while making semantic theme variables authoritative for color, spacing, borders, and shadows. Authored production surface CSS is limited to 115 lines across the shared app/overlay entries and four one-line page imports. Raw colors are confined to the daisyUI theme declarations.
+
 The extension chooses Korean for Korean browser UI language tags and English otherwise. Chrome/Whale `chrome.i18n` messages are preferred when their runtime catalog agrees with the requested UI language; the bundled matching catalog is used when a Whale profile reports a stale/mismatched runtime catalog. Product-authored defaults are translated, while user-authored pet names, list names, domains, schedules, and intent text are preserved verbatim.
 
-The files under `mockups/` are archived Goal 6 Phase-A design references. They document the approved direction but are **not** the current production DOM contract or a substitute for live extension QA.
+The files directly under `mockups/` are archived Goal 6 references. The separately versioned [Goal 8 mockups](mockups/goal-8/README.md) are the approved structural contract for the current redesign: Choi Yunseong approved exact commit `e7274a1` on 2026-07-11 for all presented states with no exceptions. Mockup approval still does not substitute for live extension QA or store-publication approval.
 
 ## Architecture
 
@@ -170,6 +173,7 @@ The live Whale development extension used for final-candidate checks had ID `ojo
 - [SMOKE_TEST.md](SMOKE_TEST.md): reproducible DNR, alarm, storage, and surface checks.
 - [RELEASE_CHECKLIST.md](RELEASE_CHECKLIST.md): publication gate and remaining work.
 - [docs/SOL_HANDOFF.md](docs/SOL_HANDOFF.md): architecture, risk, and successor handoff.
+- [docs/GOAL_8_HANDOFF_2026-07-12.md](docs/GOAL_8_HANDOFF_2026-07-12.md): approved redesign boundary, production mapping, exact-current evidence, and release next steps.
 - [docs/NOTION_ISSUE_TRIAGE.md](docs/NOTION_ISSUE_TRIAGE.md): current resolution of the Notion issue list.
 - [docs/TECHNICAL_QA_EVIDENCE_2026-07-11.md](docs/TECHNICAL_QA_EVIDENCE_2026-07-11.md): sanitized exact-build alarm, restart, history-concurrency, and recovery-journal evidence.
 - [store/README.md](store/README.md): selected-store strategy, listing copy, disclosures, reviewer instructions, and owner-only submission steps.
@@ -178,13 +182,14 @@ The live Whale development extension used for final-candidate checks had ID `ojo
 
 ## Packaging And Publication
 
-Executable commit `bc62727` rebuilds cleanly after `npm ci`: typecheck, all 237 tests, build verification, and a byte-for-byte comparison of all 31 output files pass. The current `release/FocusWhale-1.0.0.zip` is **2,754,338 bytes** with SHA-256 `cba02253a1422d8f19ed7ddb16288f0c51a442656cbd02cf459740e68b5656a0`. `manifest.json` is at the archive root, required third-party notices are present, and scans found no token, private-key, personal-email, machine-path, source-map, TypeScript, test, profile, or bundled-dependency leakage. The production-only dependency audit reports zero vulnerabilities. Exact English and Korean onboarding screenshots are included under [store-assets/](store-assets/); the four older core-flow composites remain prior-build collateral and require refresh or explicit owner approval. The archive has not yet passed the outstanding ordinary-browser active-session smoke, and this is not a store-submitted release. [GitHub Issues](https://github.com/lovebubbly/FocusWhale/issues) remains the public support/privacy channel, and [the repository privacy policy](https://github.com/lovebubbly/FocusWhale/blob/main/PRIVACY.md) was publicly verified on 2026-07-11.
+The existing `release/FocusWhale-1.0.0.zip` and current store imagery were produced before Goal 8 and are historical artifacts, not the package described by the current branch. Do not upload or relabel that ZIP as the Goal 8 candidate. After the Goal 8 executable commit is selected, rebuild from a clean checkout, regenerate the archive, repeat byte-equality/privacy/dependency scans, refresh the core-flow screenshots, load the extracted archive in a clean ordinary Whale profile, and record the new hash. [GitHub Issues](https://github.com/lovebubbly/FocusWhale/issues) remains the public support/privacy channel, and [the repository privacy policy](https://github.com/lovebubbly/FocusWhale/blob/main/PRIVACY.md) was publicly verified on 2026-07-11.
 
 The repository is publicly viewable but **all rights are reserved** under [LICENSE](LICENSE); no open-source license is granted for FocusWhale's original work. Pretendard remains under SIL OFL; Tailwind CSS, daisyUI, and the Vite core runtime retain their MIT notices in the shipped `licenses/` directory; generated sprite provenance is recorded separately.
 
 ## Documentation Provenance
 
 - Product owner and repository maintainer: **Choi Yunseong (최윤성)** (`Yunseong Choi` in Git history).
-- This release/handoff and store-preparation refresh was prepared by **OpenAI Codex (GPT-5)**, at Choi Yunseong's request and last refreshed on **2026-07-11 12:15 KST**.
-- Evidence comes from the local repository, current automated gates, current headed locale/lifecycle checks, and the pre-Goal-7 exact-build ledger in `QA.md`; owner and publication checks remain labeled explicitly.
+- Goal 8 production and documentation were prepared by **OpenAI Codex (GPT-5)** at Choi Yunseong's request and last refreshed on **2026-07-12 KST**.
+- Goal 8 Phase A was approved by **Choi Yunseong** on **2026-07-11** against exact commit `e7274a1`, for all presented states with no exceptions.
+- Evidence comes from the local repository, automated gates, exact rebuilt-bundle Whale journeys recorded in `QA.md`, and retained historical baselines; mockup approval, technical verification, final package approval, and publication remain distinct labels.
 - Code authorship remains defined by Git history. Documentation attribution does not imply product-owner approval of every Codex assessment.

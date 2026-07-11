@@ -3,7 +3,7 @@ import { translate } from "../../shared/i18n";
 import type { Session } from "../../shared/types";
 import { normalizeDomain, sanitizeHttpReturnUrl } from "../../background/rules";
 import { normalizePetState } from "../../pet/defaultState";
-import { mountPet } from "../../pet/renderer";
+import { mountPet, type PetMood } from "../../pet/renderer";
 
 type RuntimeResponse<T = unknown> = { ok: true } & T | { ok: false; error?: string };
 type LocaleOverride = "ko" | "en";
@@ -28,6 +28,13 @@ export interface TemporaryAllowCountdown {
   announcement: string;
 }
 
+export interface BlockedOutcomePresentation {
+  badge: string;
+  borderClass: "border-success/25" | "border-warning/25";
+  message: string;
+  petMood: PetMood;
+}
+
 const app = typeof document === "undefined" ? null : document.getElementById("app");
 const originalUrl = typeof window === "undefined" ? null : originalHttpUrlFromHash(window.location.hash);
 const domain = typeof window === "undefined"
@@ -40,6 +47,7 @@ let remainingTimer: number | undefined;
 let actionTimer: number | undefined;
 let tempAllowRequestInFlight = false;
 let mediumActionState: MediumActionState | null = null;
+let blockedPetState = normalizePetState(undefined);
 
 if (typeof document !== "undefined") {
   document.documentElement.lang = translate("appLocale");
@@ -91,9 +99,9 @@ async function refreshBlockedPage(): Promise<void> {
 
   if (!state.ok) {
     clearPageTimers();
-    app.className = "grid min-h-screen place-items-center bg-base-200 px-4 py-6 text-base-content sm:p-8";
+    app.className = "grid min-h-screen place-items-center bg-base-300 px-4 py-6 text-base-content sm:p-8";
     app.innerHTML = baseMarkup(null, false);
-    await mountBlockedPet();
+    await mountBlockedPet(null);
     renderStateUnavailable();
     return;
   }
@@ -106,9 +114,9 @@ async function refreshBlockedPage(): Promise<void> {
   }
 
   clearPageTimers();
-  app.className = "grid min-h-screen place-items-center bg-base-200 px-4 py-6 text-base-content sm:p-8";
+  app.className = "grid min-h-screen place-items-center bg-base-300 px-4 py-6 text-base-content sm:p-8";
   app.innerHTML = baseMarkup(session, true);
-  await mountBlockedPet();
+  await mountBlockedPet(session);
   wireRemainingTime(session);
 
   if (!session || session.status !== "active") {
@@ -129,41 +137,59 @@ async function refreshBlockedPage(): Promise<void> {
   renderSoftFallback();
 }
 
-async function mountBlockedPet(): Promise<void> {
+async function mountBlockedPet(session: Session | null): Promise<void> {
   const slot = document.getElementById("pet-slot");
   if (!slot) {
     return;
   }
 
   const storedPetState = await getTyped("sync", STORAGE_KEYS.sync.petState).catch(() => undefined);
-  mountPet(slot, normalizePetState(storedPetState), "focus");
+  blockedPetState = normalizePetState(storedPetState);
+  mountPet(
+    slot,
+    blockedPetState,
+    session?.status === "active" ? "focus" : "idle"
+  );
 }
 
 function baseMarkup(session: Session | null, stateAvailable: boolean): string {
   const presentation = blockedPagePresentation(session, stateAvailable);
-  return `
-    <section class="card w-full max-w-lg overflow-hidden border border-base-300 bg-base-100 shadow-xl" aria-labelledby="blocked-title">
-      <div class="card-body gap-6 p-5 sm:p-7">
-        <div class="grid place-items-center">
-          <div id="pet-slot" class="rounded-box grid h-28 w-28 place-items-center bg-base-200 ring-1 ring-base-300" aria-hidden="true"></div>
-        </div>
-        <div class="text-center">
-          <p class="text-xs font-bold uppercase">FocusWhale</p>
-          <h1 id="blocked-title" class="mt-1 text-3xl font-extrabold">${presentation.heading}</h1>
-        </div>
-        <dl class="stats stats-vertical w-full overflow-hidden border border-base-300 bg-base-200 shadow-none sm:stats-horizontal">
-          <div class="stat min-w-0">
+  const activeSession = session?.status === "active";
+  const cardBorder = activeSession
+    ? session.intensity === "hard"
+      ? "border-error/20"
+      : "border-primary/15"
+    : "border-base-content/10";
+  const sessionFacts = activeSession
+    ? `
+        <dl id="session-facts" class="stats stats-horizontal w-full overflow-hidden bg-base-200 text-left shadow-none">
+          <div class="stat min-w-0 px-4 py-3">
             <dt class="stat-title">${translate("blockedTarget")}</dt>
-            <dd class="stat-value break-all whitespace-normal text-base font-semibold leading-snug tabular-nums">${escapeHtml(domain)}</dd>
+            <dd class="stat-value break-all whitespace-normal text-base font-bold leading-snug tabular-nums">${escapeHtml(domain)}</dd>
           </div>
-          <div class="stat">
+          <div class="stat min-w-0 px-4 py-3">
             <dt class="stat-title">${translate("blockedTimeRemaining")}</dt>
-            <dd id="remaining-time" class="stat-value text-2xl tabular-nums">${presentation.remaining}</dd>
+            <dd id="remaining-time" class="stat-value text-2xl font-black tabular-nums">${presentation.remaining}</dd>
           </div>
         </dl>
+      `
+    : "";
+  return `
+    <section id="blocked-card" class="card w-full max-w-[390px] overflow-hidden border ${cardBorder} bg-base-100 shadow-xl" aria-labelledby="blocked-title">
+      <div class="card-body items-center gap-5 p-6 text-center sm:p-7">
+        <div id="pet-shell" class="grid place-items-center">
+          <div id="pet-backdrop" class="grid h-28 w-28 place-items-center rounded-full bg-base-200">
+            <div id="pet-slot" class="grid place-items-center" aria-hidden="true"></div>
+          </div>
+        </div>
+        <div id="blocked-heading-group">
+          <p class="text-xs font-bold uppercase text-primary">${translate("onboardingBrand")}</p>
+          <h1 id="blocked-title" class="mt-2 text-2xl font-black">${presentation.heading}</h1>
+        </div>
+        ${sessionFacts}
         <div
           id="action-area"
-          class="space-y-4 border-t border-base-200 pt-5 motion-safe:transition motion-safe:duration-200 motion-safe:ease-out motion-reduce:transition-none"
+          class="w-full space-y-4 motion-safe:transition motion-safe:duration-200 motion-safe:ease-out motion-reduce:transition-none"
           role="region"
           aria-label="${translate("blockedActionsAria")}"
           aria-live="polite"
@@ -177,10 +203,10 @@ function baseMarkup(session: Session | null, stateAvailable: boolean): string {
 
 function renderStateUnavailable(): void {
   setActionArea(`
-    <div class="alert alert-warning alert-soft text-sm shadow-none" role="alert"><span>${translate("blockedStateUnavailable")}</span></div>
-    <div class="card-actions justify-center gap-2">
-      <button id="retry-state-button" type="button" class="btn btn-primary min-h-10">${translate("commonRetry")}</button>
-      <button id="back-button" type="button" class="btn btn-soft min-h-10 shadow-sm">${translate("blockedReturnToFocus")}</button>
+    <div class="alert alert-warning alert-soft text-left text-sm shadow-none" role="alert"><span>${translate("blockedStateUnavailable")}</span></div>
+    <div class="grid w-full gap-2">
+      <button id="retry-state-button" type="button" class="btn btn-primary min-h-11 w-full">${translate("commonRetry")}</button>
+      <button id="back-button" type="button" class="btn btn-ghost min-h-11 w-full">${translate("blockedReturnToFocus")}</button>
     </div>
   `, "#retry-state-button");
   document.getElementById("retry-state-button")?.addEventListener("click", queueRefresh);
@@ -189,20 +215,16 @@ function renderStateUnavailable(): void {
 
 function renderNoSession(): void {
   setActionArea(`
-    <div class="alert alert-soft border border-base-300 text-sm shadow-none" role="note"><span>${translate("blockedSessionEndedNotice")}</span></div>
-    <div class="card-actions justify-center">
-      <button id="exit-button" type="button" class="btn btn-primary min-h-10">${translate("blockedReturnToPreviousPage")}</button>
-    </div>
+    <p class="text-sm leading-6 text-base-content/65">${translate("blockedSessionEndedNotice")}</p>
+    <button id="exit-button" type="button" class="btn btn-primary min-h-11 w-full">${translate("blockedReturnToPreviousPage")}</button>
   `, "#exit-button");
   document.getElementById("exit-button")?.addEventListener("click", returnToRequestedPage);
 }
 
 function renderSoftFallback(): void {
   setActionArea(`
-    <p class="text-center text-sm">${translate("blockedSoftFallback")}</p>
-    <div class="card-actions justify-center gap-2">
-      <button id="back-button" type="button" class="btn btn-soft min-h-10 shadow-sm">${translate("blockedReturnToFocus")}</button>
-    </div>
+    <p class="text-sm leading-6 text-base-content/65">${translate("blockedSoftFallback")}</p>
+    <button id="back-button" type="button" class="btn btn-primary min-h-11 w-full">${translate("blockedReturnToFocus")}</button>
   `, "#back-button");
   document.getElementById("back-button")?.addEventListener("click", goBack);
 }
@@ -222,10 +244,10 @@ function renderMedium(session: Session): void {
   }
 
   setActionArea(`
-    <p class="text-center text-sm">${translate("blockedMediumPrompt")}</p>
-    <div class="card-actions justify-center gap-2">
-      <button id="open-anyway-button" type="button" class="btn btn-primary min-h-10">${translate("blockedOpenAnyway")}</button>
-      <button id="back-button" type="button" class="btn btn-soft min-h-10 shadow-sm">${translate("blockedReturnToFocus")}</button>
+    <p class="text-sm leading-6 text-base-content/65">${translate("blockedMediumPrompt")}</p>
+    <div class="grid w-full gap-2">
+      <button id="back-button" type="button" class="btn btn-primary min-h-11 w-full">${translate("blockedReturnToFocus")}</button>
+      <button id="open-anyway-button" type="button" class="btn btn-ghost min-h-11 w-full">${translate("blockedOpenAnyway")}</button>
     </div>
   `, "#back-button");
 
@@ -247,22 +269,22 @@ function renderMediumFriction(
 ): void {
   mediumActionState = state;
   setActionArea(`
-    <form id="intent-form" class="space-y-3">
+    <form id="intent-form" class="space-y-4 text-left">
       <fieldset class="fieldset">
         <legend class="fieldset-legend">${translate("blockedIntentLegend")}</legend>
-        <input id="intent-input" class="input min-h-10 w-full" name="intent" type="text" maxlength="140" autocomplete="off" required aria-describedby="intent-help" />
-        <p id="intent-help" class="label">${translate("blockedIntentHelp")}</p>
+        <textarea id="intent-input" class="textarea min-h-24 w-full" name="intent" maxlength="140" autocomplete="off" required aria-describedby="intent-help"></textarea>
+        <p id="intent-help" class="text-xs leading-5 text-base-content/60">${translate("blockedIntentHelp")}</p>
       </fieldset>
-      <div class="card-actions justify-center gap-2">
-        <button id="allow-button" type="submit" class="btn btn-primary min-h-10" aria-label="${translate("blockedTemporaryAllowAria")}" aria-describedby="allow-status" disabled><span id="allow-countdown" aria-hidden="true">${temporaryAllowCountdown(state.availableAt).visualText}</span></button>
-        <button id="back-button" type="button" class="btn btn-soft min-h-10 shadow-sm">${translate("blockedReturnToFocus")}</button>
+      <div class="grid w-full gap-2">
+        <button id="back-button" type="button" class="btn btn-primary min-h-11 w-full">${translate("blockedReturnToFocus")}</button>
+        <button id="allow-button" type="submit" class="btn btn-soft min-h-11 w-full" aria-label="${translate("blockedTemporaryAllowAria")}" aria-describedby="allow-status" disabled><span id="allow-countdown" aria-hidden="true">${temporaryAllowCountdown(state.availableAt).visualText}</span></button>
       </div>
       <p id="allow-status" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></p>
     </form>
   `, "#intent-input");
 
   const form = document.getElementById("intent-form") as HTMLFormElement;
-  const input = document.getElementById("intent-input") as HTMLInputElement;
+  const input = document.getElementById("intent-input") as HTMLTextAreaElement;
   const allowButton = document.getElementById("allow-button") as HTMLButtonElement;
   const countdown = document.getElementById("allow-countdown") as HTMLElement;
   const status = document.getElementById("allow-status") as HTMLElement;
@@ -272,6 +294,12 @@ function renderMediumFriction(
   input.addEventListener("input", () => {
     if (mediumActionState?.kind === "friction" && mediumActionState.sessionId === session.id) {
       mediumActionState = { ...mediumActionState, intent: input.value };
+    }
+  });
+  input.addEventListener("keydown", (event) => {
+    if (event.key === "Enter" && !event.shiftKey && !event.isComposing) {
+      event.preventDefault();
+      form.requestSubmit();
     }
   });
   startButtonCountdown(allowButton, countdown, status, state.availableAt);
@@ -291,12 +319,13 @@ function renderHard(session?: Session, pendingEmergency?: BlockedRuntimeState["p
   }
 
   setActionArea(`
-    <div class="alert alert-soft border border-base-300 text-sm shadow-none" role="note"><span>${translate("blockedHardNoTemporaryAllow")}</span></div>
-    <p class="text-center text-sm">${translate("blockedEmergencyRule")}</p>
-    <div class="card-actions justify-center gap-2">
-      <button id="emergency-button" type="button" class="btn btn-error btn-soft min-h-10 text-base-content shadow-sm">${translate("blockedEmergencyRequest")}</button>
-      <button id="hard-back-button" type="button" class="btn btn-soft min-h-10 shadow-sm">${translate("blockedReturnToFocus")}</button>
+    <span class="badge badge-error badge-soft mx-auto">${translate("intensityHard")}</span>
+    <div class="alert alert-soft text-left text-sm shadow-none" role="note"><span>${translate("blockedHardNoTemporaryAllow")}</span></div>
+    <div class="grid w-full gap-2">
+      <button id="hard-back-button" type="button" class="btn btn-primary min-h-11 w-full">${translate("blockedReturnToFocus")}</button>
+      <button id="emergency-button" type="button" class="btn btn-error btn-soft min-h-11 w-full">${translate("blockedEmergencyRequest")}</button>
     </div>
+    <p class="text-xs leading-5 text-base-content/55">${translate("blockedEmergencyRule")}</p>
   `, "#hard-back-button");
 
   document.getElementById("emergency-button")?.addEventListener("click", () => {
@@ -307,22 +336,22 @@ function renderHard(session?: Session, pendingEmergency?: BlockedRuntimeState["p
 
 function renderEmergencyConfirmation(): void {
   setActionArea(`
-    <div class="alert alert-warning alert-soft text-sm shadow-none" role="note"><span>${translate("blockedEmergencyConfirmWarning")}</span></div>
-    <div class="card-actions justify-center gap-2">
-      <button id="confirm-emergency-button" type="button" class="btn btn-error min-h-10 shadow-md">${translate("blockedEmergencySchedule")}</button>
-      <button id="cancel-emergency-button" type="button" class="btn btn-soft min-h-10 shadow-sm">${translate("blockedGoBack")}</button>
+    <div class="alert alert-error alert-soft text-left text-sm leading-6 shadow-none" role="note"><span>${translate("blockedEmergencyConfirmWarning")}</span></div>
+    <div class="grid w-full gap-2">
+      <button id="cancel-emergency-button" type="button" class="btn btn-primary min-h-11 w-full">${translate("blockedReturnToFocus")}</button>
+      <button id="confirm-emergency-button" type="button" class="btn btn-error min-h-11 w-full">${translate("blockedEmergencySchedule")}</button>
     </div>
   `, "#cancel-emergency-button");
 
   document.getElementById("confirm-emergency-button")?.addEventListener("click", () => {
     void requestEmergencyEnd();
   });
-  document.getElementById("cancel-emergency-button")?.addEventListener("click", () => renderHard());
+  document.getElementById("cancel-emergency-button")?.addEventListener("click", goBack);
 }
 
 async function submitTemporaryAllow(intent: string, sessionId: string): Promise<void> {
   if (!intent) {
-    const input = document.getElementById("intent-input") as HTMLInputElement | null;
+    const input = document.getElementById("intent-input") as HTMLTextAreaElement | null;
     input?.focus();
     return;
   }
@@ -354,20 +383,18 @@ async function submitTemporaryAllow(intent: string, sessionId: string): Promise<
 
 function renderTempAllowRequesting(): void {
   setActionArea(`
-    <div class="alert alert-soft border border-base-300 text-sm shadow-none" role="status"><span>${translate("blockedTemporaryAllowApplying")}</span></div>
-    <div class="card-actions justify-center">
-      <button id="back-button" type="button" class="btn btn-soft min-h-10 shadow-sm">${translate("blockedReturnToFocus")}</button>
-    </div>
+    <div class="alert alert-soft text-left text-sm shadow-none" role="status"><span>${translate("blockedTemporaryAllowApplying")}</span></div>
+    <button id="back-button" type="button" class="btn btn-primary min-h-11 w-full">${translate("blockedReturnToFocus")}</button>
   `, "#back-button");
   document.getElementById("back-button")?.addEventListener("click", goBack);
 }
 
 export function tempAllowFailureMarkup(localeOverride?: LocaleOverride): string {
   return `
-    <div class="alert alert-error alert-soft text-sm shadow-none" role="alert"><span>${translate("blockedTemporaryAllowFailed", undefined, localeOverride)}</span></div>
-    <div class="card-actions justify-center gap-2">
-      <button id="retry-allow-button" type="button" class="btn btn-primary min-h-10">${translate("commonRetry", undefined, localeOverride)}</button>
-      <button id="back-button" type="button" class="btn btn-soft min-h-10 shadow-sm">${translate("blockedReturnToFocus", undefined, localeOverride)}</button>
+    <div class="alert alert-error alert-soft text-left text-sm shadow-none" role="alert"><span>${translate("blockedTemporaryAllowFailed", undefined, localeOverride)}</span></div>
+    <div class="grid w-full gap-2">
+      <button id="retry-allow-button" type="button" class="btn btn-primary min-h-11 w-full">${translate("commonRetry", undefined, localeOverride)}</button>
+      <button id="back-button" type="button" class="btn btn-ghost min-h-11 w-full">${translate("blockedReturnToFocus", undefined, localeOverride)}</button>
     </div>
   `;
 }
@@ -381,11 +408,12 @@ function renderTempAllowFailure(sessionId: string, intent: string): void {
 }
 
 function renderTempAllowSuccess(): void {
+  const outcome = blockedOutcomePresentation("temporary-allow");
+  prepareOutcomeShell(outcome);
   setActionArea(`
-    <p class="text-center text-sm">${translate("blockedTemporaryAllowSuccess")}</p>
-    <div class="card-actions justify-center gap-2">
-      <button id="continue-button" type="button" class="btn btn-primary min-h-10">${translate("commonContinue")}</button>
-    </div>
+    <span class="badge badge-success badge-soft mx-auto">${outcome.badge}</span>
+    <h1 id="blocked-outcome-title" class="text-xl font-black leading-7">${outcome.message}</h1>
+    <button id="continue-button" type="button" class="btn btn-primary min-h-11 w-full">${translate("commonContinue")}</button>
   `, "#continue-button");
   document.getElementById("continue-button")?.addEventListener("click", returnToRequestedPage);
 }
@@ -394,10 +422,8 @@ async function requestEmergencyEnd(): Promise<void> {
   const response = await sendRuntime<{ emergencyDueAt?: number }>({ type: "END_SESSION", payload: { reason: "emergency" } });
   if (!response.ok) {
     setActionArea(`
-      <div class="alert alert-warning alert-soft text-sm shadow-none" role="alert"><span>${escapeHtml(localizeBlockedRuntimeError(response.error, "blockedEmergencySaveFailed"))}</span></div>
-      <div class="card-actions justify-center gap-2">
-        <button id="back-button" type="button" class="btn btn-soft min-h-10 shadow-sm">${translate("blockedReturnToFocus")}</button>
-      </div>
+      <div class="alert alert-warning alert-soft text-left text-sm shadow-none" role="alert"><span>${escapeHtml(localizeBlockedRuntimeError(response.error, "blockedEmergencySaveFailed"))}</span></div>
+      <button id="back-button" type="button" class="btn btn-primary min-h-11 w-full">${translate("blockedReturnToFocus")}</button>
     `, "#back-button");
     document.getElementById("back-button")?.addEventListener("click", goBack);
     return;
@@ -407,14 +433,33 @@ async function requestEmergencyEnd(): Promise<void> {
 }
 
 function renderEmergencyPending(dueAt: number): void {
+  const outcome = blockedOutcomePresentation("emergency-pending");
+  prepareOutcomeShell(outcome);
   setActionArea(`
-    <p class="text-center text-sm">${translate("blockedEmergencyPending")}</p>
-    <div id="emergency-countdown" class="text-center text-4xl font-extrabold tabular-nums" role="timer" aria-live="off">${formatCountdown(Math.ceil((dueAt - Date.now()) / 1_000))}</div>
+    <span class="badge badge-warning badge-soft mx-auto">${outcome.badge}</span>
+    <h1 id="blocked-outcome-title" class="text-2xl font-black leading-8">${outcome.message}</h1>
+    <div id="emergency-countdown" class="text-5xl font-black tabular-nums" role="timer" aria-live="off">${formatCountdown(Math.ceil((dueAt - Date.now()) / 1_000))}</div>
   `);
 
   const countdown = document.getElementById("emergency-countdown");
   if (countdown) {
     startDeadlineCountdown(countdown, dueAt);
+  }
+}
+
+function prepareOutcomeShell(outcome: BlockedOutcomePresentation): void {
+  const card = document.getElementById("blocked-card");
+  card?.classList.remove("border-primary/15", "border-error/20", "border-base-content/10");
+  card?.classList.add(outcome.borderClass);
+  card?.setAttribute("aria-labelledby", "blocked-outcome-title");
+  document.getElementById("blocked-heading-group")?.remove();
+  document.getElementById("session-facts")?.remove();
+
+  const petBackdrop = document.getElementById("pet-backdrop");
+  petBackdrop?.classList.remove("h-28", "w-28", "rounded-full", "bg-base-200");
+  const slot = document.getElementById("pet-slot");
+  if (slot) {
+    mountPet(slot, blockedPetState, outcome.petMood);
   }
 }
 
@@ -600,13 +645,41 @@ export function temporaryAllowCountdown(
   };
 }
 
+export function blockedOutcomePresentation(
+  kind: "temporary-allow" | "emergency-pending",
+  localeOverride?: LocaleOverride
+): BlockedOutcomePresentation {
+  if (kind === "temporary-allow") {
+    return {
+      badge: translate("blockedTemporaryAllowFiveMinutes", undefined, localeOverride),
+      borderClass: "border-success/25",
+      message: translate("blockedTemporaryAllowSuccess", undefined, localeOverride),
+      petMood: "happy"
+    };
+  }
+
+  return {
+    badge: translate("blockedEmergencyRequest", undefined, localeOverride),
+    borderClass: "border-warning/25",
+    message: translate("blockedEmergencyPending", undefined, localeOverride),
+    petMood: "idle"
+  };
+}
+
 function formatRemaining(endsAt: number, now = Date.now()): string {
   return formatCountdown(Math.max(0, Math.ceil((endsAt - now) / 1_000)));
 }
 
-function formatCountdown(totalSeconds: number): string {
-  const minutes = Math.floor(Math.max(0, totalSeconds) / 60);
-  const seconds = Math.max(0, totalSeconds) % 60;
+export function formatCountdown(totalSeconds: number): string {
+  const normalizedSeconds = Math.floor(Math.max(0, totalSeconds));
+  const hours = Math.floor(normalizedSeconds / 3_600);
+  const minutes = Math.floor((normalizedSeconds % 3_600) / 60);
+  const seconds = normalizedSeconds % 60;
+
+  if (hours > 0) {
+    return `${hours}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+  }
+
   return `${minutes}:${String(seconds).padStart(2, "0")}`;
 }
 

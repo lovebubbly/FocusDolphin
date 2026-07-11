@@ -5,7 +5,9 @@ import { describe, expect, it } from "vitest";
 import spriteManifestData from "../../assets/sprites/manifest.json";
 import {
   PET_MOODS,
+  PET_RENDER_SIZES,
   normalizeSpriteManifest,
+  spriteRenderGeometry,
   validateSpriteManifest,
   validateSpriteSheetGeometry
 } from "./renderer";
@@ -57,6 +59,23 @@ describe("sprite manifest contract", () => {
     expect(Object.keys(normalized.stages["0"])).toEqual(PET_MOODS);
     expect(normalized.stages["4"].focus).toEqual({ row: 14, frames: 4, durationMs: 1000 });
     expect(normalized.stages["4"].celebrate).toEqual({ row: 19, frames: 4, durationMs: 760 });
+  });
+
+  it("scales the atlas geometry for approved hero sizes without changing its rows", () => {
+    const manifest = normalizeSpriteManifest(spriteManifestData, "atlas.png");
+
+    expect(spriteRenderGeometry(manifest, PET_RENDER_SIZES.large)).toEqual({
+      frameWidth: 128,
+      frameHeight: 128,
+      sheetWidth: 512,
+      sheetHeight: 2560
+    });
+    expect(spriteRenderGeometry(manifest, PET_RENDER_SIZES.hero)).toEqual({
+      frameWidth: 160,
+      frameHeight: 160,
+      sheetWidth: 640,
+      sheetHeight: 3200
+    });
   });
 
   it("rejects a decoded image whose dimensions do not match the manifest", () => {

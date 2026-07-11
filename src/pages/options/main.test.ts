@@ -3,7 +3,10 @@ import type { Session } from "../../shared/types";
 import {
   formatOptionsDate,
   formatOptionsNumber,
+  formatScheduleTrigger,
   formatOptionsWeekDate,
+  hasHistoryAccess,
+  historyPermissionRowState,
   loadState,
   localizeOptionsRuntimeError,
   lockedOptionsCountdownText,
@@ -100,11 +103,25 @@ describe("options keyboard and display helpers", () => {
   });
 
   it("follows the tablist arrow, Home, and End navigation pattern", () => {
-    expect(nextOptionsView("insights", "ArrowRight")).toBe("lists");
-    expect(nextOptionsView("insights", "ArrowLeft")).toBe("growth");
-    expect(nextOptionsView("automation", "Home")).toBe("insights");
-    expect(nextOptionsView("lists", "End")).toBe("growth");
-    expect(nextOptionsView("lists", "Enter")).toBeNull();
+    expect(nextOptionsView("review", "ArrowRight")).toBe("rules");
+    expect(nextOptionsView("review", "ArrowLeft")).toBe("rules");
+    expect(nextOptionsView("rules", "Home")).toBe("review");
+    expect(nextOptionsView("review", "End")).toBe("rules");
+    expect(nextOptionsView("rules", "Enter")).toBeNull();
+    expect(nextOptionsView("preferences", "ArrowRight")).toBeNull();
+  });
+
+  it("derives compact rule names from stored schedule fields", () => {
+    expect(formatScheduleTrigger({
+      days: [1, 2, 3, 4, 5],
+      startHHMM: "09:00",
+      endHHMM: "12:00"
+    }, "en")).toBe("Mon–Fri · 09:00–12:00");
+    expect(formatScheduleTrigger({
+      days: [0, 6],
+      startHHMM: "10:00",
+      endHHMM: "11:00"
+    }, "ko")).toBe("토–일 · 10:00–11:00");
   });
 
   it("wraps modal focus without letting Tab escape the dialog", () => {
@@ -221,6 +238,31 @@ describe("options keyboard and display helpers", () => {
 
     await expect(requestHistoryAccess()).resolves.toBe(true);
     expect(request).toHaveBeenCalledWith({ permissions: ["history"] });
+  });
+
+  it("derives truthful history permission controls without requesting access", async () => {
+    const contains = vi.fn(async () => false);
+    const request = vi.fn(async () => true);
+    vi.stubGlobal("chrome", { permissions: { contains, request } });
+
+    await expect(hasHistoryAccess()).resolves.toBe(false);
+    expect(contains).toHaveBeenCalledWith({ permissions: ["history"] });
+    expect(request).not.toHaveBeenCalled();
+    expect(historyPermissionRowState(false, false, false)).toEqual({
+      statusKey: "historyPermissionNotGranted",
+      analyzeDisabled: false,
+      revokeDisabled: true
+    });
+    expect(historyPermissionRowState(true, false, false)).toEqual({
+      statusKey: "historyPermissionGranted",
+      analyzeDisabled: false,
+      revokeDisabled: false
+    });
+    expect(historyPermissionRowState(true, true, false)).toEqual({
+      statusKey: "historyPermissionGranted",
+      analyzeDisabled: true,
+      revokeDisabled: true
+    });
   });
 
   it("delegates recommendation analysis to the background", async () => {

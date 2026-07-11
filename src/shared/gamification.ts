@@ -78,8 +78,14 @@ export type BadgeId = keyof typeof BADGE_DEFINITIONS;
 export const FORBIDDEN_WELLNESS_COPY = [
   "실패",
   "놓쳤",
+  "놓치",
   "잃",
   "아깝",
+  "처벌",
+  "작아지",
+  "사라지",
+  "아프거나",
+  "해치",
   "하지 않으면"
 ];
 

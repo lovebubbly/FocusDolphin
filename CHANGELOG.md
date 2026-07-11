@@ -1,8 +1,55 @@
 # Changelog
 
-Documentation refresh: **OpenAI Codex (GPT-5)** for requester and product owner **Choi Yunseong (최윤성)**, **2026-07-11 11:56 KST**.
+Documentation refresh: **OpenAI Codex (GPT-5)** for requester and product owner **Choi Yunseong (최윤성)**, **2026-07-12 KST**.
 
 All notable FocusWhale changes are documented here. The project has not yet recorded a public store release.
+
+## [Unreleased] - 2026-07-12 (Goal 8 Web Polish Candidate)
+
+### Added
+
+- Approved Goal 8 production information architecture: Session in the toolbar popup, Rules and Review in Options, and secondary Preferences.
+- Locally truthful Review states for the current week, eight-week recorded focus, attempted targets/categories, whale growth, and timestamp-derived latest badges.
+- Permission-status row for optional browsing-history analysis, including a non-prompting `contains` check and a disabled Revoke action when access is absent.
+- Explicit 128 px large and 160 px hero pet-render sizes on top of the existing validated 96 px atlas geometry.
+- Soft-overlay ready badge and outcome-led temporary-access/emergency-pending blocked states.
+
+### Changed
+
+- Transplanted the product-owner-approved Goal 8 mockups from commit `e7274a1` into production after the exact no-exception approval recorded in `mockups/goal-8/PHASE_A_REPORT.md`.
+- Reworked the popup around one duration stepper, one target summary, one user-selected intensity, one dominant Start action, an active radial timer, and a whale-led completion overview.
+- Reworked Options into a 720 px Review/Rules workspace with compact schedule and target-list rows, focused editors, and separate Preferences.
+- Reworked blocked and shadow-DOM intervention surfaces around a centered outcome card, safe return-to-focus primary action, and preserved medium/hard commitment mechanics.
+- Updated both production themes while preserving the `focuswhale` / `focuswhale-dark` identifiers and operating-system theme selection.
+- Expanded Korean/English localization to 530 parity-checked messages.
+
+### Fixed
+
+- English intensity labels overflowing the 360 px popup.
+- Hard emergency confirmation dropping immutable target/mode/source facts.
+- Blocked clocks displaying minute-only values above one hour.
+- The blocked hard-confirmation safe action visually returning without actually navigating to focus.
+- Nested delete confirmation restoring focus to a hidden editor control.
+- Mobile Rules rows splitting `blocklist` and `domains` inside words.
+- Review describing partial recorded focus as completed focus.
+- Latest-badge display trusting incidental array order instead of award time.
+- Preferences enabling history-permission revocation when access was not granted.
+- Newly earned badge events lacking the completed session association and therefore disappearing from the post-session milestone batch.
+- Completion acknowledgement consuming more session milestones than the four rows it displayed; extra events now remain pending for the next acknowledgement screen.
+
+### Automated Verification
+
+- `npm run build`: pass; 11 manifest targets, exact four-resource WAR, local font/license, classic content output, no source maps, root-relative asset URLs, or unexpected external URLs.
+- `npm run typecheck`: pass.
+- `npm test`: 33 files / 250 tests pass.
+- English/Korean catalogs: 530 / 530 keys with placeholder parity.
+- Authored production surface CSS: 115 lines; raw colors remain confined to theme definitions.
+
+### Release Boundary
+
+- Source version remains 1.0.0 and no store publication is claimed.
+- The existing release ZIP and older store screenshots predate Goal 8. They must be regenerated and reviewed from the eventual committed Goal 8 executable before submission.
+- Phase A approval covers every presented mockup state with no exceptions. It does not by itself constitute store submission or publication approval.
 
 ## [1.0.0] - 2026-07-10 (Local Release Candidate)
 

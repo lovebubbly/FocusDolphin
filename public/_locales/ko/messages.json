@@ -403,13 +403,22 @@
     "message": "방문 기록 권한을 허용해야 로컬 추천 분석을 시작할 수 있습니다."
   },
   "historyPermissionRevoke": {
-    "message": "방문 기록 권한 해제"
+    "message": "철회"
   },
   "historyPermissionRevokeFailed": {
     "message": "방문 기록 권한을 해제하지 못했습니다."
   },
   "historyPermissionRevoked": {
     "message": "방문 기록 권한을 해제했습니다."
+  },
+  "historyPermissionTitle": {
+    "message": "방문 기록 접근"
+  },
+  "historyPermissionGranted": {
+    "message": "허용됨"
+  },
+  "historyPermissionNotGranted": {
+    "message": "허용하지 않음"
   },
   "localDataClear": {
     "message": "로컬 기록 지우기"
@@ -624,7 +633,7 @@
     }
   },
   "growthShieldDescription": {
-    "message": "보호막 $COUNT$/2 · 7일 연속 집중할 때 1개 충전되고, 하루를 놓치면 자동으로 1개 사용되어 이어온 기록을 지켜줘요.",
+    "message": "보호막 $COUNT$/2 · 7일 연속 집중할 때 1개 충전되고, 하루 쉬면 자동으로 1개 사용되어 이어온 기록을 지켜줘요.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -911,13 +920,13 @@
     "message": "성장 자세히 보기"
   },
   "popupGrowthFreezeExplanation": {
-    "message": "보호막은 7일 연속 집중할 때 1개 충전되고, 하루를 놓치면 자동으로 1개 사용되어 이어온 기록을 지켜줘요. 최대 2개까지 모을 수 있어요."
+    "message": "보호막은 7일 연속 집중할 때 1개 충전되고, 하루 쉬면 자동으로 1개 사용되어 이어온 기록을 지켜줘요. 최대 2개까지 모을 수 있어요."
   },
   "popupGrowthMaxStage": {
     "message": "지금은 가장 깊은 바다를 항해 중이에요."
   },
   "popupGrowthNeverRegresses": {
-    "message": "고래는 아프거나 돌아가지 않아요."
+    "message": "지금까지 쌓은 고래의 성장은 그대로 이어져요."
   },
   "popupGrowthTotalFocusXp": {
     "message": "누적 집중 $MINUTES$분 · $XP$ XP",
@@ -1187,10 +1196,10 @@
     "message": "기기 안에서 지키는 집중"
   },
   "onboardingIntroPetBody": {
-    "message": "완료한 세션은 고래의 성장을 돕지만, 쉬거나 놓친 날 때문에 고래가 작아지거나 사라지지는 않아요."
+    "message": "완료한 세션만큼 고래가 자라고, 쉬는 날에는 지금까지의 성장이 그대로 유지돼요."
   },
   "onboardingIntroPetTitle": {
-    "message": "성장은 있어도 처벌은 없어요"
+    "message": "내 속도로 이어지는 성장"
   },
   "onboardingIntroPrivacyBody": {
     "message": "FocusWhale에는 백엔드가 없어요. 세션과 선택적 방문 기록 분석은 기기에 머물고, 동기화 설정은 브라우저의 동기화 서비스를 사용할 수 있어요."
@@ -1602,7 +1611,7 @@
     "message": "새 목록"
   },
   "scheduleAdd": {
-    "message": "자동 시작 추가"
+    "message": "일정 만들기"
   },
   "scheduleAddFailed": {
     "message": "자동 시작을 추가하지 못했습니다."
@@ -1698,7 +1707,7 @@
     "message": "최근 방문 기록을 기기 안에서만 분석합니다."
   },
   "recommendationsSectionTitle": {
-    "message": "방문 기록 추천"
+    "message": "선택적 방문 기록 분석"
   },
   "softContinueCountdown": {
     "message": "계속하기 $SECONDS$",
@@ -1709,10 +1718,263 @@
       }
     }
   },
+  "softCheckInComplete": {
+    "message": "확인 시간 완료"
+  },
   "softPauseDescription": {
     "message": "이 세션에서는 이 사이트를 열기 전에 짧은 확인 시간을 둡니다."
   },
   "softPauseTitle": {
     "message": "잠시 멈춤"
+  },
+  "goal8PopupTargets": {
+    "message": "대상"
+  },
+  "goal8PopupSiteCount": {
+    "message": "사이트 $COUNT$개",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "6"
+      }
+    }
+  },
+  "goal8PopupEndsAt": {
+    "message": "$TIME$ 종료",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "10:30"
+      }
+    }
+  },
+  "goal8PopupSource": {
+    "message": "시작 방식"
+  },
+  "goal8PopupSourceManual": {
+    "message": "직접 시작"
+  },
+  "goal8PopupSourceSchedule": {
+    "message": "자동 시작"
+  },
+  "goal8PopupImmutableNote": {
+    "message": "진행 중에는 시간을 줄이거나 차단 방식을 낮출 수 없습니다."
+  },
+  "goal8PopupUpgradeSummary": {
+    "message": "더 단단한 설정이 필요한가요?"
+  },
+  "goal8PopupKeepFocusing": {
+    "message": "집중 계속하기"
+  },
+  "goal8PopupDurationDecrease": {
+    "message": "집중 시간을 1분 줄이기"
+  },
+  "goal8PopupDurationIncrease": {
+    "message": "집중 시간을 1분 늘리기"
+  },
+  "goal8PopupMilestoneNew": {
+    "message": "새로 획득"
+  },
+  "goal8CommonEdit": {
+    "message": "수정"
+  },
+  "goal8OptionsTabReview": {
+    "message": "리뷰"
+  },
+  "goal8OptionsTabRules": {
+    "message": "규칙"
+  },
+  "goal8OptionsReviewTitle": {
+    "message": "리뷰"
+  },
+  "goal8OptionsReviewDescription": {
+    "message": "완료한 세션과 개입에서 남은 로컬 기록입니다."
+  },
+  "goal8OptionsRulesTitle": {
+    "message": "규칙"
+  },
+  "goal8OptionsRulesDescription": {
+    "message": "앞으로의 세션이 언제 시작하고 무엇을 지킬지 정합니다."
+  },
+  "goal8OptionsPreferencesTitle": {
+    "message": "환경설정"
+  },
+  "goal8OptionsPreferencesDescription": {
+    "message": "브라우저 제어 기능은 유지하되 제품의 첫 화면이 되지는 않습니다."
+  },
+  "goal8OptionsPreferencesAction": {
+    "message": "환경설정"
+  },
+  "goal8OptionsDoneAction": {
+    "message": "완료"
+  },
+  "goal8ReviewEmptyTitle": {
+    "message": "첫 세션이 끝나면 리뷰가 시작돼요"
+  },
+  "goal8ReviewEmptyDescription": {
+    "message": "완료한 집중 시간과 개입 기록이 여기에 나타납니다. 브라우저 밖으로 전송하지 않습니다."
+  },
+  "goal8ReviewOpenSession": {
+    "message": "도구 모음에서 세션 열기"
+  },
+  "goal8ReviewThisWeek": {
+    "message": "이번 주"
+  },
+  "goal8ReviewFocusMinutesUnit": {
+    "message": "집중 분"
+  },
+  "goal8ReviewCompletedSessions": {
+    "message": "완료한 세션 $COUNT$번이 $NAME$의 성장을 이어 주었어요.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "4"
+      },
+      "name": {
+        "content": "$2",
+        "example": "미로"
+      }
+    }
+  },
+  "goal8ReviewStreakBadge": {
+    "message": "$DAYS$일째",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "7"
+      }
+    }
+  },
+  "goal8ReviewShieldBadge": {
+    "message": "보호막 $COUNT$/2",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "goal8GrowthNeverRegresses": {
+    "message": "쉬는 날에도 지금까지 쌓은 고래의 성장은 그대로 이어집니다."
+  },
+  "goal8GrowthLatestBadge": {
+    "message": "최근 · $BADGE$",
+    "placeholders": {
+      "badge": {
+        "content": "$1",
+        "example": "첫 물결"
+      }
+    }
+  },
+  "goal8GrowthDetails": {
+    "message": "성장 자세히"
+  },
+  "goal8OptionsSessionInProgress": {
+    "message": "세션 진행 중"
+  },
+  "goal8OptionsLockedRulesDescription": {
+    "message": "이 세션이 끝날 때까지 규칙은 잠겨 있습니다."
+  },
+  "goal8OptionsTargetsLabel": {
+    "message": "대상"
+  },
+  "goal8OptionsReturnToSession": {
+    "message": "세션으로 돌아가기"
+  },
+  "goal8PreferencesSessionTitle": {
+    "message": "세션 동작"
+  },
+  "goal8PreferencesSessionDescription": {
+    "message": "이 선택은 앞으로 시작할 세션에만 적용됩니다."
+  },
+  "goal8PreferencesSave": {
+    "message": "환경설정 저장"
+  },
+  "goal8PreferencesSaved": {
+    "message": "환경설정을 저장했습니다."
+  },
+  "goal8PreferencesReplayDescription": {
+    "message": "완료 기록을 바꾸지 않고 세 단계 설정을 다시 봅니다."
+  },
+  "goal8PreferencesClearDescription": {
+    "message": "로컬 세션, 차단 시도, 추천, 확인 기록을 삭제합니다."
+  },
+  "goal8PreferencesOpen": {
+    "message": "열기"
+  },
+  "goal8RulesScheduledTitle": {
+    "message": "예약 집중"
+  },
+  "goal8RulesScheduledDescription": {
+    "message": "각 일정은 하나의 재사용 가능한 대상 목록을 가리킵니다."
+  },
+  "goal8RulesSchedulesEmpty": {
+    "message": "아직 예약 집중이 없습니다."
+  },
+  "goal8RulesTargetsTitle": {
+    "message": "대상 목록"
+  },
+  "goal8RulesTargetsDescription": {
+    "message": "직접 시작과 예약 세션에서 함께 쓰는 목록입니다."
+  },
+  "goal8RulesScheduleCount": {
+    "message": "일정 $COUNT$개",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "goal8RulesScheduleCountOne": {
+    "message": "일정 1개"
+  },
+  "goal8RulesScheduleEnabledLabel": {
+    "message": "$TRIGGER$ 일정 사용 전환",
+    "placeholders": {
+      "trigger": {
+        "content": "$1",
+        "example": "월–금 · 09:00–12:00"
+      }
+    }
+  },
+  "goal8RulesWeekdays": {
+    "message": "월–금"
+  },
+  "goal8RulesWeekend": {
+    "message": "토–일"
+  },
+  "goal8RulesEveryDay": {
+    "message": "매일"
+  },
+  "goal8MetricCompleted": {
+    "message": "완료 세션"
+  },
+  "goal8ReviewEightWeekTitle": {
+    "message": "8주 집중 흐름"
+  },
+  "goal8ReviewEightWeekDescription": {
+    "message": "주별 기록된 집중 시간"
+  },
+  "goal8ReviewTargetsTitle": {
+    "message": "차단 시도 대상"
+  },
+  "goal8ReviewTargetsDescription": {
+    "message": "수동 사용 시간이 아닌 차단 시도 기록"
+  },
+  "goal8ReviewTargetsEmpty": {
+    "message": "차단 시도 대상이 여기에 나타납니다."
+  },
+  "goal8OnboardingProgressIntro": {
+    "message": "기기 안에서 지키는 집중"
+  },
+  "goal8OnboardingProgressList": {
+    "message": "집중 목록"
+  },
+  "goal8OnboardingProgressSession": {
+    "message": "첫 세션"
+  },
+  "goal8OnboardingSetupComplete": {
+    "message": "설정 완료"
   }
 }

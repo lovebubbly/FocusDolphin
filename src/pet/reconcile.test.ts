@@ -76,6 +76,13 @@ describe("pet reconciliation", () => {
     expect(result.petState).toMatchObject({ name: "Lumi", xp: 30, streakDays: 1 });
     expect(result.petState.badges).toContain("first-session");
     expect(syncStore.petState).toEqual(result.petState);
+    expect(Object.values(localStore)).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        type: "badge_earned",
+        badgeId: "first-session",
+        sessionId: "focus-1"
+      })
+    ]));
   });
 
   it("updates only the name without lowering existing progress", async () => {

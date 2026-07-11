@@ -1,5 +1,5 @@
 import { DEFAULT_PET_STATE, normalizePetState } from "../../pet/defaultState";
-import { mountPet } from "../../pet/renderer";
+import { mountPet, PET_RENDER_SIZES } from "../../pet/renderer";
 import { sendMessage } from "../../shared/messaging";
 import { getUiLocale, translate } from "../../shared/i18n";
 import {
@@ -62,27 +62,32 @@ export function renderOnboardingLoadFailure(root: HTMLElement): void {
   document.title = translate("onboardingDocumentTitle");
   document.documentElement.lang = getUiLocale();
   root.replaceChildren();
-  root.className = "mx-auto flex min-h-screen w-full max-w-3xl flex-col px-4 py-4 sm:px-6 sm:py-6";
+  root.className = "mx-auto flex min-h-screen w-full max-w-[720px] flex-col px-5 py-6 sm:px-6";
 
   const header = document.createElement("header");
-  header.className = "flex min-h-10 items-center";
+  header.className = "flex min-h-11 items-center";
   appendText(header, "span", translate("onboardingBrand"), "text-sm font-extrabold");
 
   const wrap = document.createElement("div");
   wrap.className = "flex flex-1 items-center py-8";
   const section = document.createElement("section");
-  section.className = "card w-full border border-base-300 bg-base-100 shadow-sm";
+  section.className = "card w-full border border-error/20 bg-base-100 shadow-xl";
   const body = document.createElement("div");
   body.className = "card-body items-start gap-4 p-6 sm:p-8";
-  appendText(body, "h1", translate("onboardingLoadErrorTitle"), "text-2xl font-extrabold");
+  const petSlot = document.createElement("div");
+  petSlot.className = "grid place-items-center";
+  mountPet(petSlot, normalizePetState(DEFAULT_PET_STATE), "idle");
+  petSlot.setAttribute("aria-label", translate("onboardingPetAria"));
+  appendText(body, "h1", translate("onboardingLoadErrorTitle"), "text-2xl font-black");
   const alert = document.createElement("div");
   alert.className = "alert alert-error alert-soft";
   alert.setAttribute("role", "alert");
   appendText(alert, "span", translate("onboardingLoadErrorBody"));
   body.append(
     alert,
-    button(translate("commonRetry"), "btn btn-primary min-h-10 shadow-sm", () => window.location.reload())
+    button(translate("commonRetry"), "btn btn-primary min-h-11 w-full", () => window.location.reload())
   );
+  body.prepend(petSlot);
   section.append(body);
   wrap.append(section);
   root.append(header, wrap);
@@ -275,15 +280,15 @@ function renderOnboarding(
   handlers: OnboardingHandlers
 ): void {
   root.replaceChildren();
-  root.className = "mx-auto flex min-h-screen w-full max-w-3xl flex-col px-4 py-4 sm:px-6 sm:py-6";
+  root.className = "mx-auto flex min-h-screen w-full max-w-[720px] flex-col px-5 py-6 sm:px-6";
 
   const header = document.createElement("header");
-  header.className = "flex min-h-10 items-center justify-between gap-3";
+  header.className = "flex min-h-11 items-center justify-between gap-3";
   appendText(header, "span", translate("onboardingBrand"), "text-sm font-extrabold");
   if (!model.completedOutcome) {
     const skip = button(
       translate("onboardingSkip"),
-      "btn btn-ghost min-h-10 px-3",
+      "btn btn-ghost min-h-11 px-3",
       () => void handlers.skip()
     );
     skip.disabled = model.busy;
@@ -311,9 +316,17 @@ function renderOnboarding(
 
 function renderProgress(step: OnboardingStep): HTMLElement {
   const wrap = document.createElement("div");
-  wrap.className = "mt-3 grid gap-2";
+  wrap.className = "mt-4 grid gap-2";
   const progressText = translate("onboardingStepProgress", [String(step), String(ONBOARDING_STEP_COUNT)]);
-  appendText(wrap, "p", progressText, "text-xs font-semibold text-base-content/70");
+  const labels = document.createElement("div");
+  labels.className = "flex items-center justify-between gap-4 text-xs font-bold";
+  appendText(labels, "span", progressText);
+  const labelKey = step === 1
+    ? "goal8OnboardingProgressIntro"
+    : step === 2
+      ? "goal8OnboardingProgressList"
+      : "goal8OnboardingProgressSession";
+  appendText(labels, "span", translate(labelKey), "text-primary");
   const progress = document.createElement("progress");
   progress.className = "progress progress-primary h-1.5 w-full";
   progress.max = ONBOARDING_STEP_COUNT;
@@ -322,34 +335,37 @@ function renderProgress(step: OnboardingStep): HTMLElement {
     "aria-label",
     translate("onboardingProgressAria", [String(step), String(ONBOARDING_STEP_COUNT)])
   );
-  wrap.append(progress);
+  wrap.append(labels, progress);
   return wrap;
 }
 
 function renderIntro(model: OnboardingModel): HTMLElement {
   const section = document.createElement("section");
-  section.className = "card fw-pet-hero w-full border border-base-300 shadow-sm";
+  section.className = "card fw-atmosphere fw-depth w-full overflow-hidden border border-primary/10";
   section.setAttribute("aria-labelledby", "onboarding-intro-title");
   const body = document.createElement("div");
-  body.className = "card-body gap-6 p-5 sm:p-8";
+  body.className = "card-body gap-8 p-6 sm:p-8";
   const hero = document.createElement("div");
-  hero.className = "grid items-center gap-5 sm:grid-cols-[132px_1fr]";
+  hero.className = "grid items-center gap-8 sm:grid-cols-[180px_1fr]";
+  const petBackdrop = document.createElement("div");
+  petBackdrop.className = "mx-auto grid h-44 w-44 place-items-center rounded-full bg-base-300/35";
   const petSlot = document.createElement("div");
-  petSlot.className = "mx-auto grid place-items-center";
-  mountPet(petSlot, model.petState, "happy");
+  petSlot.className = "grid place-items-center";
+  mountPet(petSlot, model.petState, "happy", { size: PET_RENDER_SIZES.large });
   petSlot.setAttribute("aria-label", translate("onboardingPetAria"));
+  petBackdrop.append(petSlot);
   const copy = document.createElement("div");
-  copy.className = "space-y-3 text-center sm:text-start";
+  copy.className = "space-y-4 text-center sm:text-start";
   appendText(copy, "p", translate("onboardingIntroEyebrow"), "text-sm font-bold text-primary");
-  const heading = appendText(copy, "h1", translate("onboardingIntroTitle"), "text-3xl font-extrabold leading-tight");
+  const heading = appendText(copy, "h1", translate("onboardingIntroTitle"), "text-4xl font-black leading-tight focus:outline-none");
   heading.id = "onboarding-intro-title";
   heading.dataset.stepHeading = "true";
   heading.tabIndex = -1;
-  appendText(copy, "p", translate("onboardingIntroBody"), "text-base leading-relaxed text-base-content/80");
-  hero.append(petSlot, copy);
+  appendText(copy, "p", translate("onboardingIntroBody"), "text-base leading-7 text-base-content/70");
+  hero.append(petBackdrop, copy);
 
   const principles = document.createElement("div");
-  principles.className = "grid gap-4 border-t border-base-300 pt-5 sm:grid-cols-2";
+  principles.className = "grid gap-6 border-t border-base-content/10 pt-6 sm:grid-cols-2";
   principles.append(
     principleRow("onboardingIntroPrivacyTitle", "onboardingIntroPrivacyBody"),
     principleRow("onboardingIntroPetTitle", "onboardingIntroPetBody")
@@ -362,8 +378,8 @@ function renderIntro(model: OnboardingModel): HTMLElement {
 function principleRow(titleKey: string, bodyKey: string): HTMLElement {
   const row = document.createElement("div");
   row.className = "space-y-1";
-  appendText(row, "h2", translate(titleKey), "font-bold");
-  appendText(row, "p", translate(bodyKey), "text-sm leading-relaxed text-base-content/75");
+  appendText(row, "h2", translate(titleKey), "font-black");
+  appendText(row, "p", translate(bodyKey), "text-sm leading-6 text-base-content/65");
   return row;
 }
 
@@ -378,7 +394,7 @@ function renderSiteListStep(model: OnboardingModel, handlers: OnboardingHandlers
   listField.className = "fieldset";
   appendText(listField, "legend", translate("onboardingListLabel"), "fieldset-legend font-semibold");
   const select = document.createElement("select");
-  select.className = "select min-h-10 w-full";
+  select.className = "select min-h-11 w-full";
   select.disabled = model.busy;
   select.setAttribute("aria-label", translate("onboardingListLabel"));
   for (const siteList of model.siteLists) {
@@ -400,7 +416,7 @@ function renderSiteListStep(model: OnboardingModel, handlers: OnboardingHandlers
     legend,
     "span",
     translate("onboardingDomainCount", String(normalizeDomainInput(model.domainsText).length)),
-    "badge badge-soft shadow-sm"
+    "badge badge-soft"
   );
   const textarea = document.createElement("textarea");
   textarea.className = "textarea min-h-36 w-full leading-relaxed";
@@ -420,7 +436,7 @@ function renderSiteListStep(model: OnboardingModel, handlers: OnboardingHandlers
     domainsField,
     "p",
     translate("onboardingDomainsHint"),
-    "mt-1 text-sm leading-relaxed text-base-content/70"
+    "mt-1 text-sm leading-6 text-base-content/60"
   );
   hint.id = "onboarding-domain-hint";
   if (selected) {
@@ -430,7 +446,7 @@ function renderSiteListStep(model: OnboardingModel, handlers: OnboardingHandlers
       selected.mode === "blocklist"
         ? translate("onboardingBlocklistBadge")
         : translate("onboardingAllowlistBadge"),
-      "badge badge-soft badge-primary mt-2 shadow-sm"
+      "badge badge-primary badge-soft mt-2 w-fit"
     );
   }
   form.append(listField, domainsField);
@@ -446,9 +462,9 @@ function renderIntensityStep(model: OnboardingModel, handlers: OnboardingHandler
   }
 
   const duration = document.createElement("div");
-  duration.className = "flex items-center justify-between gap-3 border-y border-base-300 py-3";
-  appendText(duration, "span", translate("onboardingSessionLabel"), "text-sm font-semibold");
-  appendText(duration, "span", translate("onboardingSessionDuration"), "badge badge-soft badge-primary shadow-sm");
+  duration.className = "flex items-center justify-between gap-3 border-y border-base-200 py-3";
+  appendText(duration, "span", translate("onboardingSessionLabel"), "text-sm font-bold");
+  appendText(duration, "span", translate("onboardingSessionDuration"), "badge badge-primary badge-soft");
 
   const choices = document.createElement("fieldset");
   choices.className = "fieldset";
@@ -464,26 +480,27 @@ function renderIntensityStep(model: OnboardingModel, handlers: OnboardingHandler
   ];
   for (const option of intensityOptions) {
     const label = document.createElement("label");
-    label.className = "join-item flex min-h-20 cursor-pointer items-center gap-3 border border-base-300 bg-base-100 px-4 py-3 shadow-sm has-[:checked]:border-primary has-[:checked]:bg-primary/5";
+    const selectedOption = model.intensity === option.value;
+    label.className = "join-item flex min-h-20 cursor-pointer items-center gap-4 border border-base-content/10 px-4 py-3 has-[:checked]:border-primary has-[:checked]:bg-primary/5 has-[:checked]:ring-1 has-[:checked]:ring-primary/60 has-[:checked]:shadow-lg";
     const radio = document.createElement("input");
     radio.type = "radio";
     radio.name = "onboarding-intensity";
     radio.value = option.value;
     radio.className = "radio radio-primary shrink-0";
-    radio.checked = model.intensity === option.value;
+    radio.checked = selectedOption;
     radio.disabled = model.busy;
     radio.addEventListener("change", () => handlers.selectIntensity(option.value));
     const copy = document.createElement("span");
     copy.className = "min-w-0 space-y-1";
-    appendText(copy, "span", translate(option.title), "block font-bold");
-    appendText(copy, "span", translate(option.body), "block text-sm leading-relaxed text-base-content/70");
+    appendText(copy, "span", translate(option.title), "block font-black");
+    appendText(copy, "span", translate(option.body), "mt-1 block text-sm leading-6 text-base-content/60");
     label.append(radio, copy);
     join.append(label);
   }
   choices.append(join);
 
   const emergency = document.createElement("div");
-  emergency.className = "alert alert-soft text-sm leading-relaxed";
+  emergency.className = "alert alert-soft text-sm leading-6";
   appendText(emergency, "span", translate("onboardingEmergencyNote"));
   body.append(duration, choices, emergency, renderError(model));
   return section;
@@ -491,16 +508,16 @@ function renderIntensityStep(model: OnboardingModel, handlers: OnboardingHandler
 
 function stepSection(eyebrowKey: string, titleKey: string, bodyKey: string): HTMLElement {
   const section = document.createElement("section");
-  section.className = "card w-full border border-base-300 bg-base-100 shadow-sm";
+  section.className = "card fw-depth w-full border border-base-content/10 bg-base-100 shadow-sm";
   const body = document.createElement("div");
-  body.className = "card-body gap-5 p-5 sm:p-8";
+  body.className = "card-body gap-5 p-6 sm:p-7";
   const copy = document.createElement("div");
   copy.className = "space-y-2";
   appendText(copy, "p", translate(eyebrowKey), "text-sm font-bold text-primary");
-  const heading = appendText(copy, "h1", translate(titleKey), "text-2xl font-extrabold sm:text-3xl");
+  const heading = appendText(copy, "h1", translate(titleKey), "text-3xl font-black focus:outline-none");
   heading.dataset.stepHeading = "true";
   heading.tabIndex = -1;
-  appendText(copy, "p", translate(bodyKey), "leading-relaxed text-base-content/75");
+  appendText(copy, "p", translate(bodyKey), "leading-7 text-base-content/65");
   body.append(copy);
   section.append(body);
   return section;
@@ -508,8 +525,8 @@ function stepSection(eyebrowKey: string, titleKey: string, bodyKey: string): HTM
 
 function renderFooter(model: OnboardingModel, handlers: OnboardingHandlers): HTMLElement {
   const footer = document.createElement("footer");
-  footer.className = "sticky bottom-0 flex min-h-16 items-center justify-between gap-3 border-t border-base-300 bg-base-200 py-3";
-  const back = button(translate("onboardingBack"), "btn btn-ghost min-h-10", handlers.back);
+  footer.className = "flex min-h-16 items-center justify-between gap-3 border-t border-base-content/10 py-3";
+  const back = button(translate("onboardingBack"), "btn btn-ghost min-h-11", handlers.back);
   back.disabled = model.step === 1 || model.busy;
   back.classList.toggle("invisible", model.step === 1);
   footer.append(back);
@@ -517,7 +534,7 @@ function renderFooter(model: OnboardingModel, handlers: OnboardingHandlers): HTM
   if (model.step < 3) {
     const next = button(
       model.busy ? translate("onboardingSaving") : translate("onboardingContinue"),
-      "btn btn-primary min-h-10 px-6 shadow-sm",
+      "btn btn-primary min-h-11 px-7",
       () => void handlers.next()
     );
     next.disabled = model.busy;
@@ -529,12 +546,12 @@ function renderFooter(model: OnboardingModel, handlers: OnboardingHandlers): HTM
   actions.className = "flex flex-col items-end gap-2 sm:flex-row";
   const finish = button(
     model.busy ? translate("onboardingFinishing") : translate("onboardingFinishWithoutSession"),
-    "btn btn-ghost min-h-10",
+    "btn btn-ghost min-h-11",
     () => void handlers.finishWithoutSession()
   );
   const start = button(
     model.busy ? translate("onboardingStartingSession") : translate("onboardingStartSession"),
-    "btn btn-primary min-h-10 shadow-sm",
+    "btn btn-primary min-h-11",
     () => void handlers.startSession()
   );
   finish.disabled = model.busy;
@@ -548,14 +565,16 @@ function renderCompletion(model: OnboardingModel, handlers: OnboardingHandlers):
   const wrap = document.createElement("div");
   wrap.className = "flex flex-1 items-center py-8";
   const section = document.createElement("section");
-  section.className = "card fw-pet-hero w-full border border-base-300 shadow-sm";
+  section.className = "card fw-atmosphere fw-depth w-full border border-primary/10 shadow-xl";
   const body = document.createElement("div");
-  body.className = "card-body items-center gap-5 p-6 text-center sm:p-10";
+  body.className = "card-body items-center gap-5 p-7 text-center sm:p-10";
   const petSlot = document.createElement("div");
   petSlot.className = "grid place-items-center";
-  mountPet(petSlot, model.petState, "celebrate");
+  mountPet(petSlot, model.petState, "celebrate", { size: PET_RENDER_SIZES.hero });
   petSlot.setAttribute("aria-label", translate("onboardingPetAria"));
-  const heading = appendText(body, "h1", translate("onboardingCompleteTitle"), "text-3xl font-extrabold");
+  body.append(petSlot);
+  appendText(body, "span", translate("goal8OnboardingSetupComplete"), "badge badge-success badge-soft");
+  const heading = appendText(body, "h1", translate("onboardingCompleteTitle"), "text-4xl font-black focus:outline-none");
   heading.dataset.stepHeading = "true";
   heading.tabIndex = -1;
   appendText(
@@ -564,12 +583,12 @@ function renderCompletion(model: OnboardingModel, handlers: OnboardingHandlers):
     model.completedOutcome === "session_started"
       ? translate("onboardingCompleteStartedBody")
       : translate("onboardingCompleteSetupBody"),
-    "max-w-lg leading-relaxed text-base-content/75"
+    "max-w-lg leading-7 text-base-content/65"
   );
-  const close = button(translate("onboardingCloseTab"), "btn btn-primary min-h-10 shadow-sm", handlers.close);
+  const close = button(translate("onboardingCloseTab"), "btn btn-primary min-h-11 px-8", handlers.close);
+  body.append(close);
   appendText(body, "p", translate("onboardingCloseHint"), "text-xs text-base-content/60");
-  body.prepend(petSlot);
-  body.append(close, renderError(model));
+  body.append(renderError(model));
   section.append(body);
   wrap.append(section);
   return wrap;

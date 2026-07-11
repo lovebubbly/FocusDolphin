@@ -8,8 +8,8 @@
   themes: false;
 }
 
-@plugin "daisyui/theme" { name: "focuswhale"; default: true; color-scheme: light; --color-base-100: oklch(99% 0 0); --color-base-200: oklch(96% 0.003 247); --color-base-300: oklch(90% 0.006 247); --color-base-content: oklch(24% 0.02 247); --color-primary: oklch(52% 0.11 180); --color-primary-content: oklch(99% 0.01 180); --color-secondary: oklch(63% 0.08 230); --color-secondary-content: oklch(98% 0.01 230); --color-accent: oklch(74% 0.11 170); --color-accent-content: oklch(22% 0.04 170); --color-neutral: oklch(30% 0.02 247); --color-neutral-content: oklch(96% 0 0); --color-info: oklch(62% 0.12 240); --color-info-content: oklch(98% 0.01 240); --color-success: oklch(58% 0.12 155); --color-success-content: oklch(98% 0.01 155); --color-warning: oklch(72% 0.14 80); --color-warning-content: oklch(24% 0.06 80); --color-error: oklch(52% 0.17 25); --color-error-content: oklch(98% 0.01 25); --radius-selector: 0.7rem; --radius-field: 0.55rem; --radius-box: 0.75rem; --size-selector: 0.25rem; --size-field: 0.25rem; --border: 1px; --depth: 1; --noise: 0; }
-@plugin "daisyui/theme" { name: "focuswhale-dark"; prefersdark: true; color-scheme: dark; --color-base-100: oklch(24% 0.014 247); --color-base-200: oklch(20% 0.012 247); --color-base-300: oklch(17% 0.012 247); --color-base-content: oklch(94% 0.004 247); --color-primary: oklch(68% 0.11 180); --color-primary-content: oklch(18% 0.03 180); --color-secondary: oklch(72% 0.08 230); --color-secondary-content: oklch(18% 0.03 230); --color-accent: oklch(76% 0.1 170); --color-accent-content: oklch(18% 0.04 170); --color-neutral: oklch(32% 0.018 247); --color-neutral-content: oklch(94% 0.004 247); --color-info: oklch(73% 0.12 240); --color-info-content: oklch(18% 0.04 240); --color-success: oklch(72% 0.12 155); --color-success-content: oklch(18% 0.04 155); --color-warning: oklch(78% 0.13 80); --color-warning-content: oklch(20% 0.05 80); --color-error: oklch(70% 0.15 25); --color-error-content: oklch(18% 0.04 25); --radius-selector: 0.7rem; --radius-field: 0.55rem; --radius-box: 0.75rem; --size-selector: 0.25rem; --size-field: 0.25rem; --border: 1px; --depth: 1; --noise: 0; }
+@plugin "daisyui/theme" { name: "focuswhale"; default: true; color-scheme: light; --color-base-100: #ffffff; --color-base-200: #f3f6f6; --color-base-300: #e5ebeb; --color-base-content: #172022; --color-primary: #287f89; --color-primary-content: #ffffff; --color-secondary: #387d65; --color-secondary-content: #ffffff; --color-accent: #896b2d; --color-accent-content: #ffffff; --color-neutral: #d4dddd; --color-neutral-content: #172022; --color-info: #3977a6; --color-info-content: #ffffff; --color-success: #347b56; --color-success-content: #ffffff; --color-warning: #856510; --color-warning-content: #ffffff; --color-error: #a74646; --color-error-content: #ffffff; --radius-selector: 0.75rem; --radius-field: 0.625rem; --radius-box: 0.75rem; --size-selector: 0.25rem; --size-field: 0.25rem; --border: 1px; --depth: 1; --noise: 0; }
+@plugin "daisyui/theme" { name: "focuswhale-dark"; prefersdark: true; color-scheme: dark; --color-base-100: #172022; --color-base-200: #101617; --color-base-300: #070b0c; --color-base-content: #f2f7f7; --color-primary: #a9e8f6; --color-primary-content: #071012; --color-secondary: #9de9c8; --color-secondary-content: #07120e; --color-accent: #f2d58d; --color-accent-content: #171105; --color-neutral: #2d393b; --color-neutral-content: #f2f7f7; --color-info: #8bc8f4; --color-info-content: #071018; --color-success: #83d9ad; --color-success-content: #07120d; --color-warning: #e7c576; --color-warning-content: #171104; --color-error: #ef9a9a; --color-error-content: #180707; --radius-selector: 0.75rem; --radius-field: 0.625rem; --radius-box: 0.75rem; --size-selector: 0.25rem; --size-field: 0.25rem; --border: 1px; --depth: 1; --noise: 0; }
 
 @font-face {
   font-family: "Pretendard Variable";
@@ -30,6 +30,11 @@
   body {
     font-variant-numeric: tabular-nums;
   }
+
+  :focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
 }
 
 @layer utilities {
@@ -39,16 +44,36 @@
   .label {
     color: var(--color-base-content);
   }
+
+  [data-theme="focuswhale"] :is(
+    .text-base-content\/50,
+    .text-base-content\/55,
+    .text-base-content\/60,
+    .text-base-content\/65
+  ) {
+    color: color-mix(in oklab, var(--color-base-content) 76%, transparent);
+  }
 }
 
 @layer components {
+  .fw-atmosphere,
   .fw-pet-hero {
     background:
-      radial-gradient(circle at 24% 24%, color-mix(in oklab, var(--color-primary) 18%, transparent), transparent 34%),
-      linear-gradient(135deg, color-mix(in oklab, var(--color-primary) 10%, var(--color-base-100)), var(--color-base-100));
+      radial-gradient(ellipse at 50% 8%, color-mix(in oklab, var(--color-primary) 22%, transparent), transparent 46%),
+      linear-gradient(180deg, color-mix(in oklab, var(--color-base-100) 76%, var(--color-primary)), var(--color-base-200));
+  }
+
+  .fw-depth {
+    box-shadow: 0 18px 50px color-mix(in oklab, var(--color-base-300) 70%, transparent);
+  }
+
+  .fw-selected {
+    box-shadow: 0 0 0 1px color-mix(in oklab, var(--color-primary) 64%, transparent),
+      0 10px 30px color-mix(in oklab, var(--color-primary) 13%, transparent);
   }
 
   @supports (backdrop-filter: blur(10px)) {
+    .fw-atmosphere,
     .fw-pet-hero {
       backdrop-filter: blur(10px);
     }
@@ -63,5 +88,16 @@
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme]) :is(
+    .text-base-content\/50,
+    .text-base-content\/55,
+    .text-base-content\/60,
+    .text-base-content\/65
+  ) {
+    color: color-mix(in oklab, var(--color-base-content) 76%, transparent);
   }
 }

@@ -1,6 +1,6 @@
 import { sendMessage, type FocusWhaleState } from "../../shared/messaging";
 import { LatestRequestGuard } from "../../shared/latestRequest";
-import { translate } from "../../shared/i18n";
+import { getUiLocale, translate } from "../../shared/i18n";
 import { getTyped, setTyped, STORAGE_KEYS } from "../../shared/storage";
 import { DEFAULT_SITE_LISTS, migrateSiteListsForCurrentDefaults, siteListDisplayName } from "../../shared/siteLists";
 import type { Intensity, PetState, Session, SiteList } from "../../shared/types";
@@ -13,7 +13,7 @@ import {
   readGrowthLog,
   type GrowthEvent
 } from "../../pet/growth";
-import { mountPet } from "../../pet/renderer";
+import { mountPet, PET_RENDER_SIZES } from "../../pet/renderer";
 import { reconcileStreakFromSessions } from "../../pet/streak";
 
 const INTENSITY_ORDER: Record<Intensity, number> = {
@@ -21,6 +21,7 @@ const INTENSITY_ORDER: Record<Intensity, number> = {
   medium: 1,
   hard: 2
 };
+const MAX_MILESTONE_ROWS = 4;
 
 type LocaleOverride = "ko" | "en";
 
@@ -83,6 +84,14 @@ function formatDeadline(deadline: number, now = Date.now()): string {
     : `${minutes}:${String(seconds).padStart(2, "0")}`;
 }
 
+function formatEndClock(deadline: number, localeOverride?: LocaleOverride): string {
+  const locale = localeOverride ?? getUiLocale();
+  return new Intl.DateTimeFormat(locale === "ko" ? "ko-KR" : "en-US", {
+    hour: "numeric",
+    minute: "2-digit"
+  }).format(new Date(deadline));
+}
+
 export function intensityLabel(intensity: Intensity, localeOverride?: LocaleOverride): string {
   const keyByIntensity: Record<Intensity, string> = {
     soft: "intensitySoft",
@@ -99,11 +108,29 @@ export function coerceCustomDuration(rawValue: string, fallbackMinutes: number):
     : fallbackMinutes;
 }
 
-function renderPopupHeader(root: HTMLElement, handlers: PopupHandlers): void {
+export function stepDuration(minutes: number, delta: -1 | 1): number {
+  return Math.min(240, Math.max(1, Math.round(minutes) + delta));
+}
+
+function renderPopupHeader(root: HTMLElement, model: PopupModel, handlers: PopupHandlers): void {
   const header = document.createElement("header");
-  header.className = "sticky top-0 z-20 flex min-h-10 shrink-0 items-center justify-between bg-base-100 py-1";
+  header.className = "flex h-12 shrink-0 items-center justify-between px-4";
   appendText(header, "p", "FocusWhale", "text-sm font-bold");
-  header.append(createButton(translate("commonSettings"), "btn btn-ghost min-h-10 px-3", handlers.openOptions));
+
+  if (model.activeSession?.status === "active") {
+    appendText(
+      header,
+      "span",
+      model.activeSession.intensity === "hard" ? intensityLabel("hard") : translate("popupActiveStatus"),
+      model.activeSession.intensity === "hard"
+        ? "badge badge-error badge-soft"
+        : "badge badge-primary badge-soft"
+    );
+  } else if (model.celebrations.length > 0) {
+    appendText(header, "span", translate("popupCompletionLabel"), "badge badge-success badge-soft");
+  } else {
+    header.append(createButton(translate("commonSettings"), "btn btn-ghost btn-sm min-h-10 px-3", handlers.openOptions));
+  }
   root.append(header);
 }
 
@@ -128,16 +155,6 @@ function streakChipText(model: PopupModel): string {
   }
 
   return translate("popupStreakDays", String(model.petState.streakDays));
-}
-
-function recentBadgeText(petState: PetState): string {
-  const recentBadge = [...petState.badges].sort((left, right) =>
-    (petState.badgeAwards[right]?.earnedAt ?? 0) - (petState.badgeAwards[left]?.earnedAt ?? 0)
-  )[0];
-
-  return recentBadge
-    ? translate("popupBadgeRecent", localizedBadgeName(recentBadge))
-    : translate("popupBadgeWaiting");
 }
 
 function localizedStageName(stage: PetState["stage"], localeOverride?: LocaleOverride): string {
@@ -177,34 +194,27 @@ function createButton(text: string, className: string, onClick: () => void): HTM
 
 function renderPetPanel(root: HTMLElement, model: PopupModel): void {
   const panel = document.createElement("section");
-  panel.className = "card fw-pet-hero shrink-0 border border-base-200 shadow-sm";
-
-  const body = document.createElement("div");
-  body.className = "card-body grid grid-cols-[112px_1fr] items-center gap-3 p-4";
+  panel.className = "fw-pet-hero fw-atmosphere mx-3 grid min-h-28 shrink-0 grid-cols-[104px_1fr] items-center overflow-hidden rounded-box border border-primary/10 px-3";
 
   const petMount = document.createElement("div");
   petMount.className = "grid place-items-center";
-  body.append(petMount);
   mountPet(petMount, model.petState, model.awardedXp > 0 ? "happy" : "idle");
 
   const stats = document.createElement("div");
-  stats.className = "min-w-0 space-y-2";
-  appendText(stats, "p", petDisplayName(model.petState.name), "break-all text-sm font-semibold");
-  appendText(stats, "h1", petStateLine(model.petState), "text-xl font-extrabold");
-  appendText(stats, "p", translate("popupPetGrowthHint"), "text-xs");
+  stats.className = "min-w-0 space-y-1.5";
+  appendText(stats, "p", petDisplayName(model.petState.name), "truncate text-sm font-bold");
+  appendText(stats, "p", petStateLine(model.petState), "truncate text-xs text-base-content/65");
   const badges = document.createElement("div");
-  badges.className = "flex flex-wrap gap-1.5";
-  appendText(badges, "span", streakChipText(model), "badge badge-soft badge-primary shadow-sm");
-  appendText(badges, "span", translate("popupFreezeCount", String(model.petState.streakFreezes)), "badge badge-soft shadow-sm");
+  badges.className = "flex flex-wrap gap-1";
+  appendText(badges, "span", streakChipText(model), "badge badge-primary badge-soft badge-sm");
+  appendText(badges, "span", translate("popupFreezeCount", String(model.petState.streakFreezes)), "badge badge-soft badge-sm");
   stats.append(badges);
-  appendText(stats, "p", recentBadgeText(model.petState), "text-sm");
 
   if (model.notice) {
-    appendText(stats, "p", model.notice, "text-sm");
+    appendText(stats, "p", model.notice, "truncate text-xs text-base-content/65");
   }
 
-  body.append(stats);
-  panel.append(body, renderPetDetails(model));
+  panel.append(petMount, stats);
   root.append(panel);
 }
 
@@ -218,9 +228,9 @@ function renderCelebrations(root: HTMLElement, model: PopupModel, handlers: Popu
   const sessionEvent = visibleEvents.find((event) => event.type === "session_completed");
   const milestoneEvents = visibleEvents.filter((event) => event.type !== "session_completed");
   const panel = document.createElement("section");
-  panel.className = "card border border-primary/20 bg-base-100 shadow-sm";
+  panel.className = "flex min-h-0 flex-1 flex-col";
   const body = document.createElement("div");
-  body.className = "card-body gap-3 p-4";
+  body.className = sessionEvent ? "flex flex-col gap-3" : "grid flex-1 content-start gap-3 px-4 pt-4";
 
   if (sessionEvent) {
     body.append(renderSessionGrowthOverview(model, sessionEvent, animationTasks));
@@ -228,31 +238,36 @@ function renderCelebrations(root: HTMLElement, model: PopupModel, handlers: Popu
     appendText(body, "p", translate("popupCelebrationRecentChange"), "text-sm font-semibold text-primary");
   }
 
+  const additionalContent = document.createElement("div");
+  additionalContent.className = sessionEvent ? "grid gap-3 px-4" : "contents";
   if (milestoneEvents.length > 0) {
-    body.append(renderMilestoneOverview(milestoneEvents, animationTasks));
+    additionalContent.append(renderMilestoneOverview(milestoneEvents, animationTasks));
   }
 
   if (model.celebrations.length > visibleEvents.length) {
     appendText(
-      body,
+      additionalContent,
       "p",
       translate("popupCelebrationMoreChanges", String(model.celebrations.length - visibleEvents.length)),
       "text-xs"
     );
   }
   if (!model.petState.name && visibleEvents.some((event) => event.type === "stage_up")) {
-    body.append(renderNamePrompt(handlers));
+    additionalContent.append(renderNamePrompt(handlers));
   }
   if (model.celebrationAckError) {
     const notice = document.createElement("div");
     notice.className = "alert alert-error alert-soft text-sm";
     notice.setAttribute("role", "alert");
     appendText(notice, "span", model.celebrationAckError);
-    body.append(notice);
+    additionalContent.append(notice);
+  }
+  if (additionalContent.childElementCount > 0) {
+    body.append(additionalContent);
   }
   const actions = document.createElement("div");
-  actions.className = "card-actions justify-end";
-  const dismiss = createButton(translate("popupCelebrationConfirm"), "btn btn-soft min-h-10 shadow-sm", () => {
+  actions.className = "mt-auto shrink-0 p-4 pt-2";
+  const dismiss = createButton(translate("popupCelebrationConfirm"), "btn btn-primary min-h-11 w-full", () => {
     dismiss.disabled = true;
     dismiss.textContent = translate("popupSaving");
     void handlers.dismissCelebrations(visibleEvents.map((event) => event.id)).finally(() => {
@@ -263,8 +278,7 @@ function renderCelebrations(root: HTMLElement, model: PopupModel, handlers: Popu
     });
   });
   actions.append(dismiss);
-  body.append(actions);
-  panel.append(body);
+  panel.append(body, actions);
   root.append(panel);
   runAnimationTasks(animationTasks);
 }
@@ -283,74 +297,66 @@ function renderSessionGrowthOverview(
   const progressAfter = event.progressAfter ?? growthProgress(xpAfter, stageTo).percentToNext;
 
   const wrap = document.createElement("div");
-  wrap.className = "grid gap-3";
+  wrap.className = "flex flex-col gap-4";
 
   const hero = document.createElement("div");
-  hero.className = "grid grid-cols-[72px_1fr] items-center gap-3";
+  hero.className = "fw-pet-hero fw-atmosphere mx-3 grid min-h-48 grid-cols-[120px_1fr] items-center overflow-hidden rounded-box border border-primary/10 px-3";
   const petSlot = document.createElement("div");
-  petSlot.className = "grid scale-75 place-items-center";
-  mountPet(petSlot, model.petState, "celebrate");
+  petSlot.className = "grid place-items-center";
+  mountPet(petSlot, model.petState, "celebrate", { size: PET_RENDER_SIZES.large });
   const copy = document.createElement("div");
   copy.className = "space-y-1";
-  appendText(copy, "p", translate("popupCompletionLabel"), "text-xs font-bold uppercase tracking-wide text-primary");
-  appendText(copy, "h2", translate("popupCompletionHeading"), "text-xl font-extrabold");
-  appendText(copy, "p", localizedGrowthEventText(event), "text-sm");
+  appendText(
+    copy,
+    "p",
+    `${translate("commonMinutes", String(event.minutes ?? 0))} · ${translate("popupCompletionLabel")}`,
+    "text-xs font-bold uppercase text-primary"
+  );
+  appendText(copy, "h2", translate("popupCompletionHeading"), "break-keep text-2xl font-black leading-tight");
   hero.append(petSlot, copy);
   wrap.append(hero);
 
+  const content = document.createElement("div");
+  content.className = "grid gap-4 px-4";
   const stats = document.createElement("div");
-  stats.className = "stats stats-vertical overflow-hidden bg-base-200 shadow-sm";
+  stats.className = "stats stats-horizontal w-full overflow-hidden bg-base-200 shadow-sm";
   const gained = document.createElement("div");
-  gained.className = "stat py-3";
+  gained.className = "stat px-4 py-3";
   appendText(gained, "div", translate("popupCompletionThisSession"), "stat-title");
   appendText(gained, "div", `+${xpDelta} XP`, "stat-value text-2xl text-primary tabular-nums");
-  appendText(
-    gained,
-    "div",
-    translate("popupMinutesTimesIntensity", [String(event.minutes ?? 0), intensityLabel(event.intensity ?? "medium")]),
-    "stat-desc"
-  );
-  const total = document.createElement("div");
-  total.className = "stat py-3";
-  appendText(total, "div", translate("popupCompletionTotalXp"), "stat-title");
-  const totalValue = appendText(total, "div", String(xpAfter), "stat-value text-2xl tabular-nums");
-  appendText(total, "div", `${xpBefore} → ${xpAfter}`, "stat-desc");
   const stage = document.createElement("div");
-  stage.className = "stat py-3";
+  stage.className = "stat min-w-0 px-4 py-3";
   appendText(stage, "div", translate("popupCompletionCurrentStage"), "stat-title");
-  appendText(stage, "div", localizedStageName(stageTo), "stat-value text-2xl");
-  appendText(
-    stage,
-    "div",
-    stageFrom === stageTo
-      ? translate("popupCompletionGrowingSteadily")
-      : translate("popupCompletionGrewFromStage", localizedStageName(stageFrom)),
-    "stat-desc"
-  );
-  stats.append(gained, total, stage);
-  wrap.append(stats);
+  appendText(stage, "div", localizedStageName(stageTo), "stat-value truncate text-lg");
+  stats.append(gained, stage);
+  content.append(stats);
 
   const progress = document.createElement("div");
-  progress.className = "grid gap-2 rounded-box bg-base-200 p-3";
+  progress.className = "grid gap-2";
+  const progressCopy = document.createElement("div");
+  progressCopy.className = "flex justify-between gap-3 text-xs font-bold";
   appendText(
-    progress,
-    "p",
-    stageFrom === stageTo ? translate("popupCompletionUntilNextGrowth") : translate("popupCompletionReachedNewStage"),
-    "text-sm font-semibold"
+    progressCopy,
+    "span",
+    stageFrom === stageTo ? translate("popupCompletionUntilNextGrowth") : translate("popupCompletionReachedNewStage")
   );
+  appendText(progressCopy, "span", `${clampPercent(progressAfter)}%`, "tabular-nums");
   const track = document.createElement("div");
-  track.className = "h-3 overflow-hidden rounded-full bg-base-300";
+  track.className = "h-2 overflow-hidden rounded-full bg-base-200";
+  track.setAttribute("role", "progressbar");
+  track.setAttribute("aria-valuemin", "0");
+  track.setAttribute("aria-valuemax", "100");
+  track.setAttribute("aria-valuenow", String(clampPercent(progressAfter)));
   const fill = document.createElement("div");
   fill.className = "h-full rounded-full bg-primary";
   fill.style.width = `${clampPercent(progressBefore)}%`;
   fill.style.transition = prefersReducedMotion() ? "none" : "width 900ms ease";
   track.append(fill);
-  appendText(progress, "p", `${clampPercent(progressBefore)}% → ${clampPercent(progressAfter)}%`, "text-xs");
-  progress.append(track);
-  wrap.append(progress);
+  progress.append(progressCopy, track);
+  content.append(progress);
+  wrap.append(content);
 
   animationTasks.push(() => {
-    animateCount(totalValue, xpBefore, xpAfter, 900);
     animateWidth(fill, progressAfter);
   });
 
@@ -361,16 +367,20 @@ function renderMilestoneOverview(events: readonly GrowthEvent[], animationTasks:
   const wrap = document.createElement("div");
   wrap.className = "grid gap-2";
 
-  events.slice(0, 4).forEach((event, index) => {
+  events.slice(0, MAX_MILESTONE_ROWS).forEach((event, index) => {
     const row = document.createElement("div");
-    row.className = "rounded-box border border-base-300 bg-base-100 p-3 text-sm shadow-sm";
+    row.className = "flex items-start justify-between gap-3 rounded-field bg-base-200 px-3 py-2 text-sm";
     row.style.opacity = "0";
     row.style.transform = "translateY(6px)";
     row.style.transition = prefersReducedMotion() ? "none" : "opacity 360ms ease, transform 360ms ease";
-    appendText(row, "p", milestoneTitle(event), "font-semibold");
-    appendText(row, "p", event.type === "badge_earned" && event.badgeId
+    const copy = document.createElement("div");
+    copy.className = "min-w-0";
+    appendText(copy, "p", milestoneTitle(event), "font-semibold");
+    appendText(copy, "p", event.type === "badge_earned" && event.badgeId
       ? localizedBadgeDescription(event.badgeId)
       : localizedGrowthEventText(event));
+    appendText(row, "span", translate("goal8PopupMilestoneNew"), "badge badge-primary badge-soft badge-sm shrink-0");
+    row.prepend(copy);
     wrap.append(row);
     animationTasks.push(() => {
       if (prefersReducedMotion()) {
@@ -398,7 +408,7 @@ function renderNamePrompt(handlers: PopupHandlers): HTMLElement {
   input.maxLength = 24;
   const submit = document.createElement("button");
   submit.type = "submit";
-  submit.className = "btn btn-primary min-h-10";
+  submit.className = "btn btn-soft min-h-10";
   submit.textContent = translate("popupNameSubmit");
   form.append(input, submit);
   form.addEventListener("submit", (event) => {
@@ -421,55 +431,6 @@ function renderNamePrompt(handlers: PopupHandlers): HTMLElement {
       });
   });
   return form;
-}
-
-function renderPetDetails(model: PopupModel): HTMLElement {
-  const details = document.createElement("details");
-  details.className = "collapse collapse-arrow border-t border-base-200";
-  const summary = document.createElement("summary");
-  summary.className = "collapse-title min-h-10 text-sm font-semibold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary";
-  summary.textContent = translate("popupGrowthDetails");
-  const content = document.createElement("div");
-  content.className = "collapse-content grid gap-3 text-sm";
-
-  const progress = growthProgress(model.petState.xp, model.petState.stage);
-  appendText(
-    content,
-    "p",
-    translate("popupGrowthTotalFocusXp", [String(model.petState.totalFocusMinutes), String(model.petState.xp)])
-  );
-  if (progress.nextStageName) {
-    appendText(
-      content,
-      "p",
-      translate("popupGrowthUntilStage", [
-        localizedStageName((model.petState.stage + 1) as PetState["stage"]),
-        String(progress.remainingXp)
-      ])
-    );
-    const bar = document.createElement("progress");
-    bar.className = "progress progress-primary w-full";
-    bar.max = 100;
-    bar.value = progress.percentToNext;
-    content.append(bar);
-  } else {
-    appendText(content, "p", translate("popupGrowthMaxStage"));
-  }
-  appendText(content, "p", translate("popupGrowthFreezeExplanation"), "text-xs");
-  appendText(content, "p", translate("popupGrowthNeverRegresses"), "text-xs");
-
-  const recent = model.growthLog.slice(0, 3);
-  if (recent.length > 0) {
-    const list = document.createElement("ul");
-    list.className = "grid gap-1";
-    for (const event of recent) {
-      appendText(list, "li", localizedGrowthEventText(event), "text-xs");
-    }
-    content.append(list);
-  }
-
-  details.append(summary, content);
-  return details;
 }
 
 function milestoneTitle(event: GrowthEvent): string {
@@ -561,25 +522,6 @@ function runAnimationTasks(tasks: Array<() => void>): void {
   });
 }
 
-function animateCount(element: HTMLElement, from: number, to: number, durationMs: number): void {
-  if (prefersReducedMotion() || from === to) {
-    element.textContent = String(to);
-    return;
-  }
-
-  const startedAt = performance.now();
-  const step = (now: number) => {
-    const progress = Math.min(1, (now - startedAt) / durationMs);
-    const eased = 1 - Math.pow(1 - progress, 3);
-    element.textContent = String(Math.round(from + (to - from) * eased));
-    if (progress < 1) {
-      window.requestAnimationFrame(step);
-    }
-  };
-
-  window.requestAnimationFrame(step);
-}
-
 function animateWidth(element: HTMLElement, targetPercent: number): void {
   if (prefersReducedMotion()) {
     element.style.width = `${clampPercent(targetPercent)}%`;
@@ -607,14 +549,11 @@ function renderActiveHero(root: HTMLElement, model: PopupModel): void {
   }
 
   const panel = document.createElement("section");
-  panel.className = "card fw-pet-hero shrink-0 border border-base-200 shadow-sm";
-
-  const body = document.createElement("div");
-  body.className = "card-body grid grid-cols-[80px_1fr] items-center gap-3 p-4";
+  panel.className = "fw-pet-hero fw-atmosphere mx-3 flex min-h-56 shrink-0 flex-col items-center justify-center overflow-hidden rounded-box border border-primary/10 px-4 text-center";
 
   const progress = document.createElement("div");
   progress.id = "active-session-progress";
-  progress.className = "radial-progress text-primary tabular-nums [--size:4.5rem] [--thickness:0.35rem]";
+  progress.className = "radial-progress grid place-items-center rounded-full bg-base-300/35 text-primary [--size:7rem] [--thickness:0.2rem]";
   progress.style.setProperty("--value", String(progressValue(session)));
   progress.setAttribute("aria-label", translate("popupActiveProgressLabel"));
   progress.setAttribute("aria-valuemin", "0");
@@ -622,26 +561,27 @@ function renderActiveHero(root: HTMLElement, model: PopupModel): void {
   progress.setAttribute("aria-valuenow", String(progressValue(session)));
   progress.setAttribute("role", "progressbar");
   const petMount = document.createElement("div");
-  petMount.className = "scale-75";
   mountPet(petMount, model.petState, "focus");
   progress.append(petMount);
-  body.append(progress);
 
-  const stats = document.createElement("div");
-  stats.className = "min-w-0 space-y-1.5";
-  const badges = document.createElement("div");
-  badges.className = "flex flex-wrap gap-1.5";
-  appendText(badges, "span", streakChipText(model), "badge badge-soft badge-primary shadow-sm");
-  appendText(badges, "span", intensityLabel(session.intensity), "badge badge-soft shadow-sm");
-  stats.append(badges);
-  appendText(
-    stats,
-    "p",
-    model.notice ?? translate("popupFreezeCount", String(model.petState.streakFreezes)),
-    "text-xs leading-relaxed"
+  const remaining = appendText(
+    panel,
+    "h1",
+    formatRemaining(session),
+    "mt-3 w-[7ch] text-center text-5xl font-black leading-tight tabular-nums"
   );
-  body.append(stats);
-  panel.append(body);
+  remaining.id = "active-session-remaining";
+  remaining.dataset.compactClock = "true";
+  appendText(
+    panel,
+    "p",
+    translate("goal8PopupEndsAt", formatEndClock(session.endsAt)),
+    "mt-1 text-xs text-base-content/60"
+  );
+  if (model.notice) {
+    appendText(panel, "p", model.notice, "mt-1 max-w-full truncate text-xs text-base-content/60");
+  }
+  panel.prepend(progress);
   root.append(panel);
 }
 
@@ -650,61 +590,73 @@ function renderActiveSession(root: HTMLElement, model: PopupModel, handlers: Pop
     return;
   }
 
+  const session = model.activeSession;
   const section = document.createElement("section");
-  section.className = "card flex-1 border border-base-200 bg-base-100 shadow-sm";
-  const body = document.createElement("div");
-  body.className = "card-body gap-5 p-4";
-  const copy = document.createElement("div");
-  copy.className = "space-y-2";
-  appendText(copy, "p", translate("popupActiveStatus"), "text-sm font-semibold");
-  const remaining = appendText(
-    copy,
-    "h1",
-    translate("popupActiveRemaining", formatRemaining(model.activeSession)),
-    "break-words text-4xl font-extrabold tabular-nums"
-  );
-  remaining.id = "active-session-remaining";
-  appendText(
-    copy,
-    "p",
-    translate("popupActiveCurrentIntensity", intensityLabel(model.activeSession.intensity)),
-    "text-sm"
-  );
-  body.append(copy);
+  section.className = "grid flex-1 content-start gap-3 px-4 pt-4";
+
+  const facts = document.createElement("div");
+  facts.dataset.popupSessionFacts = "true";
+  facts.className = "grid grid-cols-3 overflow-hidden rounded-box border border-base-100/10 bg-base-200 text-center";
+  const selectedList = model.siteLists.find((siteList) => siteList.id === session.listId);
+  const factValues = [
+    [translate("goal8PopupTargets"), selectedList ? siteListDisplayName(selectedList) : translate("listNone")],
+    [translate("commonMode"), intensityLabel(session.intensity)],
+    [
+      translate("goal8PopupSource"),
+      translate(session.source === "schedule" ? "goal8PopupSourceSchedule" : "goal8PopupSourceManual")
+    ]
+  ] as const;
+  factValues.forEach(([label, value], index) => {
+    const fact = document.createElement("div");
+    fact.className = `${index === 1 ? "border-x border-base-100/10 " : ""}min-h-16 min-w-0 p-2.5`;
+    appendText(fact, "p", label, "text-[11px] text-base-content/50");
+    appendText(fact, "p", value, "mt-1 break-words text-[11px] font-bold leading-4");
+    facts.append(fact);
+  });
+  section.append(facts);
 
   const upgrades = (["soft", "medium", "hard"] as Intensity[]).filter(
     (intensity) => INTENSITY_ORDER[intensity] > INTENSITY_ORDER[model.activeSession?.intensity ?? "hard"]
   );
 
-  const actions = document.createElement("div");
-  actions.className = "space-y-2 border-t border-base-200 pt-4";
+  const actions = document.createElement("details");
+  actions.className = "collapse collapse-arrow border border-base-100/10 bg-base-200";
+  appendText(
+    actions,
+    "summary",
+    translate("goal8PopupUpgradeSummary"),
+    "collapse-title min-h-11 py-3 text-sm font-bold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+  );
+  const actionContent = document.createElement("div");
+  actionContent.className = "collapse-content grid gap-2";
 
-  if (upgrades.length === 0) {
-    appendText(actions, "p", translate("popupActiveStrongestIntensity"), "text-sm");
-  } else {
-    appendText(actions, "p", translate("popupActiveUpgradeHint"), "text-sm");
-  }
+  appendText(
+    actionContent,
+    "p",
+    upgrades.length === 0 ? translate("popupActiveStrongestIntensity") : translate("popupActiveUpgradeHint"),
+    "text-xs text-base-content/60"
+  );
 
   for (const intensity of upgrades) {
-    actions.append(createButton(translate("popupActiveUpgradeButton", intensityLabel(intensity)), "btn btn-soft min-h-10 shadow-sm", () => {
+    actionContent.append(createButton(translate("popupActiveUpgradeButton", intensityLabel(intensity)), "btn btn-soft min-h-10", () => {
       void handlers.upgradeIntensity(intensity);
     }));
   }
 
-  if (model.activeSession.intensity === "hard") {
-    renderHardEmergencyControls(actions, model, handlers);
+  if (session.intensity === "hard") {
+    renderHardEmergencyControls(actionContent, model, handlers);
   }
 
-  body.append(actions);
-  section.append(body);
+  actions.append(actionContent);
+  section.append(actions);
+  appendText(section, "p", translate("goal8PopupImmutableNote"), "text-center text-xs text-base-content/50");
   root.append(section);
 }
 
 function renderHardEmergencyControls(
   container: HTMLElement,
   model: PopupModel,
-  handlers: PopupHandlers,
-  confirming = false
+  handlers: PopupHandlers
 ): void {
   const session = model.activeSession;
   if (!session || session.intensity !== "hard") {
@@ -713,7 +665,7 @@ function renderHardEmergencyControls(
 
   const pending = model.pendingEmergency?.sessionId === session.id ? model.pendingEmergency : null;
   const wrap = document.createElement("div");
-  wrap.className = "grid gap-2 border-t border-base-200 pt-3";
+  wrap.className = "grid gap-2 border-t border-base-100/10 pt-3";
   if (pending) {
     const notice = document.createElement("div");
     notice.className = "alert alert-warning alert-soft text-sm shadow-none";
@@ -731,56 +683,120 @@ function renderHardEmergencyControls(
     return;
   }
 
-  if (!confirming) {
-    appendText(wrap, "p", translate("popupEmergencyRule"), "text-xs");
-    wrap.append(createButton(translate("popupEmergencyRequest"), "btn btn-error btn-soft min-h-10 shadow-sm", () => {
-      renderHardEmergencyControls(container, model, handlers, true);
-      wrap.remove();
-    }));
-    container.append(wrap);
-    return;
-  }
+  appendText(wrap, "p", translate("popupEmergencyRule"), "text-xs");
+  wrap.append(createButton(translate("popupEmergencyRequest"), "btn btn-error btn-soft min-h-10 shadow-sm", () => {
+    const activeSection = container.closest<HTMLElement>("section");
+    if (activeSection) {
+      renderHardEmergencyConfirmation(activeSection, model, handlers);
+    }
+  }));
+  container.append(wrap);
+}
 
+function renderHardEmergencyConfirmation(
+  section: HTMLElement,
+  model: PopupModel,
+  handlers: PopupHandlers
+): void {
+  const facts = section.querySelector<HTMLElement>("[data-popup-session-facts]");
   const warning = document.createElement("div");
-  warning.className = "alert alert-warning alert-soft text-sm shadow-none";
+  warning.className = "alert alert-error alert-soft text-sm shadow-none";
   warning.setAttribute("role", "note");
   appendText(warning, "span", translate("popupEmergencyConfirmWarning"));
   const buttons = document.createElement("div");
-  buttons.className = "flex flex-wrap gap-2";
-  const confirm = createButton(translate("popupEmergencySchedule"), "btn btn-error min-h-10 shadow-md", () => {
+  buttons.className = "grid gap-2";
+  const confirm = createButton(translate("popupEmergencySchedule"), "btn btn-error btn-soft min-h-11 w-full", () => {
     confirm.disabled = true;
     confirm.textContent = translate("popupEmergencyScheduling");
     void handlers.requestEmergencyEnd();
   });
-  buttons.append(confirm, createButton(translate("popupGoBack"), "btn btn-soft min-h-10 shadow-sm", () => {
-    renderHardEmergencyControls(container, model, handlers, false);
-    wrap.remove();
-  }));
-  wrap.append(warning, buttons);
-  container.append(wrap);
+  const keepFocusing = createButton(translate("goal8PopupKeepFocusing"), "btn btn-primary min-h-11 w-full", () => {
+    const root = section.parentElement;
+    section.remove();
+    if (root) {
+      renderActiveSession(root, model, handlers);
+    }
+  });
+  buttons.append(keepFocusing, confirm);
+  section.className = "grid flex-1 content-start gap-3 px-4 pt-4";
+  section.replaceChildren();
+  if (facts) {
+    section.append(facts);
+  }
+  section.append(warning);
+  appendText(section, "p", translate("popupEmergencyRule"), "text-xs leading-5 text-base-content/60");
+  section.append(buttons);
+  keepFocusing.focus({ preventScroll: true });
 }
 
 function renderSessionForm(root: HTMLElement, model: PopupModel, selection: SelectionState, handlers: PopupHandlers): void {
   const form = document.createElement("form");
-  form.className = "flex min-h-0 flex-1 flex-col gap-4";
+  form.className = "flex min-h-0 flex-1 flex-col";
   form.addEventListener("submit", (event) => {
     event.preventDefault();
     void handlers.startSession();
   });
 
+  const content = document.createElement("section");
+  content.className = "flex min-h-0 flex-1 flex-col gap-3 px-4 pt-3";
   const heading = document.createElement("div");
-  heading.className = "space-y-2";
-  appendText(heading, "h1", translate("popupFormHeading"), "text-xl font-bold");
-  appendText(heading, "p", translate("popupFormDescription"), "text-sm");
-  form.append(heading);
+  heading.className = "space-y-1";
+  appendText(heading, "h1", translate("popupFormHeading"), "text-xl font-black");
+  appendText(heading, "p", translate("popupFormDescription"), "text-xs text-base-content/60");
+  content.append(heading);
 
-  const listLabel = appendText(form, "fieldset", "", "fieldset") as HTMLFieldSetElement;
-  appendText(listLabel, "legend", translate("popupFormList"), "fieldset-legend");
+  const durationFieldset = document.createElement("fieldset");
+  durationFieldset.className = "grid gap-1.5";
+  appendText(durationFieldset, "legend", translate("popupFormDuration"), "text-xs font-bold");
+  const durationStepper = document.createElement("div");
+  durationStepper.className = "join grid grid-cols-[44px_1fr_44px]";
+  durationStepper.setAttribute("role", "group");
+  durationStepper.setAttribute("aria-label", translate("popupFormDurationSelection"));
+  const decrement = createButton("−", "btn join-item min-h-11 text-xl", () => {
+    const durationMinutes = stepDuration(selection.durationMinutes, -1);
+    handlers.updateSelection(
+      { durationMinutes, customMinutes: String(durationMinutes) },
+      true,
+      "duration-decrement"
+    );
+  });
+  decrement.dataset.popupFocus = "duration-decrement";
+  decrement.setAttribute("aria-label", translate("goal8PopupDurationDecrease"));
+  decrement.disabled = selection.durationMinutes <= 1;
+  const durationValue = document.createElement("div");
+  durationValue.className = "join-item grid min-h-11 place-items-center border border-base-100/10 bg-base-200";
+  appendText(
+    durationValue,
+    "span",
+    translate("commonMinutes", String(selection.durationMinutes)),
+    "text-2xl font-black tabular-nums"
+  );
+  const increment = createButton("+", "btn join-item min-h-11 text-xl", () => {
+    const durationMinutes = stepDuration(selection.durationMinutes, 1);
+    handlers.updateSelection(
+      { durationMinutes, customMinutes: String(durationMinutes) },
+      true,
+      "duration-increment"
+    );
+  });
+  increment.dataset.popupFocus = "duration-increment";
+  increment.setAttribute("aria-label", translate("goal8PopupDurationIncrease"));
+  increment.disabled = selection.durationMinutes >= 240;
+  durationStepper.append(decrement, durationValue, increment);
+  durationFieldset.append(durationStepper);
+  content.append(durationFieldset);
+
+  const selectedList = model.siteLists.find((siteList) => siteList.id === selection.listId) ?? model.siteLists[0];
+  const listLabel = document.createElement("label");
+  listLabel.className = "flex min-h-11 items-center justify-between gap-3 rounded-field border border-base-100/10 bg-base-200 px-3";
+  const listCopy = document.createElement("span");
+  listCopy.className = "min-w-0 flex-1";
+  appendText(listCopy, "span", translate("goal8PopupTargets"), "block text-xs text-base-content/55");
   const listSelect = document.createElement("select");
   listSelect.name = "siteList";
   listSelect.dataset.popupFocus = "site-list";
-  listSelect.className = "select w-full";
-  listSelect.setAttribute("aria-label", translate("popupFormList"));
+  listSelect.className = "block h-5 w-full min-w-0 appearance-none truncate bg-transparent text-sm font-bold outline-none";
+  listSelect.setAttribute("aria-label", translate("goal8PopupTargets"));
   for (const siteList of model.siteLists) {
     const option = document.createElement("option");
     option.value = siteList.id;
@@ -789,79 +805,23 @@ function renderSessionForm(root: HTMLElement, model: PopupModel, selection: Sele
     listSelect.append(option);
   }
   listSelect.addEventListener("change", () => handlers.updateSelection({ listId: listSelect.value }, true, "site-list"));
-  listLabel.append(listSelect);
-  form.append(listLabel);
-
-  const durationFieldset = document.createElement("fieldset");
-  durationFieldset.className = "fieldset";
-  appendText(durationFieldset, "legend", translate("popupFormDuration"), "fieldset-legend");
-  const durations = document.createElement("div");
-  durations.className = "join w-full";
-  durations.setAttribute("role", "group");
-  durations.setAttribute("aria-label", translate("popupFormDurationSelection"));
-  for (const minutes of [15, 25, 50, 90]) {
-    const radio = document.createElement("input");
-    radio.type = "radio";
-    radio.name = "duration";
-    radio.dataset.popupFocus = `duration-${minutes}`;
-    radio.className = "join-item btn flex-1";
-    radio.setAttribute("aria-label", translate("commonMinutes", String(minutes)));
-    radio.checked = selection.durationMinutes === minutes && !selection.customMinutes;
-    radio.addEventListener("change", () => {
-      handlers.updateSelection({ durationMinutes: minutes, customMinutes: "" }, true, `duration-${minutes}`);
-    });
-    durations.append(radio);
+  listCopy.append(listSelect);
+  listLabel.append(listCopy);
+  if (selectedList) {
+    appendText(
+      listLabel,
+      "span",
+      translate("goal8PopupSiteCount", String(selectedList.domains.length)),
+      "shrink-0 text-xs text-base-content/55"
+    );
   }
-  durationFieldset.append(durations);
-  form.append(durationFieldset);
-
-  const customDetails = document.createElement("details");
-  customDetails.className = "collapse collapse-arrow bg-base-200";
-  customDetails.open = Boolean(selection.customMinutes);
-  appendText(
-    customDetails,
-    "summary",
-    translate("popupFormCustomDuration"),
-    "collapse-title min-h-10 text-sm font-medium focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
-  );
-  const customContent = document.createElement("div");
-  customContent.className = "collapse-content";
-  const customInput = document.createElement("input");
-  customInput.type = "number";
-  customInput.min = "1";
-  customInput.max = "240";
-  customInput.inputMode = "numeric";
-  customInput.className = "input w-full";
-  customInput.setAttribute("aria-label", translate("popupFormCustomDurationAria"));
-  customInput.value = selection.customMinutes;
-  customInput.placeholder = translate("popupMinutesPlaceholder");
-  customInput.addEventListener("input", () => {
-    const durationMinutes = coerceCustomDuration(customInput.value, selection.durationMinutes);
-    handlers.updateSelection({
-      customMinutes: customInput.value,
-      durationMinutes
-    }, false);
-    const submit = form.querySelector<HTMLButtonElement>("[data-start-session]");
-    if (submit) {
-      submit.textContent = translate("popupStartMinutes", String(durationMinutes));
-    }
-  });
-  customInput.addEventListener("blur", () => {
-    if (customInput.value) {
-      const durationMinutes = coerceCustomDuration(customInput.value, selection.durationMinutes);
-      customInput.value = String(durationMinutes);
-      handlers.updateSelection({ customMinutes: customInput.value, durationMinutes }, false);
-    }
-  });
-  customContent.append(customInput);
-  customDetails.append(customContent);
-  form.append(customDetails);
+  content.append(listLabel);
 
   const intensityFieldset = document.createElement("fieldset");
-  intensityFieldset.className = "fieldset";
-  appendText(intensityFieldset, "legend", translate("popupFormBlockingMethod"), "fieldset-legend");
+  intensityFieldset.className = "grid gap-1.5";
+  appendText(intensityFieldset, "legend", translate("popupFormBlockingMethod"), "text-xs font-bold");
   const intensities = document.createElement("div");
-  intensities.className = "join w-full";
+  intensities.className = "join grid grid-cols-3";
   intensities.setAttribute("role", "group");
   intensities.setAttribute("aria-label", translate("popupFormIntensitySelection"));
   for (const intensity of ["soft", "medium", "hard"] as Intensity[]) {
@@ -869,7 +829,7 @@ function renderSessionForm(root: HTMLElement, model: PopupModel, selection: Sele
     radio.type = "radio";
     radio.name = "intensity";
     radio.dataset.popupFocus = `intensity-${intensity}`;
-    radio.className = "join-item btn h-auto min-h-10 min-w-0 flex-1 whitespace-normal px-1 py-1 text-xs leading-4";
+    radio.className = "join-item btn h-auto min-h-11 min-w-0 whitespace-normal px-1 py-1 text-xs leading-4";
     radio.setAttribute("aria-label", intensityLabel(intensity));
     radio.checked = selection.intensity === intensity;
     radio.addEventListener("change", () => {
@@ -878,28 +838,40 @@ function renderSessionForm(root: HTMLElement, model: PopupModel, selection: Sele
     intensities.append(radio);
   }
   intensityFieldset.append(intensities);
-  form.append(intensityFieldset);
+  const selectedIntensityDescription = selection.intensity === "soft"
+    ? "onboardingSoftBody"
+    : selection.intensity === "medium"
+      ? "onboardingMediumBody"
+      : selectedList?.mode === "allowlist"
+        ? "onboardingHardAllowlistBody"
+        : "onboardingHardBody";
+  appendText(intensityFieldset, "p", translate(selectedIntensityDescription), "text-xs text-base-content/55");
+  content.append(intensityFieldset);
 
   if (selection.intensity === "hard") {
     const hardNote = document.createElement("div");
-    hardNote.className = "rounded-box border border-base-300 bg-base-200 px-3 py-2 text-sm";
+    hardNote.className = "alert alert-warning alert-soft py-2 text-xs";
     appendText(hardNote, "span", translate("popupFormHardNote"));
-    form.append(hardNote);
+    content.append(hardNote);
   }
 
+  form.append(content);
+  const footer = document.createElement("footer");
+  footer.className = "mt-auto shrink-0 p-4 pt-2";
   const submit = document.createElement("button");
   submit.type = "submit";
   submit.dataset.startSession = "true";
-  submit.className = "btn btn-primary sticky bottom-0 z-10 mt-auto w-full shrink-0 shadow-lg";
+  submit.className = "btn btn-primary min-h-11 w-full shadow-sm";
   submit.textContent = translate("popupStartMinutes", String(selection.durationMinutes));
-  form.append(submit);
+  footer.append(submit);
+  form.append(footer);
   root.append(form);
 }
 
 export function renderPopup(root: HTMLElement, model: PopupModel, selection: SelectionState, handlers: PopupHandlers): void {
   root.replaceChildren();
-  root.className = "flex h-[580px] w-[360px] flex-col gap-3 overflow-y-auto bg-base-100 px-4 pb-4 text-base-content shadow-xl";
-  renderPopupHeader(root, handlers);
+  root.className = "flex h-[580px] w-[360px] flex-col overflow-y-auto bg-base-300 text-base-content shadow-xl";
+  renderPopupHeader(root, model, handlers);
 
   if (model.activeSession?.status === "active") {
     renderActiveHero(root, model);
@@ -919,11 +891,16 @@ export function clearPopupCelebrations(model: PopupModel): PopupModel {
 export function celebrationBatch(events: readonly GrowthEvent[]): GrowthEvent[] {
   const sessionEvent = events.find((event) => event.type === "session_completed");
   if (sessionEvent) {
-    return events.filter((event) => event.id === sessionEvent.id || (
-      Boolean(sessionEvent.sessionId) && event.sessionId === sessionEvent.sessionId
-    ));
+    const milestones = events
+      .filter((event) => (
+        event.id !== sessionEvent.id
+        && Boolean(sessionEvent.sessionId)
+        && event.sessionId === sessionEvent.sessionId
+      ))
+      .slice(0, MAX_MILESTONE_ROWS);
+    return [sessionEvent, ...milestones];
   }
-  return events.slice(0, 4);
+  return events.slice(0, MAX_MILESTONE_ROWS);
 }
 
 export function mergePetNameSave(model: PopupModel, petState: PetState): PopupModel {
@@ -982,11 +959,17 @@ export function activeSessionClockSnapshot(
   };
 }
 
+export function activeSessionTimerValue(session: Session, now = Date.now()): string {
+  return formatRemaining(session, now);
+}
+
 export function updateActiveSessionClock(root: HTMLElement, session: Session, now = Date.now()): void {
   const snapshot = activeSessionClockSnapshot(session, now);
   const remaining = root.querySelector<HTMLElement>("#active-session-remaining");
   if (remaining) {
-    remaining.textContent = snapshot.remainingText;
+    remaining.textContent = remaining.dataset.compactClock === "true"
+      ? activeSessionTimerValue(session, now)
+      : snapshot.remainingText;
   }
 
   const progress = root.querySelector<HTMLElement>("#active-session-progress");

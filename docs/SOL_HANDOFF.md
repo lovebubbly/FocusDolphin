@@ -1,5 +1,7 @@
 # FocusWhale v1.0.0 Handoff
 
+> **Goal 8 supersession notice (2026-07-12 KST):** this document preserves the Goal 7 architecture and release-preparation baseline. For the current approved redesign, exact frozen-bundle Whale evidence, the session-finalization milestone correction, changed-file inventory, and publication sequence, use [GOAL_8_HANDOFF_2026-07-12.md](GOAL_8_HANDOFF_2026-07-12.md), [../QA.md](../QA.md), and [../RELEASE_CHECKLIST.md](../RELEASE_CHECKLIST.md). The pre-Goal-8 ZIP and store imagery described below are historical artifacts and must not be submitted as the Goal 8 candidate.
+
 > **Document provenance**
 >
 > - Product owner and requester: **Choi Yunseong (최윤성)**

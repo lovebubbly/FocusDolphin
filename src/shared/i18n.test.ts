@@ -73,7 +73,7 @@ describe("localization catalogs", () => {
   });
 
   it("contains every message key referenced by production TypeScript", () => {
-    const keyPrefix = /^(?:app|analysis|automation|badge|behavior|blocked|category|common|current|dashboard|day|default|domain|duration|focus|generic|growth|history|intensity|list|local|metric|mode|newList|onboarding|options|pet|popup|privacy|recommendation|recommended|schedule|settings|soft|visits|weekly)[A-Z0-9]/u;
+    const keyPrefix = /^(?:app|analysis|automation|badge|behavior|blocked|category|common|current|dashboard|day|default|domain|duration|focus|generic|goal8|growth|history|intensity|list|local|metric|mode|newList|onboarding|options|pet|popup|privacy|recommendation|recommended|schedule|settings|soft|visits|weekly)[A-Z0-9]/u;
     const nonMessageKeys = new Set([
       "categoryOverrides",
       "focusHours",

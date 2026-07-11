@@ -1,14 +1,15 @@
 # FocusWhale QA Evidence And Checklist
 
-Last refreshed: **2026-07-11 12:15 KST** by **OpenAI Codex (GPT-5)**, for requester and product owner **Choi Yunseong (최윤성)**.
+Last refreshed: **2026-07-12 KST** by **OpenAI Codex (GPT-5)**, for requester and product owner **Choi Yunseong (최윤성)**.
 
-Current evidence boundary: **Goal 7 onboarding and Korean/English localization executable commit `bc62727` on `codex/goal-7-onboarding-i18n`, rebuilt and checked on 2026-07-11**. The older v1.0.0 release evidence is retained below as a historical regression baseline and does not prove the current Goal 7 binary.
+Current evidence boundary: **Goal 8 Phase B on `codex/goal-8-web-product-polish`, exercised against a frozen rebuilt `dist/` whose 42,956-byte background worker has SHA-256 `172ca0d895958575048e022f1ef3051fb76d46b74ff1efe1ba80c731ab6f1d0e` and whose final 25,240-byte popup has SHA-256 `e191845b3f549fe92007c61d1002b10d233847751616c6bc04b277f566b16390`**. Choi Yunseong approved the complete Phase A mockup contract at commit `e7274a1` on 2026-07-11 with no exceptions. That design approval is not a substitute for the executable evidence below or approval of a future store archive.
 
 ## Evidence Labels
 
-- **GOAL 7 HEADED EXACT BUILD**: directly exercised in an isolated disposable, visible Naver Whale profile after rebuilding and loading the current Goal 7 `dist/`.
-- **AUTOMATED GOAL 7**: covered by the current typecheck, Vitest suite, or production build verifier.
-- **HARNESS LIMITATION**: the Playwright-launched Whale process could not complete the action, and the same failure was reproduced on the pre-Goal-7 baseline. This is not a Goal 7 regression finding and is not a normal-browser pass.
+- **GOAL 8 HEADED EXACT BUILD**: directly exercised in isolated disposable, visible Naver Whale profiles after loading the frozen Goal 8 `dist/`; each suite verified the background-bundle fingerprint.
+- **AUTOMATED GOAL 8**: covered by the current typecheck, Vitest suite, production build verifier, locale scan, or static acceptance scan.
+- **GOAL 7 HISTORICAL**: directly exercised against the prior bilingual/onboarding candidate. It is regression context only and does not prove Goal 8.
+- **HARNESS LIMITATION (HISTORICAL)**: the earlier Playwright-launched Goal 7 run stalled at `chrome.alarms.create`, and the same failure reproduced on its baseline. Goal 8 visible Whale automation no longer has this limitation and completed real session starts, alarms, DNR, completion, and reward acknowledgement.
 - **V1 BASELINE EXACT BUILD**: directly exercised against the prior v1.0.0 release candidate. Historical labels such as `HEADLESS EXACT BUILD`, `HEADED EXACT BUILD`, and `INSTRUMENTED EXACT BUILD` below refer only to that retained baseline.
 - **HEADLESS PRIOR CANDIDATE**: directly exercised headlessly before the final durability/recovery fixes. Useful regression evidence, but not exact-final proof.
 - **LIVE PRIOR BUILD**: directly exercised in a visible Naver Whale profile before the latest source fixes and rebuild. It remains valuable regression evidence, but does not prove the newest binary.
@@ -23,61 +24,85 @@ Do not turn an automated, prior-build live, or earlier-baseline result into an e
 | Gate | Result | Evidence |
 | --- | --- | --- |
 | TypeScript | PASS | `npm run typecheck` |
-| Tests | PASS | `npm test`: 33 files / 237 tests |
+| Tests | PASS | `npm test`: 33 files / 250 tests |
 | Production build | PASS | two-stage Vite build plus `verify:build` |
-| Content script | PASS | classic IIFE, 178,301 bytes; SHA-256 `beed14e097185ddf2d31f3a17f07b9a422d99b715e22d9bc8eae17eb111e31a6` |
-| Build hygiene | PASS | no source maps or unexpected external URLs |
+| Background worker | PASS | 42,956 bytes; SHA-256 `172ca0d895958575048e022f1ef3051fb76d46b74ff1efe1ba80c731ab6f1d0e` |
+| Popup bundle | PASS | 25,240 bytes; SHA-256 `e191845b3f549fe92007c61d1002b10d233847751616c6bc04b277f566b16390` |
+| Content script | PASS | classic IIFE, 194,791 bytes; SHA-256 `1e61912aa791d63278fa79a8233ef5118c537e302e0c73d3f2948dc9f515b2df` |
+| Build hygiene | PASS | no source maps, root-relative asset URLs, or unexpected external URLs |
 | WAR surface | PASS | exact four-resource allowlist |
 | Font license | PASS | packaged Pretendard OFL matches source license |
-| Localization package | PASS | `default_locale: en`; localized manifest name/description/action title; 460 English and 460 Korean catalog entries; onboarding and both catalogs required by `verify:build` |
-| Release archive | PASS | 2,754,338-byte ZIP; SHA-256 `cba02253a1422d8f19ed7ddb16288f0c51a442656cbd02cf459740e68b5656a0`; 31 files; manifest at root; extracted tree byte-equal to `dist/` |
-| Archive hygiene | PASS | notices included; no tokens, private keys, personal email, machine path, source map, TypeScript, tests, profiles, or bundled dependency tree; production audit reports zero vulnerabilities |
+| Localization package | PASS | `default_locale: en`; localized manifest fields; 530 English and 530 Korean catalog entries with placeholder parity and production-reference coverage |
+| CSS/theme acceptance | PASS | 115 authored production surface lines; raw colors only in daisyUI theme declarations; local font/assets only |
+| Goal 8 release archive | PENDING | existing ZIP and store imagery predate Goal 8 and are not evidence for this branch |
 
-## Goal 7 Current Headed Whale Evidence
+## Goal 8 Current Headed Whale Evidence
 
-Environment: Naver Whale 4.38 / Chromium 148, current rebuilt `dist/`, isolated disposable profiles, development-path extension ID `ojojphoncmkplfcinppanpbbhhfjcpgi`. Screenshots and DOM/console assertions stayed local; no recording or external upload was used.
+Environment: Naver Whale 4.38.386.14 / Chromium 148, rebuilt `dist/`, isolated disposable profiles, development-path extension ID `ojojphoncmkplfcinppanpbbhhfjcpgi`. The broad popup/onboarding, Options, and intervention suites shared the final background/content/blocked/Options fingerprints. Final review then changed only popup milestone batching; a narrow final-popup suite fingerprinted and exercised the rebuilt popup shown above. Screenshots and DOM/console assertions stayed in ignored local `output/goal-8-final/`; no recording or external upload was used. Temporary profiles were removed and CDP ports 9341-9344 closed after each suite.
 
-### First-Run Onboarding
+### Popup And Onboarding
 
-| Check | English | Korean | Evidence |
-| --- | --- | --- | --- |
-| Opens only on first install | PASS | PASS | **GOAL 7 HEADED EXACT BUILD**; reopening the same unpacked profile did not reopen onboarding |
-| Three-step flow renders | PASS | PASS | Pet/privacy, list edit, and explicit intensity/optional 25-minute session steps were inspected |
-| Completion persists | PASS | PASS | Versioned local completion state was present; Korean run recorded `version: 1`, `outcome: setup_only` |
-| Skip/finish path | PASS | PASS | Completion view rendered without requesting optional history access |
-| Replay from Options | PASS | PASS | English activation opened `?replay=1`; the action rendered correctly in Korean and the shared launch path is unit-tested; replay is not treated as a new install |
-| Default intensity is soft | PASS | PASS | No automatic escalation; hard-only emergency explanation remained present |
-| Optional `history` permission is not requested | PASS | PASS | Completion retained optional-history state as false; no browser permission prompt appeared |
-
-### Localized Surface Matrix
-
-| Surface | English | Korean | Key leak / overflow / console boundary |
-| --- | --- | --- | --- |
-| Onboarding, all three steps | PASS | PASS | No untranslated message key, unexpected Hangul in English, horizontal overflow, or page console error |
-| Popup idle, 360 x 600 | PASS | PASS | Product-owned names localized (`Miro` / `미로`, default list labels); CTA and pet remained visible |
-| Options activity and onboarding replay | PASS | PASS | No key leak or horizontal overflow; replay opened correctly |
-| Blocked page, no active session | PENDING | PASS | Korean no-session state passed; English and active-session blocked states require normal-browser follow-up |
-| Soft overlay | PENDING | PENDING | Current Goal 7 active-session overlay was not proven in a normal browser |
-| Light/dark localization sweep | PENDING | PENDING | Prior v1 visual coverage remains historical; repeat against the localized binary |
-
-### Locale And Network Boundaries
+The comprehensive English suite completed **161/161 assertions** with zero console/page errors and zero failed requests before the final popup-only batching guard. Its session engine, background, onboarding, themes, and non-batching UI evidence remain unchanged.
 
 | Check | Result | Evidence |
 | --- | --- | --- |
-| English/Korean catalog key parity | PASS | **AUTOMATED GOAL 7**: 460 keys in each catalog plus i18n and computed-key family tests |
-| Manifest localization contract | PASS | **AUTOMATED GOAL 7**: `__MSG_appName__`, `__MSG_appDescription__`, localized action title, and `default_locale: en` verified |
-| Whale locale mismatch fallback | PASS | Whale reported `getUILanguage() = ko-KR` while the runtime catalog exposed `@@ui_locale = en_US`; bundled Korean fallback rendered the Korean surfaces, and the mismatch path is unit-tested |
-| Unknown-key leakage | PASS | Automated fallback tests plus headed checks on the surfaces listed above |
-| External network references | PASS | Build verifier found no unexpected external URL in production JS/CSS/HTML/JSON; fonts, CSS, sprites, and catalogs are packaged locally |
-| Live zero-network trace | PENDING | No current Goal 7 browser network-log capture is recorded; do not infer it from the static build scan |
+| Onboarding steps, completion, persistence, and explicit replay | PASS | Keyboard navigation/activation, selected intensity, quiet heading focus, interactive focus rings, 128/160 px pets, and no history request |
+| Light, dark, and reduced-motion onboarding representatives | PASS | Layout, focus, overflow, local assets, and motion fallback checked |
+| Popup idle at exact 360 x 580 | PASS | Session-first layout, English intensity wrapping, one dominant CTA, 40 px controls, no clipping or key leakage |
+| Medium start and active facts | PASS | Real UI start preserved target, mode, source, clock, and Options lock |
+| Upgrade to hard | PASS | Deadline and immutable facts stayed unchanged |
+| Hard emergency confirmation and pending state | PASS | Two-step confirmation, safe Keep focusing, same-session durable request, approximately five-minute delay |
+| True 25-minute hard completion | PASS | Real terminal contract awarded +37 XP once and rendered a 128 px celebration |
+| Milestone association and acknowledgement | PASS | First Ripple and First Deep Dive events retained the completed session ID; both New chips cleared only after acknowledgement and stayed dismissed after reload |
+| Accessibility and containment | PASS | Keyboard-only flow, no horizontal overflow, no controls below 40 px, local resources only |
 
-### Session-Start Harness Boundary
+The final 25,240-byte popup then passed **32/32 exact headed assertions**. A seven-event seed rendered the session plus exactly four milestone rows and a truthful `2 more changes` summary; keyboard acknowledgement wrote only those five rendered IDs, leaving the fifth associated and unrelated events pending. The next screen rendered and acknowledged exactly those two, and reload stayed dismissed. The standard session-plus-two-milestone case also passed. There were no horizontal/control clipping issues, message-key leaks, undersized controls, console/page/request/HTTP errors, or service-worker warnings/errors. Vertical completion content is intentionally scrollable inside 360 x 580.
 
-The Playwright-launched Whale process stalled at `chrome.alarms.create` when starting a session and consumed roughly 97-100% CPU. The exact same stall reproduced from the pre-Goal-7 baseline commit `acb45b6`, so this is recorded as a **HARNESS LIMITATION / pre-existing baseline behavior**, not evidence of a localization regression. It also means the current Goal 7 binary does **not** yet have a normal-browser pass for session start, active popup, medium/hard blocked flows, soft overlay, or completion.
+### Options: Review, Rules, And Preferences
 
-Google Chrome is not counted as a Goal 7 extension smoke pass: the browser URL policy blocked access to the unpacked extension pages before FocusWhale could be exercised.
+| Check | Result | Evidence |
+| --- | --- | --- |
+| Review empty and populated states | PASS | Current-week recorded focus is distinguished from completed sessions; attempts/temp access/eight-week trend/domain/category/growth data matched seeded storage |
+| Whale and milestone presentation | PASS | 128/160 px pets, latest badge chosen by `earnedAt`, additive rest-day copy |
+| Rules desktop and 390 px | PASS | Compact projection of existing schedules/lists; no mid-word split or horizontal overflow |
+| Editors and destructive confirmation | PASS | Validation, keyboard use, Escape, focus trap, and focus return to the visible row invoker |
+| Preferences permission state | PASS | Page load used `permissions.contains`; Not granted rendered without a prompt and Revoke remained disabled |
+| Active-session lock | PASS | Review, Rules, and Preferences exposed no mutation route while active |
+| Theme and motion representatives | PASS | Light, dark, narrow, and reduced-motion states rendered without extension diagnostics |
 
-Exact current store captures: English and Korean onboarding step 1 were captured at 1280 x 800 from the rebuilt Goal 7 `dist/`; both include the final browser-sync disclosure and contain no account, profile, history, or user-entered data. The four older core-flow store composites remain prior-build collateral.
+One modal-layer measurement sees the dimmed page's primary button plus the modal primary in the document tree. Only the modal action is operable and focusable while the modal is open, so this is an expected modal-layer exception rather than a two-CTA interaction failure.
+
+### Blocked Page And Soft Overlay
+
+The Korean suite passed every requested intervention row on the same frozen background hash. It ended with no active session, no pending emergency, zero DNR rules, zero extension/content/service-worker errors, a removed temporary profile, and a closed CDP port.
+
+| Check | Result | Evidence |
+| --- | --- | --- |
+| MV3 redirect coverage | PASS | Live `x.com`, `www.x.com`, and `mobile.twitter.com` navigations redirected under matching rules |
+| Medium friction | PASS | Intent entry, real 30-second gate, localized live ready announcement, five-minute temporary allow, happy pet, and Continue to live `x.com` |
+| Hard long clock and safe exits | PASS | Durations above one hour use `H:MM:SS`; Return to focus from both initial and confirmation states navigated the top-level tab to `about:blank` |
+| Hard emergency and weekly bound | PASS | Two-step request, approximately five-minute pending state, resting pet, reload-safe durable state, and localized rejection of a second unique weekly request while the session stayed active |
+| Soft waiting and ready | PASS | Real `example.com` overlay, localized Check-in complete state, enabled Continue, hostile-page CSS isolation, and local compiled assets |
+| Overlay accessibility and ownership | PASS | Real Tab/Shift+Tab trap, host body inert/restored, prior focus restored, session-scoped allow prevented reopen, and session end removed a rearmed overlay |
+| Theme, motion, layout, and controls | PASS | Light/dark representatives, reduced pet/button motion, no overflow/clipping/key leaks, and no target below 40 px |
+| Runtime diagnostics | PASS | Zero console errors/warnings, page errors, failed requests, or HTTP 400+ responses; worker exception details were null and error-event list empty |
+
+The `lc.getunicorn.org` resources visible on the host page were injected by Naver Whale, not requested or referenced by FocusWhale. Host stderr contained only browser video-capture/crashpad cleanup warnings. Retained screenshots were visually inspected and byte-matched to stable verification captures; transient compositor captures were rejected.
+
+### Locale, Network, And Evidence Boundaries
+
+| Check | Result | Evidence |
+| --- | --- | --- |
+| English/Korean catalog key parity | PASS | **AUTOMATED GOAL 8**: 530 keys in each catalog, placeholder parity, computed-key family tests, and production-reference coverage |
+| Manifest localization contract | PASS | **AUTOMATED GOAL 8**: localized manifest fields and `default_locale: en` verified |
+| Whale locale mismatch fallback | PASS | Existing bundled-catalog fallback remains tested; Korean intervention QA exercises the frozen production bundle |
+| Unknown-key leakage | PASS | Automated fallback/reference tests plus exact headed surface scans |
+| External network references | PASS | Static verifier found no unexpected production URL; popup/onboarding and Options exact runs recorded zero failed requests or extension diagnostics |
+| Evidence retention | PASS | Local screenshots/results live under ignored `output/goal-8-final/`; profiles, extension storage, and captures are not tracked or packaged |
+
+## Goal 7 Bilingual Candidate Evidence (Historical)
+
+The headed Goal 7 onboarding/localization evidence, including its historical automation limitation, remains available in Git history and the prior release documentation. It is superseded by the exact Goal 8 matrix above and must not be cited as proof of the current bundle.
 
 ## Prior v1.0.0 Baseline Browser Evidence
 
@@ -128,7 +153,7 @@ Still pending before publication:
 
 ## Earlier Baseline Evidence
 
-Earlier screenshots exist for popup idle/active/completed, options records/rules/automatic-start/growth, blocked medium/intent/hard/confirmation, and soft overlay. Those screenshots informed the implementation but do not prove the current Goal 7 binary.
+Earlier screenshots exist for popup idle/active/completed, options records/rules/automatic-start/growth, blocked medium/intent/hard/confirmation, and soft overlay. Those screenshots informed the implementation but do not prove the Goal 8 binary.
 
 An earlier 2026-07-06 Whale run also exercised a one-minute medium session, YouTube redirect, completion cleanup, options rendering, and local history recommendations. Treat it as regression context only.
 

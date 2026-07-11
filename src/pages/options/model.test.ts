@@ -1,13 +1,18 @@
 import { describe, expect, it, vi } from "vitest";
 import type { Recommendation } from "../../analytics/recommend";
-import type { Schedule, SiteList } from "../../shared/types";
+import type { Schedule, Session, SiteList } from "../../shared/types";
 import {
   addRecommendationToBlocklist,
   blockedDomainsFromLists,
+  collectAttemptedTargets,
   collectDailyStats,
+  completedSessionsInLocalWeek,
   isOptionsLocked,
+  latestEarnedBadge,
+  localWeekStartKey,
   normalizeDomainList,
   normalizeOptionsSettings,
+  recentFocusWeeks,
   schedulesReferencingSiteList,
   validateScheduleConfiguration
 } from "./model";
@@ -21,6 +26,83 @@ describe("options model helpers", () => {
     });
 
     expect(stats.map((entry) => entry.date)).toEqual(["2026-07-06", "2026-07-07"]);
+  });
+
+  it("collects truthful attempted-target totals without passive browsing claims", () => {
+    const targets = collectAttemptedTargets([
+      {
+        date: "2026-07-06",
+        focusMinutes: 10,
+        blockedAttempts: 4,
+        overrides: 0,
+        domainVisits: { "www.x.com": 2, "youtube.com": 1, "invalid value": 99 }
+      },
+      {
+        date: "2026-07-07",
+        focusMinutes: 25,
+        blockedAttempts: 5,
+        overrides: 1,
+        domainVisits: { "x.com": 3, "youtube.com": 2, "instagram.com": -1 }
+      }
+    ], 2);
+
+    expect(targets).toEqual([
+      { domain: "x.com", attempts: 5 },
+      { domain: "youtube.com", attempts: 3 }
+    ]);
+  });
+
+  it("uses the current local Monday for the Review hero", () => {
+    expect(localWeekStartKey(new Date(2026, 6, 12, 18, 0).getTime())).toBe("2026-07-06");
+    expect(localWeekStartKey(new Date(2026, 6, 13, 1, 0).getTime())).toBe("2026-07-13");
+  });
+
+  it("counts only completed sessions in the current local week", () => {
+    const makeSession = (id: string, endedAt: number, status: Session["status"]): Session => ({
+      id,
+      source: "manual",
+      listId: "default",
+      intensity: "medium",
+      startedAt: endedAt - 25 * 60_000,
+      endsAt: endedAt,
+      status,
+      snoozeCount: 0,
+      nextSnoozeDelayMin: 15
+    });
+    const now = new Date(2026, 6, 12, 18, 0).getTime();
+    expect(completedSessionsInLocalWeek([
+      makeSession("this-week", new Date(2026, 6, 10, 12, 0).getTime(), "completed"),
+      makeSession("interrupted", new Date(2026, 6, 11, 12, 0).getTime(), "interrupted"),
+      makeSession("last-week", new Date(2026, 6, 5, 12, 0).getTime(), "completed")
+    ], now)).toBe(1);
+  });
+
+  it("fills an honest fixed eight-week Review window with zero weeks", () => {
+    const now = new Date(2026, 6, 12, 18, 0).getTime();
+    const weeks = recentFocusWeeks([
+      { weekStart: "2026-06-29", focusMinutes: 60 },
+      { weekStart: "2026-07-06", focusMinutes: 145 }
+    ], 8, now);
+
+    expect(weeks).toHaveLength(8);
+    expect(weeks.slice(-2)).toEqual([
+      { weekStart: "2026-06-29", focusMinutes: 60 },
+      { weekStart: "2026-07-06", focusMinutes: 145 }
+    ]);
+    expect(weeks.slice(0, -2).every((week) => week.focusMinutes === 0)).toBe(true);
+  });
+
+  it("derives the latest badge from award time instead of array order", () => {
+    expect(latestEarnedBadge({
+      badges: ["newest", "oldest", "middle"],
+      badgeAwards: {
+        oldest: { earnedAt: 100 },
+        middle: { earnedAt: 200 },
+        newest: { earnedAt: 300 }
+      }
+    })).toBe("newest");
+
+    expect(latestEarnedBadge({ badges: [], badgeAwards: {} })).toBeNull();
   });
 
   it("normalizes settings and domain lists", () => {

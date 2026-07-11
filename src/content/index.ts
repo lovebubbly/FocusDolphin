@@ -168,16 +168,19 @@ function showOverlay(
   const theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "focuswhale-dark" : "focuswhale";
   shadow.innerHTML = `
     <style>${runtimeOverlayStyles()}</style>
-    <div data-theme="${theme}" class="fixed inset-0 z-[2147483647] grid min-h-screen w-screen place-items-center bg-base-200/80 p-7 text-base-content" role="dialog" aria-modal="true" aria-labelledby="focuswhale-title" aria-describedby="focuswhale-description">
-      <section class="card w-full max-w-md bg-base-100 shadow-xl">
-        <div class="card-body gap-4">
-          <div id="focuswhale-pet" class="mx-auto grid h-24 w-24 place-items-center" aria-hidden="true"></div>
-          <p class="text-center text-sm font-semibold text-base-content/80">${escapeHtml(siteListDisplayName(siteList))} · ${escapeHtml(hostname)}</p>
-          <h1 id="focuswhale-title" class="text-center text-2xl font-extrabold">${escapeHtml(translate("softPauseTitle"))}</h1>
-          <p id="focuswhale-description" class="text-center text-sm text-base-content/80">${escapeHtml(translate("softPauseDescription"))}</p>
-          <div class="card-actions justify-center gap-2">
-            <button class="btn btn-primary" id="back-button" type="button">${escapeHtml(translate("commonReturnToFocus"))}</button>
-            <button class="btn btn-soft shadow-sm" id="continue-button" type="button" aria-live="off" disabled>${escapeHtml(translate("softContinueCountdown", String(waitSeconds)))}</button>
+    <div data-theme="${theme}" class="fixed inset-0 z-[2147483647] grid min-h-screen w-screen place-items-center bg-base-300/80 p-7 text-base-content" role="dialog" aria-modal="true" aria-labelledby="focuswhale-title" aria-describedby="focuswhale-description">
+      <section class="card w-full max-w-md border border-primary/15 bg-base-100 text-base-content shadow-2xl">
+        <div class="card-body items-center gap-4 text-center">
+          <div class="grid h-24 w-24 place-items-center rounded-full bg-base-200">
+            <div id="focuswhale-pet" class="grid place-items-center" aria-hidden="true"></div>
+          </div>
+          <span id="checkin-badge" class="badge badge-primary badge-soft hidden" role="status" aria-live="polite" aria-hidden="true">${escapeHtml(translate("softCheckInComplete"))}</span>
+          <p class="text-xs font-bold text-primary">${escapeHtml(siteListDisplayName(siteList))} · ${escapeHtml(hostname)}</p>
+          <h1 id="focuswhale-title" class="text-2xl font-black">${escapeHtml(translate("softPauseTitle"))}</h1>
+          <p id="focuswhale-description" class="text-sm leading-6 text-base-content/65">${escapeHtml(translate("softPauseDescription"))}</p>
+          <div class="grid w-full gap-2 sm:grid-cols-2">
+            <button class="btn btn-primary min-h-11" id="back-button" type="button">${escapeHtml(translate("commonReturnToFocus"))}</button>
+            <button class="btn btn-soft min-h-11" id="continue-button" type="button" aria-live="off" disabled>${escapeHtml(translate("softContinueCountdown", String(waitSeconds)))}</button>
           </div>
         </div>
       </section>
@@ -191,6 +194,7 @@ function showOverlay(
   }
   document.documentElement.append(host);
   const petSlot = shadow.getElementById("focuswhale-pet");
+  const checkinBadge = shadow.getElementById("checkin-badge") as HTMLElement;
   const continueButton = shadow.getElementById("continue-button") as HTMLButtonElement;
   const backButton = shadow.getElementById("back-button") as HTMLButtonElement;
   if (petSlot) {
@@ -227,7 +231,7 @@ function showOverlay(
   });
 
   backButton.focus();
-  startCountdown(continueButton, waitSeconds);
+  startCountdown(continueButton, checkinBadge, waitSeconds);
 }
 
 function runtimeOverlayStyles(): string {
@@ -241,7 +245,7 @@ export function rewriteOverlayAssetUrls(styles: string, pretendardUrl: string): 
   );
 }
 
-function startCountdown(button: HTMLButtonElement, seconds: number): void {
+function startCountdown(button: HTMLButtonElement, readyBadge: HTMLElement, seconds: number): void {
   window.clearInterval(countdownTimer);
   countdownTimer = undefined;
   const deadlineMs = Date.now() + Math.max(0, seconds) * 1_000;
@@ -250,6 +254,8 @@ function startCountdown(button: HTMLButtonElement, seconds: number): void {
     button.disabled = snapshot.disabled;
     button.setAttribute("aria-live", snapshot.disabled ? "off" : "polite");
     button.textContent = snapshot.label;
+    readyBadge.classList.toggle("hidden", snapshot.disabled);
+    readyBadge.setAttribute("aria-hidden", String(snapshot.disabled));
     if (!snapshot.disabled && countdownTimer !== undefined) {
       window.clearInterval(countdownTimer);
       countdownTimer = undefined;

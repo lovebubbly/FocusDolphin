@@ -11,7 +11,7 @@ import {
   readGrowthLog,
   type GrowthEvent
 } from "../../pet/growth";
-import { mountPet } from "../../pet/renderer";
+import { mountPet, PET_RENDER_SIZES } from "../../pet/renderer";
 import { BADGE_DEFINITIONS } from "../../shared/gamification";
 import { getUiLocale, translate, type SupportedLocale } from "../../shared/i18n";
 import { sendMessage } from "../../shared/messaging";
@@ -22,11 +22,16 @@ import type { Intensity, PetState, Schedule, Session, SiteList } from "../../sha
 import { openOnboardingPage } from "../onboarding/lifecycle";
 import {
   blockedDomainsFromLists,
+  collectAttemptedTargets,
   collectDailyStats,
+  completedSessionsInLocalWeek,
   isOptionsLocked,
+  latestEarnedBadge,
+  localWeekStartKey,
   makeId,
   normalizeDomainList,
   normalizeOptionsSettings,
+  recentFocusWeeks,
   schedulesReferencingSiteList,
   validateScheduleConfiguration,
   type OptionsSettings
@@ -42,11 +47,12 @@ interface OptionsState {
   recommendations: Recommendation[];
   sessionLog: Session[];
   dailyStats: ReturnType<typeof collectDailyStats>;
+  historyAccessGranted: boolean;
   notice?: string;
   noticeTone?: NoticeTone;
 }
 
-export type OptionsView = "insights" | "lists" | "automation" | "growth";
+export type OptionsView = "review" | "rules" | "preferences";
 type NoticeTone = "neutral" | "success" | "error";
 
 interface OptionsUiState {
@@ -64,10 +70,8 @@ interface OptionsHandlers {
 
 const DAY_KEYS = ["daySun", "dayMon", "dayTue", "dayWed", "dayThu", "dayFri", "daySat"];
 const OPTIONS_VIEWS: Array<[OptionsView, string]> = [
-  ["insights", "optionsTabInsights"],
-  ["lists", "optionsTabLists"],
-  ["automation", "optionsTabAutomation"],
-  ["growth", "optionsTabGrowth"]
+  ["review", "goal8OptionsTabReview"],
+  ["rules", "goal8OptionsTabRules"]
 ];
 const modalReturnTargets = new WeakMap<HTMLDialogElement, HTMLElement>();
 const MODAL_FOCUSABLE_SELECTOR = [
@@ -97,7 +101,7 @@ if (root && document.body.dataset.page === "focuswhale-options") {
 async function bootstrapOptions(container: HTMLElement): Promise<void> {
   let state = await loadState();
   const stateLoads = new LatestRequestGuard();
-  const ui: OptionsUiState = { view: "insights", analyzing: false };
+  const ui: OptionsUiState = { view: "review", analyzing: false };
 
   const reload = async (notice?: string, noticeTone: NoticeTone = "success", focusId?: string) => {
     const token = stateLoads.begin();
@@ -127,6 +131,7 @@ async function bootstrapOptions(container: HTMLElement): Promise<void> {
           return;
         }
 
+        state = { ...state, historyAccessGranted: true };
         ui.analyzing = true;
         rerender("history-analyze");
         try {
@@ -201,6 +206,7 @@ export async function loadState(notice?: string, noticeTone: NoticeTone = "neutr
   const activeSession = await getAuthoritativeActiveSession();
   const localSnapshot = await chrome.storage.local.get(null);
   const settings = normalizeOptionsSettings(await getTyped("sync", STORAGE_KEYS.sync.settings));
+  const historyAccessGranted = await hasHistoryAccess();
 
   return {
     settings,
@@ -212,6 +218,7 @@ export async function loadState(notice?: string, noticeTone: NoticeTone = "neutr
     recommendations: (localSnapshot[RECOMMENDATIONS_KEY] as Recommendation[] | undefined) ?? [],
     sessionLog: (await getTyped("local", STORAGE_KEYS.local.sessionLog)) ?? [],
     dailyStats: collectDailyStats(localSnapshot),
+    historyAccessGranted,
     notice,
     noticeTone
   };
@@ -244,48 +251,47 @@ function renderOptions(
     return;
   }
 
-  container.className = "mx-auto grid w-full max-w-[720px] gap-6 bg-base-200 px-5 py-8 text-base-content";
+  container.className = "fw-depth mx-auto grid min-h-screen w-full max-w-[720px] content-start gap-7 bg-base-300 px-5 py-8 text-base-content";
 
-  const header = document.createElement("header");
-  header.className = "space-y-2";
-  appendText(header, "p", "FocusWhale", "text-sm font-semibold");
-  appendText(header, "h1", translate("optionsTitle"), "text-3xl font-extrabold");
-  appendText(header, "p", translate("optionsDescription"), "text-sm");
-  container.append(header, renderOptionsTabs(ui.view, handlers.setView));
+  container.append(renderOptionsHeader(ui.view, handlers.setView));
+  if (ui.view !== "preferences") {
+    container.append(renderOptionsTabs(ui.view, handlers.setView));
+  }
 
   if (state.notice) {
     appendBanner(container, state.notice, state.noticeTone ?? "neutral");
   }
 
   const content = document.createElement("div");
-  content.className = "grid gap-8";
+  content.className = "grid gap-7";
   content.id = optionsPanelId(ui.view);
   content.setAttribute("role", "tabpanel");
-  content.setAttribute("aria-labelledby", optionsTabId(ui.view));
+  content.setAttribute("aria-labelledby", ui.view === "preferences" ? "options-view-title" : optionsTabId(ui.view));
   content.tabIndex = 0;
   content.dataset.view = ui.view;
 
-  if (ui.view === "insights") {
+  if (ui.view === "review") {
     content.append(
+      renderReviewHero(state),
       renderDashboard(state),
-      renderAnalysisSettings(state, locked, handlers),
+      renderGrowth(state, handlers)
+    );
+  } else if (ui.view === "rules") {
+    content.append(
+      renderSchedules(state, locked, handlers),
+      renderSiteLists(state, locked, handlers)
+    );
+  } else {
+    content.append(
+      renderSessionPreferences(state, locked, handlers),
       renderRecommendations(state, locked, ui, handlers),
       renderPrivacyControls(handlers)
     );
-  } else if (ui.view === "lists") {
-    content.append(
-      renderBehaviorSettings(state, locked, handlers),
-      renderSiteLists(state, locked, handlers)
-    );
-  } else if (ui.view === "automation") {
-    content.append(renderSchedules(state, locked, handlers));
-  } else {
-    content.append(renderGrowth(state, handlers));
   }
 
+  container.append(content);
   for (const [view] of OPTIONS_VIEWS) {
     if (view === ui.view) {
-      container.append(content);
       continue;
     }
 
@@ -298,9 +304,44 @@ function renderOptions(
   }
 }
 
+function renderOptionsHeader(
+  view: OptionsView,
+  setView: (view: OptionsView, restoreTabFocus?: boolean) => void
+): HTMLElement {
+  const header = document.createElement("header");
+  header.className = "flex items-start justify-between gap-5";
+  const copy = document.createElement("div");
+  copy.className = "min-w-0 space-y-1";
+  appendText(copy, "p", "FocusWhale", "text-sm font-bold");
+  const titleKey = view === "review"
+    ? "goal8OptionsReviewTitle"
+    : view === "rules"
+      ? "goal8OptionsRulesTitle"
+      : "goal8OptionsPreferencesTitle";
+  const descriptionKey = view === "review"
+    ? "goal8OptionsReviewDescription"
+    : view === "rules"
+      ? "goal8OptionsRulesDescription"
+      : "goal8OptionsPreferencesDescription";
+  const title = appendText(copy, "h1", translate(titleKey), "text-3xl font-black");
+  title.id = "options-view-title";
+  appendText(copy, "p", translate(descriptionKey), "text-sm text-base-content/60");
+
+  const destination: OptionsView = view === "preferences" ? "review" : "preferences";
+  const action = button(
+    translate(view === "preferences" ? "goal8OptionsDoneAction" : "goal8OptionsPreferencesAction"),
+    "ghost",
+    () => setView(destination)
+  );
+  action.id = view === "preferences" ? "options-preferences-done" : "options-preferences-open";
+  action.classList.add("min-h-10", "shrink-0");
+  header.append(copy, action);
+  return header;
+}
+
 function renderOptionsTabs(activeView: OptionsView, setView: (view: OptionsView, restoreTabFocus?: boolean) => void): HTMLElement {
   const tabs = document.createElement("div");
-  tabs.className = "tabs tabs-box w-full overflow-x-auto bg-base-100 p-1 shadow-sm";
+  tabs.className = "tabs tabs-box w-full bg-base-200 p-1";
   tabs.setAttribute("role", "tablist");
   tabs.setAttribute("aria-label", translate("optionsTablistLabel"));
 
@@ -332,6 +373,9 @@ function renderOptionsTabs(activeView: OptionsView, setView: (view: OptionsView,
 export function nextOptionsView(current: OptionsView, key: string): OptionsView | null {
   const views = OPTIONS_VIEWS.map(([view]) => view);
   const currentIndex = views.indexOf(current);
+  if (currentIndex < 0) {
+    return null;
+  }
   if (key === "Home") {
     return views[0];
   }
@@ -354,29 +398,81 @@ function optionsPanelId(view: OptionsView): string {
   return `options-panel-${view}`;
 }
 
+function renderReviewHero(state: OptionsState): HTMLElement {
+  const aggregate = aggregateDashboard(state.dailyStats, state.sessionLog);
+  const latestWeekMinutes = aggregate.weekly.find((week) => week.weekStart === localWeekStartKey())?.focusMinutes ?? 0;
+  const completedThisWeek = completedSessionsInLocalWeek(state.sessionLog);
+  const hasActivity = aggregate.totalFocusMinutes > 0
+    || aggregate.blockedAttempts > 0
+    || aggregate.overrides > 0
+    || state.sessionLog.length > 0;
+  const hero = document.createElement("section");
+  hero.className = hasActivity
+    ? "fw-atmosphere fw-depth grid min-h-56 grid-cols-1 items-center overflow-hidden rounded-box border border-primary/10 p-5 text-center sm:grid-cols-[170px_1fr] sm:text-left"
+    : "fw-atmosphere fw-depth flex min-h-80 flex-col items-center justify-center overflow-hidden rounded-box border border-primary/10 p-6 text-center";
+
+  const petSlot = document.createElement("div");
+  petSlot.className = "grid place-items-center";
+  mountPet(petSlot, state.petState, hasActivity ? "happy" : "idle", {
+    size: hasActivity ? PET_RENDER_SIZES.hero : PET_RENDER_SIZES.large
+  });
+  const copy = document.createElement("div");
+  copy.className = hasActivity ? "min-w-0 space-y-3" : "mt-5 max-w-md space-y-2";
+
+  if (!hasActivity) {
+    appendText(copy, "p", "0", "text-5xl font-black tabular-nums");
+    appendText(copy, "h2", translate("goal8ReviewEmptyTitle"), "text-xl font-black");
+    appendText(copy, "p", translate("goal8ReviewEmptyDescription"), "text-sm leading-6 text-base-content/65");
+    const openSession = button(translate("goal8ReviewOpenSession"), "primary", () => window.close());
+    openSession.classList.add("mt-4", "min-h-11", "w-full");
+    copy.append(openSession);
+    hero.append(petSlot, copy);
+    return hero;
+  }
+
+  appendText(copy, "p", translate("goal8ReviewThisWeek"), "text-sm font-bold text-primary");
+  const focus = document.createElement("div");
+  focus.className = "flex flex-wrap items-baseline justify-center gap-2 sm:justify-start";
+  appendText(focus, "span", formatOptionsNumber(latestWeekMinutes), "text-5xl font-black tabular-nums");
+  appendText(focus, "span", translate("goal8ReviewFocusMinutesUnit"), "font-bold");
+  copy.append(focus);
+  appendText(
+    copy,
+    "p",
+    translate("goal8ReviewCompletedSessions", [
+      formatOptionsNumber(completedThisWeek),
+      petDisplayName(state.petState.name)
+    ]),
+    "text-sm text-base-content/65"
+  );
+  const badges = document.createElement("div");
+  badges.className = "flex flex-wrap justify-center gap-2 sm:justify-start";
+  appendText(badges, "span", translate("goal8ReviewStreakBadge", formatOptionsNumber(state.petState.streakDays)), "badge badge-primary badge-soft");
+  appendText(badges, "span", translate("goal8ReviewShieldBadge", formatOptionsNumber(state.petState.streakFreezes)), "badge badge-soft");
+  appendText(badges, "span", growthProgress(state.petState.xp, state.petState.stage).currentStageName, "badge badge-soft");
+  copy.append(badges);
+  hero.append(petSlot, copy);
+  return hero;
+}
+
 function renderGrowth(
   state: OptionsState,
   handlers: OptionsHandlers
 ): HTMLElement {
-  const section = card("growthSectionTitle", "growthSectionDescription");
+  const section = document.createElement("section");
+  section.className = "grid gap-3 border-t border-base-100/10 pt-5";
   const progress = growthProgress(state.petState.xp, state.petState.stage);
 
-  const hero = document.createElement("div");
-  hero.className = "card fw-pet-hero border border-base-200 shadow-sm";
-  const heroBody = document.createElement("div");
-  heroBody.className = "card-body grid gap-4 sm:grid-cols-[112px_1fr] sm:items-center";
-  const petSlot = document.createElement("div");
-  petSlot.className = "mx-auto grid place-items-center";
-  mountPet(petSlot, state.petState, "idle");
-  const heroCopy = document.createElement("div");
-  heroCopy.className = "min-w-0 space-y-2 text-center sm:text-left";
-  appendText(heroCopy, "p", petDisplayName(state.petState.name), "break-all text-sm font-semibold text-primary");
-  appendText(heroCopy, "h3", stageSailingText(progress.currentStageName), "text-2xl font-extrabold");
-  appendText(heroCopy, "p", progress.nextStageName
-    ? translate("growthXpToNext", [progress.nextStageName, formatOptionsNumber(progress.remainingXp)])
-    : translate("growthDeepestSeaReached"), "text-sm");
-  heroBody.append(petSlot, heroCopy);
-  hero.append(heroBody);
+  const heading = document.createElement("div");
+  heading.className = "flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4";
+  const headingCopy = document.createElement("div");
+  appendText(headingCopy, "h2", translate("growthSectionTitle"), "text-xl font-black");
+  appendText(headingCopy, "p", translate("goal8GrowthNeverRegresses"), "text-sm text-base-content/60");
+  heading.append(headingCopy);
+  const latestBadge = latestEarnedBadge(state.petState);
+  if (latestBadge) {
+    appendText(heading, "span", translate("goal8GrowthLatestBadge", badgeName(latestBadge)), "badge badge-primary badge-soft whitespace-nowrap");
+  }
 
   const nameForm = document.createElement("form");
   nameForm.className = "grid gap-3 md:grid-cols-[1fr_auto] md:items-end";
@@ -402,7 +498,7 @@ function renderGrowth(
   });
 
   const stats = document.createElement("div");
-  stats.className = "stats stats-horizontal w-full overflow-hidden bg-base-100 shadow-sm";
+  stats.className = "stats stats-vertical w-full overflow-hidden bg-base-100 shadow-sm sm:stats-horizontal";
   metric(stats, translate("growthCurrentStage"), progress.currentStageName);
   metric(stats, translate("growthTotalFocus"), translate("commonMinutes", formatOptionsNumber(state.petState.totalFocusMinutes)));
   metric(stats, translate("growthNextStage"), progress.nextStageName ?? translate("growthComplete"));
@@ -418,15 +514,21 @@ function renderGrowth(
   );
 
   const barWrap = document.createElement("div");
-  barWrap.className = "grid gap-2";
+  barWrap.className = "grid gap-3 sm:grid-cols-[1fr_auto] sm:items-center";
+  const barCopy = document.createElement("div");
+  const barLabel = document.createElement("div");
+  barLabel.className = "flex justify-between gap-3 text-xs font-bold";
+  appendText(barLabel, "span", progress.nextStageName
+    ? translate("growthPercentToNext", [progress.nextStageName, formatOptionsNumber(progress.percentToNext)])
+    : translate("growthAtDeepestSea"));
+  if (progress.nextStageName) {
+    appendText(barLabel, "span", `${formatOptionsNumber(progress.percentToNext)}%`, "tabular-nums");
+  }
   const bar = document.createElement("progress");
-  bar.className = "progress progress-primary w-full";
+  bar.className = "progress progress-primary mt-2 h-2 w-full";
   bar.max = 100;
   bar.value = progress.percentToNext;
-  barWrap.append(bar);
-  appendText(barWrap, "p", progress.nextStageName
-    ? translate("growthPercentToNext", [progress.nextStageName, formatOptionsNumber(progress.percentToNext)])
-    : translate("growthAtDeepestSea"), "text-sm");
+  barCopy.append(barLabel, bar);
 
   const badgeGrid = document.createElement("ul");
   badgeGrid.className = "list overflow-hidden rounded-box border border-base-300 bg-base-100 shadow-sm";
@@ -488,39 +590,60 @@ function renderGrowth(
   logContent.append(log);
   logDetails.append(logContent);
 
-  section.append(hero, nameForm, stats, protectionNote, barWrap, badgeGrid, logDetails);
+  const detailsContent = document.createElement("div");
+  detailsContent.id = "growth-details-content";
+  detailsContent.className = "grid gap-4 border-t border-base-100/10 pt-5";
+  detailsContent.hidden = true;
+  detailsContent.append(nameForm, stats, protectionNote, badgeGrid, logDetails);
+  const detailsToggle = button(translate("goal8GrowthDetails"), "soft", () => {
+    detailsContent.hidden = !detailsContent.hidden;
+    detailsToggle.setAttribute("aria-expanded", String(!detailsContent.hidden));
+  });
+  detailsToggle.classList.add("btn-sm", "min-h-10");
+  detailsToggle.setAttribute("aria-controls", detailsContent.id);
+  detailsToggle.setAttribute("aria-expanded", "false");
+  barWrap.append(barCopy, detailsToggle);
+
+  section.append(heading, barWrap, detailsContent);
   return section;
 }
 
 function renderLockedOptions(container: HTMLElement, state: OptionsState): void {
   const session = state.activeSession;
-  container.className = "mx-auto grid min-h-screen w-full max-w-[520px] place-items-center bg-base-200 px-5 py-8 text-base-content";
+  container.className = "fw-depth mx-auto grid min-h-screen w-full max-w-[520px] place-items-center bg-base-300 px-4 py-8 text-base-content";
 
   const panel = document.createElement("section");
-  panel.className = "card w-full border border-base-300 bg-base-100 shadow-xl";
+  panel.className = "card w-full border border-primary/15 bg-base-100 shadow-xl";
   const body = document.createElement("div");
-  body.className = "card-body gap-5";
-  appendText(body, "p", "FocusWhale", "text-sm font-semibold");
-  appendText(body, "h1", translate("optionsLockedTitle"), "text-2xl font-extrabold");
-  appendText(body, "p", translate("optionsLockedDescription"), "text-sm");
-
-  const stats = document.createElement("div");
-  stats.className = "stats stats-vertical overflow-hidden bg-base-200 shadow-sm";
-  const remaining = metric(stats, translate("commonTimeRemaining"), lockedOptionsCountdownText(session));
+  body.className = "card-body items-center gap-5 text-center";
+  const petSlot = document.createElement("div");
+  petSlot.className = "grid place-items-center";
+  mountPet(petSlot, state.petState, "focus");
+  const copy = document.createElement("div");
+  appendText(copy, "p", translate("goal8OptionsSessionInProgress"), "text-sm font-bold text-primary");
+  const remaining = appendText(copy, "h1", lockedOptionsCountdownText(session), "mt-2 text-4xl font-black tabular-nums");
   remaining.id = "options-session-remaining";
-  metric(stats, translate("currentIntensity"), formatIntensity(session?.intensity));
-  body.append(stats);
+  appendText(copy, "p", translate("goal8OptionsLockedRulesDescription"), "mt-2 text-sm text-base-content/65");
+
+  const facts = document.createElement("div");
+  facts.className = "w-full rounded-box bg-base-200 p-3 text-left text-sm";
+  const selectedList = state.siteLists.find((list) => list.id === session?.listId);
+  appendFact(facts, translate("goal8OptionsTargetsLabel"), selectedList ? siteListDisplayName(selectedList) : translate("listNone"));
+  appendFact(facts, translate("commonMode"), formatIntensity(session?.intensity));
+  body.append(petSlot, copy, facts);
 
   const actions = document.createElement("div");
-  actions.className = "card-actions justify-end";
-  actions.append(button(translate("commonGoBack"), "primary", () => {
+  actions.className = "card-actions w-full";
+  const returnButton = button(translate("goal8OptionsReturnToSession"), "primary", () => {
     if (window.history.length > 1) {
       window.history.back();
       return;
     }
 
     window.close();
-  }));
+  });
+  returnButton.classList.add("min-h-11", "w-full");
+  actions.append(returnButton);
   body.append(actions);
   panel.append(body);
   container.append(panel);
@@ -539,59 +662,31 @@ export function lockedOptionsCountdownText(session: Session | null, now = Date.n
   return formatRemainingMs((session?.endsAt ?? now) - now);
 }
 
-function renderBehaviorSettings(
+function renderSessionPreferences(
   state: OptionsState,
   locked: boolean,
   handlers: OptionsHandlers
 ): HTMLElement {
-  const section = card("behaviorSectionTitle", "behaviorSectionDescription");
+  const section = card("goal8PreferencesSessionTitle", "goal8PreferencesSessionDescription");
+  section.classList.add("border-t", "border-base-100/10", "pt-6");
   const form = document.createElement("form");
-  form.className = "grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end";
-  const softSeconds = input("number", translate("softDelaySecondsLabel"), String(state.settings.softOverlaySeconds), locked);
-  softSeconds.control.min = "3";
-  softSeconds.control.max = "60";
-
-  const action = document.createElement("div");
-  const save = submitButton(translate("commonSave"), locked, "soft");
-  save.id = "behavior-save";
-  action.append(save);
-  form.append(softSeconds.label, action);
-  form.addEventListener("submit", (event) => {
-    event.preventDefault();
-    if (locked) {
-      return;
-    }
-
-    void runGuardedMutation(save, translate("commonSaving"), async () => {
-      await requireOk(sendMessage({
-        type: "PATCH_SETTINGS",
-        payload: { patch: { softOverlaySeconds: Number(softSeconds.control.value) } }
-      }));
-      await handlers.reload(translate("behaviorSaved"), "success", save.id);
-    }, form, translate("behaviorSaveFailed"));
-  });
-
-  section.append(form);
-  return section;
-}
-
-function renderAnalysisSettings(
-  state: OptionsState,
-  locked: boolean,
-  handlers: OptionsHandlers
-): HTMLElement {
-  const section = card("analysisSectionTitle", "analysisSectionDescription");
-  const form = document.createElement("form");
-  form.className = "grid gap-3 sm:grid-cols-[1fr_1fr_auto] sm:items-end";
+  form.className = "grid gap-4";
+  const fields = document.createElement("div");
+  fields.className = "grid gap-4 sm:grid-cols-3";
   const start = input("time", translate("focusHoursStart"), state.settings.focusHours.startHHMM, locked);
   const end = input("time", translate("focusHoursEnd"), state.settings.focusHours.endHHMM, locked);
+  const softSeconds = input("number", translate("softDelaySecondsLabel"), String(state.settings.softOverlaySeconds), locked);
   start.control.required = true;
   end.control.required = true;
+  softSeconds.control.min = "3";
+  softSeconds.control.max = "60";
+  softSeconds.control.required = true;
+  fields.append(start.label, end.label, softSeconds.label);
+  const save = submitButton(translate("goal8PreferencesSave"), locked, "primary");
+  save.id = "preferences-save";
   const action = document.createElement("div");
-  const save = submitButton(translate("commonSave"), locked, "soft");
-  save.id = "analysis-settings-save";
   action.append(save);
-  form.append(start.label, end.label, action);
+  form.append(fields, action);
   form.addEventListener("submit", (event) => {
     event.preventDefault();
     if (locked) {
@@ -609,10 +704,15 @@ function renderAnalysisSettings(
     void runGuardedMutation(save, translate("commonSaving"), async () => {
       await requireOk(sendMessage({
         type: "PATCH_SETTINGS",
-        payload: { patch: { focusHours: { startHHMM: start.control.value, endHHMM: end.control.value } } }
+        payload: {
+          patch: {
+            focusHours: { startHHMM: start.control.value, endHHMM: end.control.value },
+            softOverlaySeconds: Number(softSeconds.control.value)
+          }
+        }
       }));
-      await handlers.reload(translate("analysisSettingsSaved"), "success", save.id);
-    }, form, translate("analysisSettingsSaveFailed"));
+      await handlers.reload(translate("goal8PreferencesSaved"), "success", save.id);
+    }, form, translate("settingsSaveFailed"));
   });
   section.append(form);
   return section;
@@ -623,34 +723,36 @@ function renderSiteLists(
   locked: boolean,
   handlers: OptionsHandlers
 ): HTMLElement {
-  const section = card("listsSectionTitle", "listsSectionDescription");
+  const section = document.createElement("section");
+  section.className = "grid gap-4";
   const listWrap = document.createElement("div");
-  listWrap.className = "overflow-hidden rounded-box border border-base-300 bg-base-100 shadow-sm";
+  listWrap.className = "overflow-hidden rounded-box border border-base-100/10 bg-base-100";
 
   for (const siteList of state.siteLists) {
     listWrap.append(renderSiteListEditor(siteList, state, locked, handlers));
   }
 
+  const draft: SiteList = {
+    id: makeId("list"),
+    name: translate("newListName"),
+    mode: "blocklist",
+    domains: []
+  };
+  const newListDialog = renderSiteListDialog(draft, state, locked, handlers, true);
   const addButton = button(translate("listAdd"), "soft", () => {
     if (locked) {
       return;
     }
-
-    void runGuardedMutation(addButton, translate("commonAdding"), async () => {
-      const next: SiteList = {
-        id: makeId("list"),
-        name: translate("newListName"),
-        mode: "blocklist",
-        domains: []
-      };
-      await requireOk(sendMessage({ type: "CREATE_SITE_LIST", payload: { siteList: next } }));
-      await handlers.reload(translate("listAdded"), "success", addButton.id);
-    }, section, translate("listAddFailed"));
+    showModalDialog(newListDialog.dialog, addButton);
   });
   addButton.id = "site-list-add";
   addButton.disabled = locked;
-  addButton.classList.add("btn-outline", "min-h-10", "shadow-sm");
-  section.append(listWrap, addButton);
+  addButton.classList.add("btn-sm", "min-h-10");
+  section.append(
+    sectionHeadingWithAction("goal8RulesTargetsTitle", "goal8RulesTargetsDescription", addButton, true),
+    listWrap,
+    newListDialog.dialog
+  );
   return section;
 }
 
@@ -660,20 +762,54 @@ function renderSiteListEditor(
   locked: boolean,
   handlers: OptionsHandlers
 ): HTMLElement {
-  const details = document.createElement("details");
-  details.className = "collapse collapse-arrow border-b border-base-200 bg-base-100 last:border-b-0";
-  const summary = document.createElement("summary");
-  summary.id = uniqueDomId("site-list-summary", siteList.id);
-  summary.className = "collapse-title grid min-h-12 grid-cols-[1fr_auto] items-center gap-3 pe-12 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary";
-  const summaryCopy = document.createElement("div");
-  summaryCopy.className = "min-w-0";
-  appendText(summaryCopy, "p", siteListDisplayName(siteList), "break-all font-semibold");
-  appendText(summaryCopy, "p", translate("domainCount", formatOptionsNumber(siteList.domains.length)), "text-xs");
-  appendText(summary, "span", translate(siteList.mode === "blocklist" ? "modeBlocklistShort" : "modeAllowlistShort"), "badge badge-soft shadow-sm");
-  summary.prepend(summaryCopy);
+  const row = document.createElement("div");
+  row.className = "grid min-h-14 grid-cols-[minmax(0,1fr)_auto] items-center gap-2 border-b border-base-200 px-4 py-3 last:border-b-0 sm:grid-cols-[1fr_auto_auto_auto] sm:gap-3";
+  appendText(row, "strong", siteListDisplayName(siteList), "min-w-0 truncate");
+  appendText(row, "span", translate(siteList.mode === "blocklist" ? "modeBlocklistShort" : "modeAllowlistShort"), "badge badge-soft");
+  const schedules = schedulesReferencingSiteList(state.schedules, siteList.id);
+  appendText(
+    row,
+    "span",
+    `${translate("domainCount", formatOptionsNumber(siteList.domains.length))} · ${formatScheduleCount(schedules.length)}`,
+    "text-sm text-base-content/60"
+  );
+  const editor = renderSiteListDialog(siteList, state, locked, handlers, false);
+  const edit = button(translate("goal8CommonEdit"), "ghost", () => showModalDialog(editor.dialog, edit));
+  edit.id = uniqueDomId("site-list-summary", siteList.id);
+  edit.disabled = locked;
+  edit.classList.add("btn-sm", "min-h-10");
+  row.append(edit, editor.dialog);
+  if (editor.deleteDialog) {
+    row.append(editor.deleteDialog);
+  }
+  return row;
+}
+
+function renderSiteListDialog(
+  siteList: SiteList,
+  state: OptionsState,
+  locked: boolean,
+  handlers: OptionsHandlers,
+  isNew: boolean
+): { dialog: HTMLDialogElement; deleteDialog?: HTMLDialogElement } {
+  const dialog = document.createElement("dialog");
+  dialog.className = "modal";
+  const titleId = uniqueDomId("site-list-editor-title", siteList.id);
+  dialog.setAttribute("aria-labelledby", titleId);
+  const box = document.createElement("div");
+  box.className = "modal-box max-w-xl border border-base-100/10 bg-base-100";
+  const header = document.createElement("div");
+  header.className = "flex items-start justify-between gap-4";
+  const headerCopy = document.createElement("div");
+  appendText(headerCopy, "p", translate("goal8RulesTargetsTitle"), "text-xs font-bold uppercase text-primary");
+  appendText(headerCopy, "h2", isNew ? translate("listAdd") : siteListDisplayName(siteList), "mt-1 text-2xl font-black").id = titleId;
+  const close = button(translate("commonClose"), "ghost", () => dialog.close());
+  close.classList.add("btn-sm", "min-h-10", "min-w-10");
+  close.setAttribute("aria-label", translate("commonClose"));
+  header.append(headerCopy, close);
 
   const form = document.createElement("form");
-  form.className = "collapse-content grid gap-3 border-t border-base-200 pt-4";
+  form.className = "mt-6 grid gap-5";
 
   const name = input("text", translate("commonName"), siteListDisplayName(siteList), locked);
   const modeLabel = document.createElement("label");
@@ -702,60 +838,52 @@ function renderSiteListEditor(
   domainsLabel.append(domains);
 
   const actions = document.createElement("div");
-  actions.className = "flex flex-wrap gap-2";
-  const save = submitButton(translate("commonSave"), locked, "soft");
+  actions.className = "modal-action flex flex-wrap justify-between gap-2";
+  const destructiveActions = document.createElement("div");
+  const commitActions = document.createElement("div");
+  commitActions.className = "flex flex-wrap gap-2";
+  const cancel = button(translate("commonCancel"), "ghost", () => dialog.close());
+  cancel.classList.add("min-h-10");
+  const save = submitButton(translate("commonSave"), locked, "primary");
   save.id = uniqueDomId("site-list-save", siteList.id);
-  actions.append(save);
-  const deleteDialog = document.createElement("dialog");
-  deleteDialog.className = "modal";
-  const dialogTitleId = uniqueDomId("list-delete-title", siteList.id);
-  const dialogDescriptionId = uniqueDomId("list-delete-description", siteList.id);
-  deleteDialog.setAttribute("aria-labelledby", dialogTitleId);
-  deleteDialog.setAttribute("aria-describedby", dialogDescriptionId);
-  deleteDialog.innerHTML = `
-    <div class="modal-box">
-      <h3 id="${dialogTitleId}" class="text-lg font-bold">${escapeHtml(translate("listDeleteTitle"))}</h3>
-      <p id="${dialogDescriptionId}" class="mt-2 break-all text-sm">${escapeHtml(translate("listDeleteDescription", siteListDisplayName(siteList)))}</p>
-      <div class="modal-action">
-        <div class="flex gap-2">
-          <button type="button" class="btn btn-ghost min-h-10" data-cancel>${escapeHtml(translate("commonCancel"))}</button>
-          <button type="button" class="btn btn-error min-h-10" data-confirm>${escapeHtml(translate("commonDelete"))}</button>
-        </div>
-      </div>
-    </div>
-    <form method="dialog" class="modal-backdrop"><button aria-label="${escapeHtml(translate("listDeleteCloseLabel"))}">${escapeHtml(translate("commonClose"))}</button></form>
-  `;
-  configureModalDialog(deleteDialog);
-  deleteDialog.querySelector<HTMLButtonElement>("[data-cancel]")?.addEventListener("click", () => deleteDialog.close());
-  const confirmDelete = deleteDialog.querySelector<HTMLButtonElement>("[data-confirm]");
-  confirmDelete?.addEventListener("click", () => {
-    if (locked) {
-      return;
-    }
-    const dialogBox = deleteDialog.querySelector<HTMLElement>(".modal-box") ?? deleteDialog;
-    void runGuardedMutation(confirmDelete, translate("commonDeleting"), async () => {
-      await requireOk(sendMessage({ type: "DELETE_SITE_LIST", payload: { siteListId: siteList.id } }));
-      deleteDialog.close();
-      await handlers.reload(translate("listDeleted"), "success", "site-list-add");
-    }, dialogBox, translate("listDeleteFailed"));
-  });
+  commitActions.append(cancel, save);
+  let deleteDialog: HTMLDialogElement | undefined;
   const dependentSchedules = schedulesReferencingSiteList(state.schedules, siteList.id);
   const deleteBlockMessage = dependentSchedules.length > 0
     ? translate("listDeleteBlockedBySchedules", formatOptionsNumber(dependentSchedules.length))
     : state.siteLists.length <= 1
       ? translate("listDeleteRequiresOne")
       : null;
-  const removeButton = button(translate("commonDelete"), "ghost", () => {
-    if (deleteBlockMessage) {
-      showInlineError(form, deleteBlockMessage);
-      return;
-    }
-    showModalDialog(deleteDialog, removeButton);
-  });
-  removeButton.disabled = locked;
-  removeButton.classList.add("min-h-10");
-  actions.append(removeButton);
+  if (!isNew) {
+    deleteDialog = confirmationDialog(
+      uniqueDomId("list-delete", siteList.id),
+      translate("listDeleteTitle"),
+      translate("listDeleteDescription", siteListDisplayName(siteList)),
+      translate("listDeleteCloseLabel")
+    );
+    const removeButton = button(translate("commonDelete"), "ghost", () => {
+      if (deleteBlockMessage) {
+        showInlineError(form, deleteBlockMessage);
+        return;
+      }
+      const editorReturnTarget = modalReturnTargets.get(dialog) ?? removeButton;
+      dialog.close();
+      window.queueMicrotask(() => showModalDialog(deleteDialog as HTMLDialogElement, editorReturnTarget));
+    });
+    removeButton.disabled = locked;
+    removeButton.classList.add("btn-error", "min-h-10");
+    destructiveActions.append(removeButton);
+    const confirmDelete = deleteDialog.querySelector<HTMLButtonElement>("[data-confirm]");
+    confirmDelete?.addEventListener("click", () => {
+      void runGuardedMutation(confirmDelete, translate("commonDeleting"), async () => {
+        await requireOk(sendMessage({ type: "DELETE_SITE_LIST", payload: { siteListId: siteList.id } }));
+        deleteDialog?.close();
+        await handlers.reload(translate("listDeleted"), "success", "site-list-add");
+      }, deleteDialog as HTMLDialogElement, translate("listDeleteFailed"));
+    });
+  }
 
+  actions.append(destructiveActions, commitActions);
   form.append(name.label, modeLabel, domainsLabel, actions);
   form.addEventListener("submit", (event) => {
     event.preventDefault();
@@ -764,23 +892,24 @@ function renderSiteListEditor(
     }
 
     void runGuardedMutation(save, translate("commonSaving"), async () => {
-      await requireOk(sendMessage({
-        type: "UPDATE_SITE_LIST",
-        payload: {
-          siteList: {
-            ...siteList,
-            name: persistedSiteListName(siteList, name.control.value),
-            mode: mode.value as SiteList["mode"],
-            domains: normalizeDomainList(domains.value)
-          }
-        }
-      }));
-      await handlers.reload(translate("listSaved"), "success", summary.id);
-    }, form, translate("listSaveFailed"));
+      const nextSiteList: SiteList = {
+        ...siteList,
+        name: persistedSiteListName(siteList, name.control.value),
+        mode: mode.value as SiteList["mode"],
+        domains: normalizeDomainList(domains.value)
+      };
+      await requireOk(sendMessage(isNew
+        ? { type: "CREATE_SITE_LIST", payload: { siteList: nextSiteList } }
+        : { type: "UPDATE_SITE_LIST", payload: { siteList: nextSiteList } }));
+      dialog.close();
+      await handlers.reload(translate(isNew ? "listAdded" : "listSaved"), "success", isNew ? "site-list-add" : uniqueDomId("site-list-summary", siteList.id));
+    }, form, translate(isNew ? "listAddFailed" : "listSaveFailed"));
   });
 
-  details.append(summary, form, deleteDialog);
-  return details;
+  box.append(header, form);
+  dialog.append(box, modalBackdrop(translate("commonClose")));
+  configureModalDialog(dialog);
+  return { dialog, deleteDialog };
 }
 
 function renderSchedules(
@@ -788,35 +917,34 @@ function renderSchedules(
   locked: boolean,
   handlers: OptionsHandlers
 ): HTMLElement {
-  const section = card("automationSectionTitle", "automationSectionDescription");
+  const section = document.createElement("section");
+  section.className = "grid gap-4";
   const listWrap = document.createElement("div");
-  listWrap.className = "overflow-hidden rounded-box border border-base-300 bg-base-100 shadow-sm";
+  listWrap.className = "list overflow-hidden rounded-box border border-base-100/10 bg-base-100 shadow-sm";
   for (const schedule of state.schedules) {
     listWrap.append(renderScheduleEditor(schedule, state, locked, handlers));
   }
 
-  const addButton = button(translate("scheduleAdd"), "soft", () => {
+  const draft: Schedule = {
+    id: makeId("schedule"),
+    enabled: true,
+    days: [1, 2, 3, 4, 5],
+    startHHMM: "09:00",
+    endHHMM: "12:00",
+    listId: state.siteLists[0]?.id ?? "",
+    intensity: "medium"
+  };
+  const newScheduleDialog = renderScheduleDialog(draft, state, locked, handlers, true);
+  const addButton = button(translate("scheduleAdd"), "primary", () => {
     if (locked) {
       return;
     }
-
-    void runGuardedMutation(addButton, translate("commonAdding"), async () => {
-      const next: Schedule = {
-        id: makeId("schedule"),
-        enabled: true,
-        days: [1, 2, 3, 4, 5],
-        startHHMM: "09:00",
-        endHHMM: "12:00",
-        listId: state.siteLists[0]?.id ?? "",
-        intensity: "medium"
-      };
-      await requireOk(sendMessage({ type: "CREATE_SCHEDULE", payload: { schedule: next } }));
-      await handlers.reload(translate("scheduleAdded"), "success", addButton.id);
-    }, section, translate("scheduleAddFailed"));
+    showModalDialog(newScheduleDialog.dialog, addButton);
   });
   addButton.id = "schedule-add";
   addButton.disabled = locked || state.siteLists.length === 0;
-  addButton.classList.add("btn-outline", "min-h-10", "shadow-sm");
+  addButton.classList.add("min-h-10");
+  section.append(sectionHeadingWithAction("goal8RulesScheduledTitle", "goal8RulesScheduledDescription", addButton));
   if (state.siteLists.length === 0) {
     const notice = document.createElement("div");
     notice.className = "alert alert-soft border border-base-300 text-sm shadow-none";
@@ -824,7 +952,10 @@ function renderSchedules(
     appendText(notice, "span", translate("scheduleListRequiredFirst"));
     section.append(notice);
   }
-  section.append(listWrap, addButton);
+  if (state.schedules.length === 0) {
+    appendText(listWrap, "p", translate("goal8RulesSchedulesEmpty"), "px-4 py-5 text-sm text-base-content/60");
+  }
+  section.append(listWrap, newScheduleDialog.dialog);
   return section;
 }
 
@@ -834,31 +965,93 @@ function renderScheduleEditor(
   locked: boolean,
   handlers: OptionsHandlers
 ): HTMLElement {
-  const details = document.createElement("details");
-  details.className = "collapse collapse-arrow border-b border-base-200 bg-base-100 last:border-b-0";
-  const summary = document.createElement("summary");
-  summary.id = uniqueDomId("schedule-summary", schedule.id);
-  summary.className = "collapse-title grid min-h-12 grid-cols-[1fr_auto] items-center gap-3 pe-12 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary";
-  const summaryCopy = document.createElement("div");
-  summaryCopy.className = "min-w-0";
-  appendText(summaryCopy, "p", `${schedule.startHHMM} - ${schedule.endHHMM}`, "font-semibold tabular-nums");
-  const selectedList = state.siteLists.find((list) => list.id === schedule.listId);
-  appendText(summaryCopy, "p", selectedList ? siteListDisplayName(selectedList) : translate("listNone"), "break-all text-xs");
-  appendText(summary, "span", translate(schedule.enabled ? "commonEnabled" : "commonOff"), schedule.enabled ? "badge badge-soft badge-primary" : "badge badge-ghost");
-  summary.prepend(summaryCopy);
-
-  const form = document.createElement("form");
-  form.className = "collapse-content grid gap-3 border-t border-base-200 pt-4";
-  form.noValidate = true;
-
+  const row = document.createElement("div");
+  row.className = `grid min-h-20 grid-cols-[40px_minmax(0,1fr)] items-center gap-3 border-b border-base-200 px-4 py-3 last:border-b-0 sm:grid-cols-[40px_minmax(0,1fr)_auto] ${schedule.enabled ? "" : "opacity-70"}`;
   const enabledLabel = document.createElement("label");
-  enabledLabel.className = "label min-h-10 cursor-pointer justify-start gap-2";
+  enabledLabel.className = "grid min-h-10 min-w-10 cursor-pointer place-items-center";
   const enabled = document.createElement("input");
   enabled.type = "checkbox";
-  enabled.className = "checkbox checkbox-sm";
+  enabled.className = "toggle toggle-primary";
   enabled.checked = schedule.enabled;
   enabled.disabled = locked;
-  enabledLabel.append(enabled, ` ${translate("commonUse")}`);
+  enabled.id = uniqueDomId("schedule-toggle", schedule.id);
+  enabled.setAttribute("aria-label", translate("goal8RulesScheduleEnabledLabel", formatScheduleTrigger(schedule)));
+  enabled.addEventListener("change", () => {
+    enabled.disabled = true;
+    void requireOk(sendMessage({
+      type: "UPDATE_SCHEDULE",
+      payload: { schedule: { ...schedule, enabled: enabled.checked } }
+    })).then(
+      () => handlers.reload(translate("scheduleSaved"), "success", enabled.id),
+      (error: unknown) => {
+        enabled.checked = schedule.enabled;
+        enabled.disabled = locked;
+        showInlineError(row, localizeOptionsRuntimeError(
+          error instanceof Error ? error.message : undefined,
+          translate("scheduleSaveFailed")
+        ));
+      }
+    );
+  });
+  enabledLabel.append(enabled);
+  const summaryCopy = document.createElement("div");
+  summaryCopy.className = "min-w-0 flex-1";
+  const title = document.createElement("div");
+  title.className = "flex flex-wrap items-center gap-2";
+  appendText(title, "p", formatScheduleTrigger(schedule), "font-bold tabular-nums");
+  appendText(title, "span", translate(schedule.enabled ? "commonEnabled" : "commonOff"), schedule.enabled ? "badge badge-success badge-soft badge-sm whitespace-nowrap" : "badge badge-soft badge-sm whitespace-nowrap");
+  summaryCopy.append(title);
+  const selectedList = state.siteLists.find((list) => list.id === schedule.listId);
+  appendText(
+    summaryCopy,
+    "p",
+    selectedList
+      ? `${siteListDisplayName(selectedList)} · ${translate("domainCount", formatOptionsNumber(selectedList.domains.length))}`
+      : translate("listNone"),
+    "mt-1 break-words text-sm text-base-content/60"
+  );
+  const rowActions = document.createElement("div");
+  rowActions.className = "col-span-2 flex flex-row items-center justify-end gap-2 sm:col-span-1";
+  appendText(rowActions, "span", growthIntensityLabel(schedule.intensity), schedule.intensity === "medium" ? "badge badge-primary badge-soft h-auto whitespace-normal text-center" : "badge badge-soft h-auto whitespace-normal text-center");
+  const editor = renderScheduleDialog(schedule, state, locked, handlers, false);
+  const edit = button(translate("goal8CommonEdit"), "ghost", () => showModalDialog(editor.dialog, edit));
+  edit.id = uniqueDomId("schedule-summary", schedule.id);
+  edit.disabled = locked;
+  edit.classList.add("btn-sm", "min-h-10");
+  rowActions.append(edit);
+  row.append(enabledLabel, summaryCopy, rowActions, editor.dialog);
+  if (editor.deleteDialog) {
+    row.append(editor.deleteDialog);
+  }
+  return row;
+}
+
+function renderScheduleDialog(
+  schedule: Schedule,
+  state: OptionsState,
+  locked: boolean,
+  handlers: OptionsHandlers,
+  isNew: boolean
+): { dialog: HTMLDialogElement; deleteDialog?: HTMLDialogElement } {
+  const dialog = document.createElement("dialog");
+  dialog.className = "modal";
+  const titleId = uniqueDomId("schedule-editor-title", schedule.id);
+  dialog.setAttribute("aria-labelledby", titleId);
+  const box = document.createElement("div");
+  box.className = "modal-box max-w-xl border border-base-100/10 bg-base-100";
+  const header = document.createElement("div");
+  header.className = "flex items-start justify-between gap-4";
+  const headerCopy = document.createElement("div");
+  appendText(headerCopy, "p", translate("goal8RulesScheduledTitle"), "text-xs font-bold uppercase text-primary");
+  appendText(headerCopy, "h2", isNew ? translate("scheduleAdd") : formatScheduleTrigger(schedule), "mt-1 text-2xl font-black").id = titleId;
+  const close = button(translate("commonClose"), "ghost", () => dialog.close());
+  close.classList.add("btn-sm", "min-h-10", "min-w-10");
+  close.setAttribute("aria-label", translate("commonClose"));
+  header.append(headerCopy, close);
+
+  const form = document.createElement("form");
+  form.className = "mt-6 grid gap-5";
+  form.noValidate = true;
 
   const start = input("time", translate("commonStart"), schedule.startHHMM, locked);
   const end = input("time", translate("commonEnd"), schedule.endHHMM, locked);
@@ -866,75 +1059,87 @@ function renderScheduleEditor(
   end.control.required = true;
   const listSelect = select(translate("commonList"), state.siteLists.map((list) => [list.id, siteListDisplayName(list)]), schedule.listId, locked);
   listSelect.control.required = true;
-  const intensity = select(translate("intensityLabel"), [
-    ["soft", growthIntensityLabel("soft")],
-    ["medium", growthIntensityLabel("medium")],
-    ["hard", growthIntensityLabel("hard")]
-  ], schedule.intensity, locked);
+  const timeFields = document.createElement("div");
+  timeFields.className = "grid gap-3 sm:grid-cols-2";
+  timeFields.append(start.label, end.label);
 
   const days = document.createElement("fieldset");
-  days.className = "fieldset grid grid-cols-4 gap-2 sm:grid-cols-7";
+  days.className = "fieldset";
   days.disabled = locked;
   const legend = document.createElement("legend");
   legend.className = "fieldset-legend col-span-full";
   legend.textContent = translate("commonDays");
-  days.append(legend);
+  const dayGrid = document.createElement("div");
+  dayGrid.className = "grid grid-cols-4 gap-2 sm:grid-cols-7";
+  days.append(legend, dayGrid);
   DAY_KEYS.forEach((dayKey, index) => {
-    const label = document.createElement("label");
-    label.className = "label min-h-10 w-full min-w-0 cursor-pointer justify-center gap-1 text-xs";
     const checkbox = document.createElement("input");
     checkbox.type = "checkbox";
-    checkbox.className = "checkbox checkbox-sm";
+    checkbox.className = "btn h-auto min-h-10 min-w-10 px-1 text-xs";
     checkbox.value = String(index);
     checkbox.checked = schedule.days.includes(index);
-    label.append(checkbox, translate(dayKey));
-    days.append(label);
+    checkbox.setAttribute("aria-label", translate(dayKey));
+    dayGrid.append(checkbox);
   });
+
+  const intensity = document.createElement("fieldset");
+  intensity.className = "fieldset";
+  const intensityLegend = document.createElement("legend");
+  intensityLegend.className = "fieldset-legend";
+  intensityLegend.textContent = translate("intensityLabel");
+  const intensityJoin = document.createElement("div");
+  intensityJoin.className = "join grid grid-cols-3";
+  for (const value of ["soft", "medium", "hard"] as const) {
+    const radio = document.createElement("input");
+    radio.type = "radio";
+    radio.name = uniqueDomId("schedule-intensity", schedule.id);
+    radio.value = value;
+    radio.checked = schedule.intensity === value;
+    radio.disabled = locked;
+    radio.className = "btn join-item h-auto min-h-11 whitespace-normal px-2 text-xs leading-4";
+    radio.setAttribute("aria-label", growthIntensityLabel(value));
+    intensityJoin.append(radio);
+  }
+  intensity.append(intensityLegend, intensityJoin);
 
   const actions = document.createElement("div");
-  actions.className = "flex flex-wrap gap-2";
-  const save = submitButton(translate("commonSave"), locked, "soft");
+  actions.className = "modal-action flex flex-wrap justify-between gap-2";
+  const destructiveActions = document.createElement("div");
+  const commitActions = document.createElement("div");
+  commitActions.className = "flex flex-wrap gap-2";
+  const cancel = button(translate("commonCancel"), "ghost", () => dialog.close());
+  cancel.classList.add("min-h-10");
+  const save = submitButton(translate("commonSave"), locked, "primary");
   save.id = uniqueDomId("schedule-save", schedule.id);
-  actions.append(save);
-  const deleteDialog = document.createElement("dialog");
-  deleteDialog.className = "modal";
-  const dialogTitleId = uniqueDomId("schedule-delete-title", schedule.id);
-  const dialogDescriptionId = uniqueDomId("schedule-delete-description", schedule.id);
-  deleteDialog.setAttribute("aria-labelledby", dialogTitleId);
-  deleteDialog.setAttribute("aria-describedby", dialogDescriptionId);
-  deleteDialog.innerHTML = `
-    <div class="modal-box">
-      <h3 id="${dialogTitleId}" class="text-lg font-bold">${escapeHtml(translate("scheduleDeleteTitle"))}</h3>
-      <p id="${dialogDescriptionId}" class="mt-2 text-sm">${escapeHtml(translate("scheduleDeleteDescription", `${schedule.startHHMM} - ${schedule.endHHMM}`))}</p>
-      <div class="modal-action">
-        <div class="flex gap-2">
-          <button type="button" class="btn btn-ghost min-h-10" data-cancel>${escapeHtml(translate("commonCancel"))}</button>
-          <button type="button" class="btn btn-error min-h-10" data-confirm>${escapeHtml(translate("commonDelete"))}</button>
-        </div>
-      </div>
-    </div>
-    <form method="dialog" class="modal-backdrop"><button aria-label="${escapeHtml(translate("scheduleDeleteCloseLabel"))}">${escapeHtml(translate("commonClose"))}</button></form>
-  `;
-  configureModalDialog(deleteDialog);
-  deleteDialog.querySelector<HTMLButtonElement>("[data-cancel]")?.addEventListener("click", () => deleteDialog.close());
-  const confirmDelete = deleteDialog.querySelector<HTMLButtonElement>("[data-confirm]");
-  confirmDelete?.addEventListener("click", () => {
-    if (locked) {
-      return;
-    }
-    const dialogBox = deleteDialog.querySelector<HTMLElement>(".modal-box") ?? deleteDialog;
-    void runGuardedMutation(confirmDelete, translate("commonDeleting"), async () => {
-      await requireOk(sendMessage({ type: "DELETE_SCHEDULE", payload: { scheduleId: schedule.id } }));
-      deleteDialog.close();
-      await handlers.reload(translate("scheduleDeleted"), "success", "schedule-add");
-    }, dialogBox, translate("scheduleDeleteFailed"));
-  });
-  const removeButton = button(translate("commonDelete"), "ghost", () => showModalDialog(deleteDialog, removeButton));
-  removeButton.disabled = locked;
-  removeButton.classList.add("min-h-10");
-  actions.append(removeButton);
+  commitActions.append(cancel, save);
+  let deleteDialog: HTMLDialogElement | undefined;
+  if (!isNew) {
+    deleteDialog = confirmationDialog(
+      uniqueDomId("schedule-delete", schedule.id),
+      translate("scheduleDeleteTitle"),
+      translate("scheduleDeleteDescription", `${schedule.startHHMM} - ${schedule.endHHMM}`),
+      translate("scheduleDeleteCloseLabel")
+    );
+    const removeButton = button(translate("commonDelete"), "ghost", () => {
+      const editorReturnTarget = modalReturnTargets.get(dialog) ?? removeButton;
+      dialog.close();
+      window.queueMicrotask(() => showModalDialog(deleteDialog as HTMLDialogElement, editorReturnTarget));
+    });
+    removeButton.disabled = locked;
+    removeButton.classList.add("btn-error", "min-h-10");
+    destructiveActions.append(removeButton);
+    const confirmDelete = deleteDialog.querySelector<HTMLButtonElement>("[data-confirm]");
+    confirmDelete?.addEventListener("click", () => {
+      void runGuardedMutation(confirmDelete, translate("commonDeleting"), async () => {
+        await requireOk(sendMessage({ type: "DELETE_SCHEDULE", payload: { scheduleId: schedule.id } }));
+        deleteDialog?.close();
+        await handlers.reload(translate("scheduleDeleted"), "success", "schedule-add");
+      }, deleteDialog as HTMLDialogElement, translate("scheduleDeleteFailed"));
+    });
+  }
+  actions.append(destructiveActions, commitActions);
 
-  form.append(enabledLabel, listSelect.label, intensity.label, start.label, end.label, days, actions);
+  form.append(timeFields, days, listSelect.label, intensity, actions);
   form.addEventListener("submit", (event) => {
     event.preventDefault();
     if (locked) {
@@ -942,14 +1147,14 @@ function renderScheduleEditor(
     }
 
     const checkedDays = Array.from(days.querySelectorAll<HTMLInputElement>("input:checked")).map((checkbox) => Number(checkbox.value));
+    const selectedIntensity = intensity.querySelector<HTMLInputElement>("input:checked")?.value as Intensity | undefined;
     const nextSchedule: Schedule = {
       ...schedule,
-      enabled: enabled.checked,
       days: checkedDays,
       startHHMM: start.control.value,
       endHHMM: end.control.value,
       listId: listSelect.control.value,
-      intensity: intensity.control.value as Intensity
+      intensity: selectedIntensity ?? schedule.intensity
     };
     const validation = validateScheduleConfiguration(nextSchedule);
     start.control.removeAttribute("aria-invalid");
@@ -973,13 +1178,18 @@ function renderScheduleEditor(
     }
 
     void runGuardedMutation(save, translate("commonSaving"), async () => {
-      await requireOk(sendMessage({ type: "UPDATE_SCHEDULE", payload: { schedule: nextSchedule } }));
-      await handlers.reload(translate("scheduleSaved"), "success", summary.id);
-    }, form, translate("scheduleSaveFailed"));
+      await requireOk(sendMessage(isNew
+        ? { type: "CREATE_SCHEDULE", payload: { schedule: nextSchedule } }
+        : { type: "UPDATE_SCHEDULE", payload: { schedule: nextSchedule } }));
+      dialog.close();
+      await handlers.reload(translate(isNew ? "scheduleAdded" : "scheduleSaved"), "success", isNew ? "schedule-add" : uniqueDomId("schedule-summary", schedule.id));
+    }, form, translate(isNew ? "scheduleAddFailed" : "scheduleSaveFailed"));
   });
 
-  details.append(summary, form, deleteDialog);
-  return details;
+  box.append(header, form);
+  dialog.append(box, modalBackdrop(translate("commonClose")));
+  configureModalDialog(dialog);
+  return { dialog, deleteDialog };
 }
 
 function renderRecommendations(
@@ -989,6 +1199,7 @@ function renderRecommendations(
   handlers: OptionsHandlers
 ): HTMLElement {
   const section = card("recommendationsSectionTitle", "recommendationsSectionDescription");
+  section.classList.add("border-t", "border-base-100/10", "pt-6");
   section.setAttribute("aria-busy", String(ui.analyzing));
   appendText(
     section,
@@ -996,8 +1207,18 @@ function renderRecommendations(
     translate("recommendationsMethod"),
     "text-sm"
   );
-  const headerActions = document.createElement("div");
-  headerActions.className = "flex justify-end";
+  const permissionState = historyPermissionRowState(state.historyAccessGranted, locked, ui.analyzing);
+  const permissionRow = document.createElement("div");
+  permissionRow.className = "flex flex-wrap items-center gap-3 rounded-box border border-base-100/10 bg-base-100 p-4";
+  const permissionCopy = document.createElement("div");
+  permissionCopy.className = "min-w-0 flex-1";
+  appendText(permissionCopy, "strong", translate("historyPermissionTitle"));
+  appendText(
+    permissionCopy,
+    "p",
+    translate(permissionState.statusKey),
+    "mt-1 text-sm text-base-content/60"
+  );
   const analyzeButton = button(translate("historyAnalyze"), "soft", () => {
     if (locked || ui.analyzing) {
       return;
@@ -1005,11 +1226,17 @@ function renderRecommendations(
     void handlers.analyzeHistory();
   });
   analyzeButton.id = "history-analyze";
-  analyzeButton.disabled = locked || ui.analyzing;
+  analyzeButton.disabled = permissionState.analyzeDisabled;
   analyzeButton.textContent = translate(ui.analyzing ? "historyAnalyzing" : "historyAnalyze");
-  analyzeButton.classList.add("min-h-10", "shadow-sm");
-  headerActions.append(analyzeButton);
-  section.append(headerActions);
+  analyzeButton.classList.add("min-h-10");
+  const revokeButton = button(translate("historyPermissionRevoke"), "ghost", () => {
+    void handlers.revokeHistoryAccess();
+  });
+  revokeButton.id = "history-revoke";
+  revokeButton.disabled = permissionState.revokeDisabled;
+  revokeButton.classList.add("min-h-10");
+  permissionRow.append(permissionCopy, analyzeButton, revokeButton);
+  section.append(permissionRow);
 
   const wrap = document.createElement("div");
   wrap.className = "overflow-x-auto rounded-box border border-base-300 bg-base-100";
@@ -1056,12 +1283,12 @@ function renderRecommendations(
           type: "ADD_RECOMMENDATION_DOMAIN",
           payload: { domain: recommendation.domain }
         }));
-        await handlers.reload(translate("recommendationAdded", recommendation.domain), "success", "options-tab-insights");
+        await handlers.reload(translate("recommendationAdded", recommendation.domain), "success", add.id);
       }, section, translate("recommendationAddFailed", recommendation.domain));
     });
     add.id = uniqueDomId("recommendation-add", recommendation.domain);
     add.disabled = locked || blockedDomainsFromLists(state.siteLists).some((domain) => recommendation.domain === domain || recommendation.domain.endsWith(`.${domain}`));
-    add.classList.add("min-h-10", "shadow-sm");
+    add.classList.add("h-auto", "min-h-11", "py-2", "shadow-sm");
     action.append(add);
     row.append(action);
     tbody.append(row);
@@ -1074,6 +1301,34 @@ function renderRecommendations(
 
 export function requestHistoryAccess(): Promise<boolean> {
   return chrome.permissions.request({ permissions: ["history"] });
+}
+
+export async function hasHistoryAccess(): Promise<boolean> {
+  if (typeof chrome.permissions?.contains !== "function") {
+    return false;
+  }
+
+  try {
+    return await chrome.permissions.contains({ permissions: ["history"] });
+  } catch {
+    return false;
+  }
+}
+
+export function historyPermissionRowState(
+  granted: boolean,
+  locked: boolean,
+  analyzing: boolean
+): {
+  statusKey: "historyPermissionGranted" | "historyPermissionNotGranted";
+  analyzeDisabled: boolean;
+  revokeDisabled: boolean;
+} {
+  return {
+    statusKey: granted ? "historyPermissionGranted" : "historyPermissionNotGranted",
+    analyzeDisabled: locked || analyzing,
+    revokeDisabled: locked || !granted
+  };
 }
 
 async function requireOk<T extends { ok: boolean; error?: string }>(request: Promise<T>): Promise<T> {
@@ -1093,28 +1348,23 @@ export async function requestHistoryAnalysis(): Promise<void> {
 
 function renderPrivacyControls(handlers: OptionsHandlers): HTMLElement {
   const section = card("privacySectionTitle", "privacySectionDescription");
+  section.classList.add("border-t", "border-base-100/10", "pt-6");
   const actions = document.createElement("div");
-  actions.className = "flex flex-wrap justify-end gap-2";
+  actions.className = "overflow-hidden rounded-box border border-base-100/10 bg-base-100";
 
-  const revoke = button(translate("historyPermissionRevoke"), "soft", () => {
-    void handlers.revokeHistoryAccess();
-  });
-  revoke.id = "history-revoke";
-  revoke.classList.add("min-h-10", "shadow-sm");
-
-  const replay = button(translate("onboardingReplay"), "soft", () => {
+  const replay = button(translate("goal8PreferencesOpen"), "soft", () => {
     void requestOnboardingReplay().catch(() => {
       showInlineError(section, translate("onboardingReplayFailed"));
     });
   });
   replay.id = "onboarding-replay";
-  replay.classList.add("min-h-10", "shadow-sm");
+  replay.classList.add("btn-sm", "min-h-10");
 
-  const clear = button(translate("localDataClear"), "soft", () => {
+  const clear = button(translate("localDataClearConfirm"), "soft", () => {
     showModalDialog(dialog, clear);
   });
   clear.id = "local-data-clear";
-  clear.classList.add("btn-error", "btn-outline", "min-h-10");
+  clear.classList.add("btn-error", "btn-sm", "min-h-10");
 
   const titleId = uniqueDomId("local-data-clear-title", "all");
   const descriptionId = uniqueDomId("local-data-clear-description", "all");
@@ -1148,7 +1398,10 @@ function renderPrivacyControls(handlers: OptionsHandlers): HTMLElement {
     });
   });
 
-  actions.append(replay, revoke, clear);
+  actions.append(
+    actionRow("onboardingReplay", "goal8PreferencesReplayDescription", replay, true),
+    actionRow("localDataClear", "goal8PreferencesClearDescription", clear, false)
+  );
   section.append(actions, dialog);
   return section;
 }
@@ -1159,37 +1412,37 @@ export function requestOnboardingReplay(): Promise<void> {
 
 function renderDashboard(state: OptionsState): HTMLElement {
   const section = document.createElement("section");
-  section.className = "space-y-4";
+  section.className = "grid gap-4";
   const aggregate = aggregateDashboard(state.dailyStats, state.sessionLog);
-  const heading = document.createElement("div");
-  heading.className = "space-y-1";
-  appendText(heading, "h2", translate("dashboardTitle"), "text-xl font-bold");
-  appendText(heading, "p", translate("dashboardDescription"), "text-sm");
-  section.append(heading);
   const metrics = document.createElement("div");
-  metrics.className = "stats stats-horizontal w-full overflow-hidden bg-base-100 shadow-sm";
+  metrics.className = "stats stats-vertical w-full overflow-hidden bg-base-100 shadow-sm sm:stats-horizontal";
   metric(metrics, translate("metricFocusMinutes"), formatOptionsNumber(aggregate.totalFocusMinutes));
+  metric(metrics, translate("goal8MetricCompleted"), formatOptionsNumber(aggregate.sessions.completed));
   metric(metrics, translate("metricBlockedAttempts"), formatOptionsNumber(aggregate.blockedAttempts));
   metric(metrics, translate("metricOverrides"), formatOptionsNumber(aggregate.overrides));
-  metric(metrics, translate("metricInterrupted"), formatOptionsNumber(aggregate.sessions.interrupted));
   section.append(metrics);
 
-  const weekly = aggregate.weekly.slice(-8);
+  const reviewGrid = document.createElement("div");
+  reviewGrid.className = "grid gap-4 md:grid-cols-[1.25fr_0.75fr]";
+  const weekly = recentFocusWeeks(aggregate.weekly, 8);
   const chart = document.createElement("div");
-  chart.className = "rounded-box border border-base-300 bg-base-100 p-4 shadow-sm";
-  appendText(chart, "h3", translate("weeklyFocusTitle"), "font-semibold");
-  if (weekly.length === 0) {
-    appendText(chart, "p", translate("weeklyFocusEmpty"), "mt-3 text-sm");
+  chart.className = "space-y-4 rounded-box border border-base-100/10 bg-base-100 p-4";
+  const chartHeading = document.createElement("div");
+  appendText(chartHeading, "h2", translate("goal8ReviewEightWeekTitle"), "font-black");
+  appendText(chartHeading, "p", translate("goal8ReviewEightWeekDescription"), "text-xs text-base-content/55");
+  chart.append(chartHeading);
+  if (aggregate.weekly.length === 0) {
+    appendText(chart, "p", translate("weeklyFocusEmpty"), "text-sm text-base-content/60");
   } else {
     const max = Math.max(1, ...weekly.map((entry) => entry.focusMinutes));
     const bars = document.createElement("div");
-    bars.className = "mt-4 grid h-40 items-end gap-2";
+    bars.className = "grid h-36 items-end gap-2";
     bars.style.gridTemplateColumns = `repeat(${weekly.length}, minmax(0, 1fr))`;
     for (const entry of weekly) {
       const column = document.createElement("div");
-      column.className = "grid h-full grid-rows-[1fr_auto_auto] items-end gap-1 text-center";
+      column.className = "grid h-full grid-rows-[1fr_auto] items-end gap-1 text-center";
       const track = document.createElement("div");
-      track.className = "flex h-full items-end overflow-hidden rounded-field bg-base-200";
+      track.className = "flex h-full items-end overflow-hidden rounded-field bg-primary/10";
       const fill = document.createElement("div");
       fill.className = "w-full rounded-field bg-primary motion-safe:transition-[height] motion-safe:duration-700 motion-reduce:transition-none";
       fill.style.height = weeklyBarHeight(entry.focusMinutes, max);
@@ -1197,42 +1450,75 @@ function renderDashboard(state: OptionsState): HTMLElement {
       const weekLabel = formatOptionsWeekDate(entry.weekStart);
       fill.setAttribute("aria-label", translate("weeklyFocusAria", [weekLabel, formatOptionsNumber(entry.focusMinutes)]));
       track.append(fill);
-      appendText(column, "span", translate("commonMinutes", formatOptionsNumber(entry.focusMinutes)), "text-xs font-semibold tabular-nums");
-      appendText(column, "span", weekLabel, "text-xs tabular-nums");
+      appendText(column, "span", weekLabel, "truncate text-xs tabular-nums text-base-content/55");
       column.prepend(track);
       bars.append(column);
     }
     chart.append(bars);
   }
-  section.append(chart);
+  reviewGrid.append(chart);
 
-  const categoryEntries = Object.entries(aggregate.categories)
+  const attemptedTargets = collectAttemptedTargets(state.dailyStats, 5);
+  const targets = document.createElement("div");
+  targets.className = "space-y-4 rounded-box border border-base-100/10 bg-base-100 p-4";
+  const targetHeading = document.createElement("div");
+  appendText(targetHeading, "h2", translate("goal8ReviewTargetsTitle"), "font-black");
+  appendText(targetHeading, "p", translate("goal8ReviewTargetsDescription"), "text-xs text-base-content/55");
+  targets.append(targetHeading);
+  const targetRows = document.createElement("div");
+  targetRows.className = "space-y-3 text-sm";
+  const maxTargetAttempts = Math.max(1, ...attemptedTargets.map((target) => target.attempts));
+  for (const target of attemptedTargets) {
+    const row = document.createElement("div");
+    const label = document.createElement("div");
+    label.className = "flex justify-between gap-3";
+    appendText(label, "span", target.domain, "min-w-0 break-all");
+    appendText(label, "strong", formatOptionsNumber(target.attempts), "tabular-nums");
+    const bar = document.createElement("progress");
+    bar.className = "progress progress-primary h-1.5 w-full";
+    bar.max = maxTargetAttempts;
+    bar.value = target.attempts;
+    row.append(label, bar);
+    targetRows.append(row);
+  }
+  if (attemptedTargets.length === 0) {
+    appendText(targetRows, "p", translate("goal8ReviewTargetsEmpty"), "text-sm text-base-content/60");
+  }
+  targets.append(targetRows, renderCategorySummary(aggregate.categories));
+  reviewGrid.append(targets);
+  section.append(reviewGrid);
+  return section;
+}
+
+function renderCategorySummary(categories: ReturnType<typeof aggregateDashboard>["categories"]): HTMLElement {
+  const details = document.createElement("details");
+  details.className = "collapse collapse-arrow border-t border-base-200 pt-2";
+  appendText(details, "summary", translate("blockedCategoriesTitle"), "collapse-title min-h-10 px-0 text-sm font-semibold");
+  const content = document.createElement("div");
+  content.className = "collapse-content grid gap-3 px-0";
+  const entries = Object.entries(categories)
     .filter(([, summary]) => summary.visits > 0)
     .sort((left, right) => right[1].visits - left[1].visits)
     .slice(0, 5);
-  const categories = document.createElement("div");
-  categories.className = "grid gap-3 rounded-box border border-base-300 bg-base-100 p-4 shadow-sm";
-  appendText(categories, "h3", translate("blockedCategoriesTitle"), "font-semibold");
-  const maxCategoryVisits = Math.max(1, ...categoryEntries.map(([, summary]) => summary.visits));
-  for (const [category, summary] of categoryEntries) {
+  const maxVisits = Math.max(1, ...entries.map(([, summary]) => summary.visits));
+  for (const [category, summary] of entries) {
     const row = document.createElement("div");
-    row.className = "grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3";
-    const copy = document.createElement("div");
-    appendText(copy, "p", categoryLabel(category), "text-sm font-medium");
+    const label = document.createElement("div");
+    label.className = "flex justify-between gap-3 text-xs";
+    appendText(label, "span", categoryLabel(category));
+    appendText(label, "strong", formatOptionsNumber(summary.visits), "tabular-nums");
     const bar = document.createElement("progress");
-    bar.className = "progress progress-primary mt-1 h-2 w-full";
-    bar.max = maxCategoryVisits;
+    bar.className = "progress progress-primary mt-1 h-1.5 w-full";
+    bar.max = maxVisits;
     bar.value = summary.visits;
-    copy.append(bar);
-    appendText(row, "span", formatOptionsNumber(summary.visits), "text-sm font-semibold tabular-nums");
-    row.prepend(copy);
-    categories.append(row);
+    row.append(label, bar);
+    content.append(row);
   }
-  if (categoryEntries.length === 0) {
-    appendText(categories, "p", translate("blockedCategoriesEmpty"), "text-sm");
+  if (entries.length === 0) {
+    appendText(content, "p", translate("blockedCategoriesEmpty"), "text-sm text-base-content/60");
   }
-  section.append(categories);
-  return section;
+  details.append(content);
+  return details;
 }
 
 export function weeklyBarHeight(focusMinutes: number, maxFocusMinutes: number): string {
@@ -1244,18 +1530,118 @@ export function weeklyBarHeight(focusMinutes: number, maxFocusMinutes: number): 
   return `${Math.max(6, Math.round((focusMinutes / safeMax) * 100))}%`;
 }
 
+function sectionHeadingWithAction(
+  titleKey: string,
+  descriptionKey: string,
+  action: HTMLElement,
+  withDivider = false
+): HTMLElement {
+  const header = document.createElement("div");
+  header.className = `flex items-end justify-between gap-4 ${withDivider ? "border-t border-base-100/10 pt-6" : ""}`;
+  const copy = document.createElement("div");
+  appendText(copy, "h2", translate(titleKey), "text-xl font-black");
+  appendText(copy, "p", translate(descriptionKey), "text-sm text-base-content/60");
+  header.append(copy, action);
+  return header;
+}
+
+function actionRow(
+  titleKey: string,
+  descriptionKey: string,
+  action: HTMLElement,
+  withDivider: boolean
+): HTMLElement {
+  const row = document.createElement("div");
+  row.className = `flex min-h-16 items-center justify-between gap-4 px-4 py-3 ${withDivider ? "border-b border-base-200" : ""}`;
+  const copy = document.createElement("div");
+  copy.className = "min-w-0";
+  appendText(copy, "strong", translate(titleKey));
+  appendText(copy, "p", translate(descriptionKey), "mt-1 text-sm text-base-content/55");
+  row.append(copy, action);
+  return row;
+}
+
+function appendFact(container: HTMLElement, label: string, value: string): void {
+  const row = document.createElement("div");
+  row.className = "flex justify-between gap-3 border-b border-base-300 py-2 last:border-b-0";
+  appendText(row, "span", label, "text-base-content/60");
+  appendText(row, "strong", value, "min-w-0 break-all text-right");
+  container.append(row);
+}
+
+export function formatScheduleTrigger(
+  schedule: Pick<Schedule, "days" | "startHHMM" | "endHHMM">,
+  localeOverride?: SupportedLocale
+): string {
+  const normalizedDays = Array.from(new Set(schedule.days)).filter((day) => day >= 0 && day <= 6).sort((left, right) => left - right);
+  const dayText = arraysEqual(normalizedDays, [1, 2, 3, 4, 5])
+    ? translate("goal8RulesWeekdays", undefined, localeOverride)
+    : arraysEqual(normalizedDays, [0, 6])
+      ? translate("goal8RulesWeekend", undefined, localeOverride)
+      : arraysEqual(normalizedDays, [0, 1, 2, 3, 4, 5, 6])
+        ? translate("goal8RulesEveryDay", undefined, localeOverride)
+        : normalizedDays.map((day) => translate(DAY_KEYS[day] ?? "daySun", undefined, localeOverride)).join(", ");
+  return `${dayText} · ${schedule.startHHMM}–${schedule.endHHMM}`;
+}
+
+function formatScheduleCount(count: number): string {
+  return translate(
+    count === 1 ? "goal8RulesScheduleCountOne" : "goal8RulesScheduleCount",
+    formatOptionsNumber(count)
+  );
+}
+
+function arraysEqual(left: readonly number[], right: readonly number[]): boolean {
+  return left.length === right.length && left.every((value, index) => value === right[index]);
+}
+
+function confirmationDialog(id: string, title: string, description: string, closeLabel: string): HTMLDialogElement {
+  const dialog = document.createElement("dialog");
+  dialog.className = "modal";
+  const titleId = `${id}-title`;
+  const descriptionId = `${id}-description`;
+  dialog.setAttribute("aria-labelledby", titleId);
+  dialog.setAttribute("aria-describedby", descriptionId);
+  const box = document.createElement("div");
+  box.className = "modal-box bg-base-100";
+  appendText(box, "h3", title, "text-lg font-bold").id = titleId;
+  appendText(box, "p", description, "mt-2 break-all text-sm").id = descriptionId;
+  const actions = document.createElement("div");
+  actions.className = "modal-action flex gap-2";
+  const cancel = button(translate("commonCancel"), "ghost", () => dialog.close());
+  cancel.classList.add("min-h-10");
+  cancel.dataset.cancel = "true";
+  const confirm = button(translate("commonDelete"), "ghost", () => undefined);
+  confirm.classList.add("btn-error", "min-h-10");
+  confirm.dataset.confirm = "true";
+  actions.append(cancel, confirm);
+  box.append(actions);
+  dialog.append(box, modalBackdrop(closeLabel));
+  configureModalDialog(dialog);
+  return dialog;
+}
+
+function modalBackdrop(closeLabel: string): HTMLFormElement {
+  const backdrop = document.createElement("form");
+  backdrop.method = "dialog";
+  backdrop.className = "modal-backdrop";
+  const close = document.createElement("button");
+  close.setAttribute("aria-label", closeLabel);
+  close.textContent = translate("commonClose");
+  backdrop.append(close);
+  return backdrop;
+}
+
 function card(titleKey: string, descriptionKey?: string): HTMLElement {
   const section = document.createElement("section");
-  section.className = "space-y-4";
+  section.className = "grid gap-4";
   const heading = document.createElement("div");
   heading.className = "space-y-1";
-  appendText(heading, "h2", translate(titleKey), "text-xl font-bold");
+  appendText(heading, "h2", translate(titleKey), "text-xl font-black");
   if (descriptionKey) {
-    appendText(heading, "p", translate(descriptionKey), "text-sm");
+    appendText(heading, "p", translate(descriptionKey), "text-sm text-base-content/60");
   }
-  const divider = document.createElement("div");
-  divider.className = "divider my-0";
-  section.append(heading, divider);
+  section.append(heading);
   return section;
 }
 

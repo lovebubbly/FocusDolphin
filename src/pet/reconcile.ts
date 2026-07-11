@@ -48,7 +48,8 @@ export function reconcilePetGamification(now: Date = new Date()): Promise<PetRec
       beforeBadges,
       petState,
       now.getTime(),
-      streakLedgerValue?.previousStreakDays
+      streakLedgerValue?.previousStreakDays,
+      settlement.settledSessionIds.length === 1 ? settlement.settledSessionIds[0] : undefined
     );
 
     const journal: PetReconciliationJournal = {
@@ -162,30 +163,38 @@ function streakGrowthEvents(
   beforeBadges: Set<string>,
   petState: PetState,
   now: number,
-  previousStreakDays?: number
+  previousStreakDays?: number,
+  sessionId?: string
 ): GrowthEvent[] {
   const events: GrowthEvent[] = [];
+  // A reconciliation can recover multiple completions at once. Associate
+  // milestones only when their triggering completion is unambiguous.
+  const association = sessionId ? { sessionId } : {};
   if (streakResult.freezeAwarded) {
-    events.push(createGrowthEvent("freeze_granted", now, {}));
+    events.push(createGrowthEvent("freeze_granted", now, association));
   }
   if (streakResult.freezeConsumed) {
-    events.push(createGrowthEvent("freeze_used", now, {}));
+    events.push(createGrowthEvent("freeze_used", now, association));
   }
   if (streakResult.restStarted) {
-    events.push(createGrowthEvent("streak_rest", now, { streakFrom: streakResult.recovery.previousStreakDays }));
+    events.push(createGrowthEvent("streak_rest", now, { ...association, streakFrom: streakResult.recovery.previousStreakDays }));
   }
   if (streakResult.streakRestored) {
     events.push(createGrowthEvent("streak_restored", now, {
+      ...association,
       streakFrom: previousStreakDays,
       streakTo: petState.streakDays
     }));
   }
   if (streakResult.freshStarted) {
-    events.push(createGrowthEvent("streak_fresh_start", now, {}));
+    events.push(createGrowthEvent("streak_fresh_start", now, association));
   }
   for (const badge of petState.badges) {
     if (!beforeBadges.has(badge)) {
-      events.push(createGrowthEvent("badge_earned", petState.badgeAwards[badge]?.earnedAt ?? now, { badgeId: badge }));
+      events.push(createGrowthEvent("badge_earned", petState.badgeAwards[badge]?.earnedAt ?? now, {
+        ...association,
+        badgeId: badge
+      }));
     }
   }
   return events;
