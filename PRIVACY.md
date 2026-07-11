@@ -1,6 +1,6 @@
 # FocusWhale Privacy Policy
 
-Product owner: **Choi Yunseong (최윤성)**. Repository-accuracy refresh prepared by **OpenAI Codex (GPT-5)** on **2026-07-11 02:42 KST**.
+Product owner: **Choi Yunseong (최윤성)**. Repository-accuracy and public-verification refresh prepared by **OpenAI Codex (GPT-5)** on **2026-07-11 10:17 KST**.
 
 Effective date: July 10, 2026
 
@@ -78,4 +78,4 @@ Material changes to data collection, permissions, transmission, or retention sho
 
 For support, privacy questions, or deletion questions, use [FocusWhale GitHub Issues](https://github.com/lovebubbly/FocusWhale/issues). Do not include private browsing details, intent text, or other sensitive information in a public issue.
 
-The intended stable public location for this policy is [the repository `PRIVACY.md`](https://github.com/lovebubbly/FocusWhale/blob/main/PRIVACY.md). Publication evidence must verify that exact HTTPS URL after the release-preparation commits are pushed.
+The stable public location for this policy is [the repository `PRIVACY.md`](https://github.com/lovebubbly/FocusWhale/blob/main/PRIVACY.md). That exact HTTPS page and its Limited Use statement were publicly verified on July 11, 2026.

@@ -22,7 +22,7 @@ The rebuilt bundle passed the isolated Whale 4.38 core matrix for soft, medium, 
 
 Still pending before publication:
 
-- Publish and verify the intended public privacy-policy URL; GitHub Issues is already selected as the support/privacy channel.
+- Enter the verified public privacy-policy and support URLs in the Whale publisher submission.
 - Record product-owner approval of the prepared store copy, disclosures, and exact-build imagery.
 - Upload the exact package to the selected store and complete its review process.
 
@@ -167,13 +167,13 @@ The live Whale development extension used for final-candidate checks had ID `ojo
 
 ## Packaging And Publication
 
-Version 1.0.0 is packaged at `release/FocusWhale-1.0.0.zip` (**2,694,409 bytes**, SHA-256 `241a9863fde194a20d1f0f54dc1a7377bf9314dd40413e5fd1488dab52c97f18`). Its checksum passes; the 33-entry/25-file extracted tree is byte-for-byte equal to the exact current `dist/`; and a clean visible Whale 4.38 profile loaded the extracted copy as extension ID `ejhfobkhmdabjhobogffeineggppeafj`, rendered the popup with no page console errors, and opened the packaged third-party notice. The executable payload remains byte-identical to the fully tested release candidate; the only package addition is `licenses/THIRD-PARTY-NOTICES.txt`. The archive token/path/email scan found no findings. This is still not a store-submitted release. The exact package is selected for a Whale Store first submission. Paste-ready listing, permission, privacy, reviewer, and release-note materials are under [store/](store/); exact-build listing images are under `store-assets/`. GitHub Issues is the selected support/privacy channel. The intended stable policy URL is [the repository `PRIVACY.md`](https://github.com/lovebubbly/FocusWhale/blob/main/PRIVACY.md); the release checklist records its public verification separately from local preparation. Before public release, complete every blocking item in [RELEASE_CHECKLIST.md](RELEASE_CHECKLIST.md) and obtain owner sign-off.
+Version 1.0.0 is packaged at `release/FocusWhale-1.0.0.zip` (**2,694,409 bytes**, SHA-256 `241a9863fde194a20d1f0f54dc1a7377bf9314dd40413e5fd1488dab52c97f18`). Its checksum passes; the 33-entry/25-file extracted tree is byte-for-byte equal to the exact current `dist/`; and a clean visible Whale 4.38 profile loaded the extracted copy as extension ID `ejhfobkhmdabjhobogffeineggppeafj`, rendered the popup with no page console errors, and opened the packaged third-party notice. The executable payload remains byte-identical to the fully tested release candidate; the only package addition is `licenses/THIRD-PARTY-NOTICES.txt`. The archive token/path/email scan found no findings. This is still not a store-submitted release. The exact package is selected for a Whale Store first submission. Paste-ready listing, permission, privacy, reviewer, and release-note materials are under [store/](store/); exact-build listing images are under `store-assets/`. [GitHub Issues](https://github.com/lovebubbly/FocusWhale/issues) is the public support/privacy channel, and [the repository privacy policy](https://github.com/lovebubbly/FocusWhale/blob/main/PRIVACY.md) was publicly verified on 2026-07-11. Before public release, complete every remaining owner/store item in [RELEASE_CHECKLIST.md](RELEASE_CHECKLIST.md) and obtain owner sign-off.
 
 The repository is publicly viewable but **all rights are reserved** under [LICENSE](LICENSE); no open-source license is granted for FocusWhale's original work. Pretendard remains under SIL OFL; Tailwind CSS, daisyUI, and the Vite core runtime retain their MIT notices in the shipped `licenses/` directory; generated sprite provenance is recorded separately.
 
 ## Documentation Provenance
 
 - Product owner and repository maintainer: **Choi Yunseong (최윤성)** (`Yunseong Choi` in Git history).
-- This release/handoff and store-preparation refresh was prepared by **OpenAI Codex (GPT-5)**, at Choi Yunseong's request and last refreshed on **2026-07-11 02:42 KST**.
+- This release/handoff and store-preparation refresh was prepared by **OpenAI Codex (GPT-5)**, at Choi Yunseong's request and last refreshed on **2026-07-11 10:17 KST**.
 - Evidence comes from the local repository, current automated gates, and exact-build disposable-profile browser runs recorded in `QA.md`; owner and publication checks remain labeled explicitly.
 - Code authorship remains defined by Git history. Documentation attribution does not imply product-owner approval of every Codex assessment.

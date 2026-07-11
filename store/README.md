@@ -30,7 +30,7 @@ Whale currently accepts MV3 ZIP submissions and requires a 128 x 128 icon plus o
 
 1. Review the Korean listing, privacy disclosures, screenshots, and license choice.
 2. Confirm that GitHub Issues will be monitored without asking users to post private browsing details.
-3. Verify the public privacy-policy URL returns the committed policy.
+3. Recheck the already verified public privacy-policy URL at submission time.
 4. Confirm the ZIP contains Pretendard's SIL OFL plus the Tailwind CSS, daisyUI, and Vite core MIT notices under `licenses/`.
 5. Register or sign in to the selected publisher account.
 6. Upload the exact checksum-verified ZIP and the prepared listing assets.

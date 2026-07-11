@@ -98,7 +98,7 @@ All notable FocusWhale changes are documented here. The project has not yet reco
 
 - A verified local release ZIP exists; no store submission or publication is recorded.
 - Whale Store is selected as the first exact-package target. Listing copy, privacy/permission declarations, reviewer instructions, release notes, and exact-build store images are prepared under `store/` and `store-assets/`.
-- GitHub Issues is the selected support/privacy contact. The repository `PRIVACY.md` URL remains a publication gate until the current commit is pushed and that exact HTTPS page is verified.
+- GitHub Issues is the public support/privacy contact. The repository `PRIVACY.md` HTTPS page and its Limited Use statement were publicly verified on 2026-07-11; entering those URLs in the publisher submission remains an owner/store step.
 - The repository now records an explicit all-rights-reserved source and original-asset license; third-party licenses remain unchanged.
 - Goal 5 opt-in LLM analysis is not included.
 - Mobile/SNSLOCK implementation is outside this repository/version.

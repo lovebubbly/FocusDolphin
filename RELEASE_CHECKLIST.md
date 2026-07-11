@@ -1,6 +1,6 @@
 # FocusWhale v1.0.0 Release Checklist
 
-Last refreshed: **2026-07-11 02:42 KST** by **OpenAI Codex (GPT-5)**, for requester and product owner **Choi Yunseong (최윤성)**.
+Last refreshed: **2026-07-11 10:17 KST** by **OpenAI Codex (GPT-5)**, for requester and product owner **Choi Yunseong (최윤성)**.
 
 The source version is 1.0.0, but this checklist is the publication gate. Unchecked blocking rows mean the product is not ready to submit.
 
@@ -54,7 +54,7 @@ The core matrix passed in Whale. The exact headed pass additionally covered list
 
 - [x] Reconcile `PRIVACY.md` against final retention and in-product clear behavior.
 - [x] Set [GitHub Issues](https://github.com/lovebubbly/FocusWhale/issues) as the support/privacy contact channel.
-- [ ] Publish `PRIVACY.md` at a stable public HTTPS URL.
+- [x] Publish `PRIVACY.md` at a stable public HTTPS URL. **GitHub public page and Limited Use statement verified 2026-07-11 after push**
 - [ ] Add the public privacy URL to store metadata.
 - [x] Secret/privacy scan passes against the exact current candidate and release archive; archive token/path/email scan has no findings.
 - [x] Repeat the scan against the exact release commit if it differs from the current artifact. **`6dfb1cd` source and final extracted archive: no secret/token/private-key/machine-path findings**
@@ -104,4 +104,4 @@ The core matrix passed in Whale. The exact headed pass additionally covered list
 
 ## Current Decision
 
-**Release preparation is nearly complete, but no store submission is authorized or recorded.** All technical exact-build QA, automated gates, headed usability/accessibility/history checks, recovery fault injection, archive verification, listing copy, permission/privacy declarations, reviewer instructions, exact-build imagery, release notes, target-store choice, and license decision are complete. Remaining gates are public privacy-URL verification, confirmation that the support channel will be monitored, product-owner approval, publisher-dashboard entry, upload, review, and publication. A signed source tag is optional and deferred until owner approval.
+**Release preparation is complete up to the owner/store boundary, but no store submission is authorized or recorded.** All technical exact-build QA, automated gates, headed usability/accessibility/history checks, recovery fault injection, archive verification, public policy verification, listing copy, permission/privacy declarations, reviewer instructions, exact-build imagery, release notes, target-store choice, and license decision are complete. Remaining gates are confirmation that the support channel will be monitored, product-owner approval, publisher-dashboard metadata entry, upload, review, and publication. A signed source tag is optional and deferred until owner approval.

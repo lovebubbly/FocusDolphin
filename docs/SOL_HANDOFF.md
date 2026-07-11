@@ -5,7 +5,7 @@
 > - Product owner and requester: **Choi Yunseong (최윤성)**
 > - Prepared and consolidated by: **OpenAI Codex (GPT-5)**
 > - Original document created: **2026-07-09 21:11:44 KST**
-> - Current release-preparation refresh: **2026-07-11 02:42 KST**
+> - Current release-preparation refresh: **2026-07-11 10:17 KST**
 > - Time zone: **Asia/Seoul (UTC+09:00)**
 > - Evidence basis: local source, current automated/static gates, exact-final disposable-profile Whale/Chrome-for-Testing runs, and the clean-profile extracted-archive smoke test recorded in `QA.md`
 > - Approval caveat: this handoff does not claim product-owner approval, store review, or publication
@@ -24,7 +24,7 @@ Automated release gates are green:
 
 The exact final bundle passed isolated Whale 4.38 checks for soft, medium, hard, popup emergency, Options, all 20 pet states, adversarial `x.com.`, both sides of browser-process restart, simultaneous natural/emergency alarms, all protected sync fields, and the next eligible schedule occurrence. Headed Whale additionally passed list-rerender dismissal, blank intent, Options keyboard/modal focus, normal/reduced completion motion, and a 13-state accessibility matrix with 68 contrast checks (minimum 4.94:1), 40 px minimum targets, 19 screenshots, and no page errors. Instrumented exact-build checks replaced the worker at both durable recovery-journal boundaries and held history computation open for five seconds while the due alarm and stale-result generation guard remained responsive. Headed Chrome for Testing 147 accepted the real optional-history prompt, verified domain-only results and extension-URL exclusion, revoked permission, and started a medium session afterward. A clean profile loaded the extracted release archive and fetched the exact content bundle. Visual assertions use local `/tmp` screenshots; no recording or external upload occurred.
 
-The candidate is **not store-published**. The exact current `dist/` is packaged at `release/FocusWhale-1.0.0.zip` (2,694,409 bytes; SHA-256 `241a9863fde194a20d1f0f54dc1a7377bf9314dd40413e5fd1488dab52c97f18`). Its checksum passes; 33 entries / 25 files extract byte-equal to `dist/`; and a clean visible Whale 4.38 profile loaded the extracted copy as extension ID `ejhfobkhmdabjhobogffeineggppeafj`, rendered the popup with no page console errors, and opened the packaged Tailwind CSS/daisyUI/Vite notices. All executable files retain the fully tested candidate fingerprints; the archive adds only the required notice file. The archive token/path/email scan found no findings. Whale Store is selected as the first exact-package target. Listing copy, permission/privacy declarations, reviewer instructions, release notes, and exact-build store images are prepared under `store/` and `store-assets/`. GitHub Issues is the selected support/privacy channel, and the repository `PRIVACY.md` path is the intended policy URL. Public URL verification, owner approval, dashboard upload, review, and publication remain separate gates.
+The candidate is **not store-published**. The exact current `dist/` is packaged at `release/FocusWhale-1.0.0.zip` (2,694,409 bytes; SHA-256 `241a9863fde194a20d1f0f54dc1a7377bf9314dd40413e5fd1488dab52c97f18`). Its checksum passes; 33 entries / 25 files extract byte-equal to `dist/`; and a clean visible Whale 4.38 profile loaded the extracted copy as extension ID `ejhfobkhmdabjhobogffeineggppeafj`, rendered the popup with no page console errors, and opened the packaged Tailwind CSS/daisyUI/Vite notices. All executable files retain the fully tested candidate fingerprints; the archive adds only the required notice file. The archive token/path/email scan found no findings. Whale Store is selected as the first exact-package target. Listing copy, permission/privacy declarations, reviewer instructions, release notes, and exact-build store images are prepared under `store/` and `store-assets/`. GitHub Issues and the repository `PRIVACY.md` page are publicly reachable; the policy's Limited Use statement was verified on 2026-07-11. Owner approval, publisher-dashboard entry, upload, review, and publication remain separate gates.
 
 ## Evidence Discipline
 
@@ -201,7 +201,7 @@ Options provides `로컬 기록 지우기`. It:
 - preserves sync-backed settings, lists, schedules, and pet state;
 - preserves current-week emergency usage and any unexpired schedule-occurrence suppression so clear cannot bypass either limit.
 
-The repository privacy policy is `PRIVACY.md`. [GitHub Issues](https://github.com/lovebubbly/FocusWhale/issues) is the selected support/privacy channel. The intended stable policy URL is `https://github.com/lovebubbly/FocusWhale/blob/main/PRIVACY.md`; public reachability must be verified after the release-preparation commit is pushed.
+The repository privacy policy is `PRIVACY.md`. [GitHub Issues](https://github.com/lovebubbly/FocusWhale/issues) is the public support/privacy channel. The stable policy URL is `https://github.com/lovebubbly/FocusWhale/blob/main/PRIVACY.md`; both it and the Limited Use statement were publicly verified on 2026-07-11.
 
 ## Notion Issue Resolution
 
@@ -255,7 +255,7 @@ Instrumented exact-build pass:
 Pending manual/publication states:
 
 - product-owner visual/reward judgment and final release sign-off;
-- public policy URL verification, confirmation that the support channel will be monitored, owner approval of the prepared store pack, dashboard upload, review, and publication.
+- confirmation that the support channel will be monitored, owner approval of the prepared store pack, publisher-dashboard metadata entry, upload, review, and publication.
 
 Consumer Google Chrome 148 rejects command-line unpacked-extension loading before FocusWhale runs; Chrome for Testing 147 is the supported disposable-profile cross-check. The browser-chrome optional-permission confirmation passed in the headed channel. These are evidence boundaries, not observed FocusWhale runtime failures.
 
@@ -264,7 +264,7 @@ Consumer Google Chrome 148 rejects command-line unpacked-extension loading befor
 1. Preserve executable baseline `acb45b6` and publication-pack commit `6dfb1cd`; the latter adds store/repository collateral and the packaged third-party notice without changing app logic or the manifest.
 2. Run `npm run typecheck`, `npm test`, and `npm run build` again after any change.
 3. Keep every technical evidence row in `QA.md` green if the binary changes.
-4. Push the committed `PRIVACY.md`, verify the intended GitHub URL is publicly reachable, and use GitHub Issues as the support/privacy channel.
+4. Preserve the verified public `PRIVACY.md` URL and GitHub Issues support channel; recheck both at submission time.
 5. Run a final secret/privacy scan against the exact release diff and archive.
 6. Re-verify the current ZIP/checksum and repeat the clean-profile archive load after the release commit if the build changes.
 7. Review the prepared `store/` copy and `store-assets/` images against the exact build; do not replace them with simulated product UI.

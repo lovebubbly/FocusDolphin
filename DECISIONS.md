@@ -108,9 +108,9 @@ This file records durable choices that are easy to accidentally undo. New undocu
 
 ## D-018: Repository Support And Policy Target
 
-**Decision:** Use [GitHub Issues](https://github.com/lovebubbly/FocusWhale/issues) as the support/privacy contact channel. Use `https://github.com/lovebubbly/FocusWhale/blob/main/PRIVACY.md` as the intended stable policy URL only after the policy is committed and publicly reachable.
+**Decision:** Use [GitHub Issues](https://github.com/lovebubbly/FocusWhale/issues) as the support/privacy contact channel. Use `https://github.com/lovebubbly/FocusWhale/blob/main/PRIVACY.md` as the stable policy URL; both were publicly reachable and the policy's Limited Use statement was verified on 2026-07-11.
 
-**Why:** This provides one centralized repository channel and a stable, reviewable policy target without claiming that a local, unpushed commit is already publicly reachable.
+**Why:** This provides one centralized repository channel and a stable, reviewable public policy target without introducing a developer backend.
 
 ## D-019: Two Production Themes
 
