@@ -9,7 +9,14 @@ import {
 import { normalizePetState } from "../pet/defaultState";
 import { mountPet } from "../pet/renderer";
 import { LatestRequestGuard } from "../shared/latestRequest";
-import { translate, type SupportedLocale } from "../shared/i18n";
+import { playMotion } from "../shared/motion";
+import {
+  getUiLocale,
+  initializeUiLocale,
+  setUiLocalePreference,
+  translate,
+  type SupportedLocale
+} from "../shared/i18n";
 import { siteListDisplayName } from "../shared/siteLists";
 import overlayStyles from "../styles/overlay.css?inline";
 
@@ -18,9 +25,11 @@ const URL_CHANGED_EVENT = "focuswhale:url-changed";
 const PRETENDARD_FONT_URL = extensionAssetUrl("assets/PretendardVariable.woff2");
 
 let countdownTimer: number | undefined;
+let countdownDeadlineMs: number | undefined;
 let sessionExpiryTimer: number | undefined;
 let previouslyFocused: HTMLElement | null = null;
 let inertedBody: { element: HTMLElement; wasInert: boolean } | null = null;
+const softAllowedPages = new Set<string>();
 
 export { LatestRequestGuard as LatestEvaluationGuard } from "../shared/latestRequest";
 
@@ -56,13 +65,16 @@ export function leaveSoftOverlayForFocus(
 const evaluationGuard = new LatestRequestGuard();
 
 if (typeof chrome !== "undefined" && typeof window !== "undefined") {
-  void evaluateSessionSurface();
+  void initializeUiLocale().then(() => evaluateSessionSurface());
   installNavigationHooks();
 
   chrome.storage.onChanged.addListener((changes, areaName) => {
+    if (areaName === "sync" && changes[STORAGE_KEYS.sync.uiLocale]) {
+      setUiLocalePreference(changes[STORAGE_KEYS.sync.uiLocale]?.newValue);
+    }
     if (
       (areaName === "local" && (changes.activeSession || changes.tempAllows)) ||
-      (areaName === "sync" && (changes.siteLists || changes.settings))
+      (areaName === "sync" && (changes.uiLocale || changes.siteLists || changes.settings))
     ) {
       void evaluateSessionSurface();
     }
@@ -154,6 +166,7 @@ function showOverlay(
       && existingOverlay.dataset.focuswhaleHostname === hostname
       && existingOverlay.dataset.focuswhaleWaitSeconds === String(waitSeconds);
     if (representsCurrentSurface) {
+      updateOverlayLocalization(existingOverlay, siteList, hostname);
       return;
     }
     removeOverlay();
@@ -168,14 +181,14 @@ function showOverlay(
   const theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "focuswhale-dark" : "focuswhale";
   shadow.innerHTML = `
     <style>${runtimeOverlayStyles()}</style>
-    <div data-theme="${theme}" class="fixed inset-0 z-[2147483647] grid min-h-screen w-screen place-items-center bg-base-300/80 p-7 text-base-content" role="dialog" aria-modal="true" aria-labelledby="focuswhale-title" aria-describedby="focuswhale-description">
+    <div id="focuswhale-dialog" lang="${getUiLocale()}" data-theme="${theme}" class="fixed inset-0 z-[2147483647] grid min-h-screen w-screen place-items-center bg-base-300/80 p-7 text-base-content" role="dialog" aria-modal="true" aria-labelledby="focuswhale-title" aria-describedby="focuswhale-description">
       <section class="card w-full max-w-md border border-primary/15 bg-base-100 text-base-content shadow-2xl">
         <div class="card-body items-center gap-4 text-center">
           <div class="grid h-24 w-24 place-items-center rounded-full bg-base-200">
             <div id="focuswhale-pet" class="grid place-items-center" aria-hidden="true"></div>
           </div>
           <span id="checkin-badge" class="badge badge-primary badge-soft hidden" role="status" aria-live="polite" aria-hidden="true">${escapeHtml(translate("softCheckInComplete"))}</span>
-          <p class="text-xs font-bold text-primary">${escapeHtml(siteListDisplayName(siteList))} · ${escapeHtml(hostname)}</p>
+          <p id="focuswhale-context" class="text-xs font-bold text-primary">${escapeHtml(siteListDisplayName(siteList))} · ${escapeHtml(hostname)}</p>
           <h1 id="focuswhale-title" class="text-2xl font-black">${escapeHtml(translate("softPauseTitle"))}</h1>
           <p id="focuswhale-description" class="text-sm leading-6 text-base-content/65">${escapeHtml(translate("softPauseDescription"))}</p>
           <div class="grid w-full gap-2 sm:grid-cols-2">
@@ -200,6 +213,7 @@ function showOverlay(
   if (petSlot) {
     mountPet(petSlot, petState, "focus");
   }
+  playMotion(shadow.querySelector("#focuswhale-dialog > section"), "hero");
 
   backButton.addEventListener("click", () => {
     evaluationGuard.invalidate();
@@ -234,6 +248,38 @@ function showOverlay(
   startCountdown(continueButton, checkinBadge, waitSeconds);
 }
 
+function updateOverlayLocalization(host: HTMLElement, siteList: SiteList, hostname: string): void {
+  const shadow = host.shadowRoot;
+  if (!shadow) {
+    return;
+  }
+
+  const dialog = shadow.getElementById("focuswhale-dialog");
+  const context = shadow.getElementById("focuswhale-context");
+  const title = shadow.getElementById("focuswhale-title");
+  const description = shadow.getElementById("focuswhale-description");
+  const checkinBadge = shadow.getElementById("checkin-badge");
+  const backButton = shadow.getElementById("back-button") as HTMLButtonElement | null;
+  const continueButton = shadow.getElementById("continue-button") as HTMLButtonElement | null;
+  if (!dialog || !context || !title || !description || !checkinBadge || !backButton || !continueButton) {
+    return;
+  }
+
+  dialog.lang = getUiLocale();
+  context.textContent = `${siteListDisplayName(siteList)} · ${hostname}`;
+  title.textContent = translate("softPauseTitle");
+  description.textContent = translate("softPauseDescription");
+  checkinBadge.textContent = translate("softCheckInComplete");
+  backButton.textContent = translate("commonReturnToFocus");
+
+  const snapshot = softCountdownSnapshot(countdownDeadlineMs ?? Date.now());
+  continueButton.disabled = snapshot.disabled;
+  continueButton.setAttribute("aria-live", snapshot.disabled ? "off" : "polite");
+  continueButton.textContent = snapshot.label;
+  checkinBadge.classList.toggle("hidden", snapshot.disabled);
+  checkinBadge.setAttribute("aria-hidden", String(snapshot.disabled));
+}
+
 function runtimeOverlayStyles(): string {
   return rewriteOverlayAssetUrls(overlayStyles, PRETENDARD_FONT_URL);
 }
@@ -249,6 +295,8 @@ function startCountdown(button: HTMLButtonElement, readyBadge: HTMLElement, seco
   window.clearInterval(countdownTimer);
   countdownTimer = undefined;
   const deadlineMs = Date.now() + Math.max(0, seconds) * 1_000;
+  countdownDeadlineMs = deadlineMs;
+  let wasReady = false;
   const update = () => {
     const snapshot = softCountdownSnapshot(deadlineMs);
     button.disabled = snapshot.disabled;
@@ -256,6 +304,11 @@ function startCountdown(button: HTMLButtonElement, readyBadge: HTMLElement, seco
     button.textContent = snapshot.label;
     readyBadge.classList.toggle("hidden", snapshot.disabled);
     readyBadge.setAttribute("aria-hidden", String(snapshot.disabled));
+    const becameReady = !snapshot.disabled && !wasReady;
+    wasReady = !snapshot.disabled;
+    if (becameReady) {
+      playMotion(readyBadge, "success");
+    }
     if (!snapshot.disabled && countdownTimer !== undefined) {
       window.clearInterval(countdownTimer);
       countdownTimer = undefined;
@@ -274,6 +327,7 @@ function removeOverlay(): void {
     window.clearInterval(countdownTimer);
     countdownTimer = undefined;
   }
+  countdownDeadlineMs = undefined;
   const overlay = document.getElementById(OVERLAY_ID);
   if (!overlay) {
     restoreDocumentInteractivity();
@@ -356,11 +410,11 @@ function hasActiveTempAllow(hostname: string, tempAllows: TempAllow[], sessionId
 }
 
 function rememberSoftAllowed(sessionId: string, hostname: string): void {
-  window.sessionStorage.setItem(softAllowKey(sessionId, hostname), "true");
+  softAllowedPages.add(softAllowKey(sessionId, hostname));
 }
 
 function isSoftAllowedForPage(sessionId: string, hostname: string): boolean {
-  return window.sessionStorage.getItem(softAllowKey(sessionId, hostname)) === "true";
+  return softAllowedPages.has(softAllowKey(sessionId, hostname));
 }
 
 function softAllowKey(sessionId: string, hostname: string): string {

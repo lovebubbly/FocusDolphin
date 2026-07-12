@@ -2,11 +2,11 @@ import type { Intensity, PetStage } from "./types";
 import { translate, type SupportedLocale } from "./i18n";
 
 export const PET_STAGE_THRESHOLDS: Array<{ stage: PetStage; xp: number; name: string }> = [
-  { stage: 4, xp: 6_000, name: "별고래" },
-  { stage: 3, xp: 2_000, name: "푸른 고래" },
-  { stage: 2, xp: 600, name: "어린 고래" },
-  { stage: 1, xp: 100, name: "새끼 고래" },
-  { stage: 0, xp: 0, name: "알" }
+  { stage: 4, xp: 6_000, name: "별빛 돌고래" },
+  { stage: 3, xp: 2_000, name: "푸른 돌고래" },
+  { stage: 2, xp: 600, name: "어린 돌고래" },
+  { stage: 1, xp: 100, name: "아기 돌고래" },
+  { stage: 0, xp: 0, name: "갓 태어난 돌고래" }
 ];
 
 export const INTENSITY_MULTIPLIERS: Record<Intensity, number> = {

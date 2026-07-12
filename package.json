@@ -1,5 +1,5 @@
 {
-  "name": "focuswhale",
+  "name": "focus-dolphin",
   "version": "1.0.0",
   "private": true,
   "type": "module",
@@ -8,8 +8,9 @@
     "build:extension": "vite build",
     "build:content": "vite build --config vite.content.config.ts",
     "verify:build": "node scripts/verify-build.mjs",
+    "package:release": "npm run build && python3 scripts/package-release.py",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run && python3 scripts/test-package-release.py"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.3.2",

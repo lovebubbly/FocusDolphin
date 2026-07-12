@@ -1,32 +1,46 @@
-# FocusWhale v1.0.0 Release Checklist
+# Focus Dolphin v1.0.0 Release Checklist
 
 Last refreshed: **2026-07-12 KST** by **OpenAI Codex (GPT-5)**, for requester and product owner **Choi Yunseong (최윤성)**.
 
-The source version remains 1.0.0. This checklist gates the Goal 8 candidate on `codex/goal-8-web-product-polish`. Choi Yunseong approved the complete Phase A mockup contract at commit `e7274a1` on 2026-07-11 with no exceptions. That approval authorized Phase B; it does not approve the future archive, store imagery, listing, or publication. Unchecked blocking rows mean the branch must not be submitted.
+The source version remains 1.0.0. This checklist gates **Focus Dolphin — Website Blocker** on `main` for independent Chrome Web Store and Whale Store submissions. `FocusWhale` was the unreleased development codename. Choi Yunseong approved the complete Phase A mockup contract at commit `e7274a1` on 2026-07-11 with no exceptions; that historical whale-design approval does not approve the renamed archive, dolphin imagery, listing, or publication. Unchecked blocking rows mean the candidate must not be submitted.
 
-## Automated Gate
+## Pre-Rename Automated Evidence (Historical)
 
 - [x] `npm run typecheck` passes.
-- [x] `npm test` passes: 33 files / 250 tests.
+- [x] `npm test` passes: 34 Vitest files / 259 application tests plus 6 release-package boundary tests.
 - [x] `npm run build` passes.
-- [x] Background worker is 42,956 bytes; SHA-256 `172ca0d895958575048e022f1ef3051fb76d46b74ff1efe1ba80c731ab6f1d0e`.
-- [x] Popup bundle is 25,240 bytes; SHA-256 `e191845b3f549fe92007c61d1002b10d233847751616c6bc04b277f566b16390`.
-- [x] Content script is a classic IIFE (194,791 bytes; SHA-256 `1e61912aa791d63278fa79a8233ef5118c537e302e0c73d3f2948dc9f515b2df`).
+- [x] Background worker is 42,956 bytes; SHA-256 `1e5cddc9a4cd79f0444b6927d17f77534b37bffaa7c6d1f59ccb2a098b85dfa2`.
+- [x] Popup bundle is 27,173 bytes; SHA-256 `50c92044b6deb4b924e21c8d5a6cff20b52378544ffe92d1e2818220c1c77718`.
+- [x] Content script is a classic IIFE (203,956 bytes; SHA-256 `123c8ef35b632bb6b1ce590947924ced97673ad85e386824fca53ae33b3b0306`).
 - [x] All 11 verified manifest/build targets exist, including onboarding and both locale catalogs.
 - [x] Manifest uses localized name, description, and action title with `default_locale: en`.
-- [x] English and Korean catalogs have key and placeholder parity: 530 / 530; production message references are covered.
+- [x] English and Korean catalogs have key and placeholder parity: 541 / 541; production message references are covered.
 - [x] WAR list contains exactly four reviewed resources.
 - [x] Production output contains no source maps or root-relative asset URLs.
 - [x] Production JS/CSS/HTML/JSON contains no unexpected external URLs.
 - [x] Packaged Pretendard OFL exactly matches the source license.
 - [x] Packaged Tailwind CSS, daisyUI, and Vite core MIT notices exactly match their installed dependency licenses.
-- [x] Atlas report validates 384 x 1,920, 4 x 20, 80 frames.
+- [x] Atlas report validates 768 x 3,840, 4 x 20, 80 high-density source frames.
+- [x] Atlas report records source/intermediate/final hashes; icons and promotional tile regenerate deterministically from the recorded mascot atlas.
+- [x] Repository and package license boundaries are documented in `docs/LICENSE_AND_IP_AUDIT_2026-07-12.md`.
 - [x] Authored production surface CSS is 115 lines; raw colors occur only in daisyUI theme declarations.
-- [ ] Regenerate and verify a Goal 8 release ZIP from the selected executable commit. **The existing archive predates Goal 8.**
+- [x] Deterministic release packager requires MV3/locales/licenses, sorts entries, fixes metadata, compares every file with `dist/`, proves cross-process byte stability, and rejects appended archive data. **The recorded output used the development codename and is not the Focus Dolphin store artifact.**
+- [x] Run `npm run build`, `npm run typecheck`, and `npm test` against the integrated Focus Dolphin source; record the renamed bundle hashes and locale counts. **34 Vitest files / 264 application tests, 9 package tests, 542 / 542 locale keys; current hashes in `QA.md`.**
+- [ ] Generate and verify `release/focus-dolphin-1.0.0.zip` from the selected executable commit. **The existing FocusWhale archives are historical and must not be relabeled.**
 
-## Goal 8 Current Live QA
+## 2026-07-12 Pre-Rename Follow-Up QA (Historical)
 
-Headed disposable Naver Whale 4.38.386.14 / Chromium 148 evidence from the frozen rebuilt `dist/`, fingerprinted by the background hash above:
+- [x] Live installed-Whale popup accepts direct `90` minute input and updates the CTA to `Start 90 min` without starting a session.
+- [x] Live installed-Whale popup steps from the edited `90` value to `95`, confirming the five-minute controls use the current input rather than a stale render snapshot.
+- [x] Live Options Review rendered the approved whale from the rebuilt atlas; this is historical pre-rename evidence and does not verify the dolphin atlas.
+- [x] Exercise and restore Automatic, English, and Korean from the visible Preferences selector in an isolated Whale profile.
+- [x] Change language during a live locked session: the selector remains available, Rules stay locked, and the active countdown continues without resetting.
+- [x] Exercise semantic popup, Options, onboarding, blocked, and overlay motion in an isolated Whale profile; representative reduced-motion states produced zero new Web Animations, same-state rerenders did not replay, and timers/focus remained unchanged. **MOTION FOLLOW-UP EXACT BUILD; `QA.md`**
+- [ ] Rerun the current bilingual onboarding disclosure and every mascot-bearing core state at 1280 x 800 and 720 x 820 in isolated Whale and Chrome profiles; verify Focus Dolphin copy/art, visible disclosure, reachable CTA, no horizontal overflow, and zero console/page/request/worker errors. **The earlier attempt was blocked before extension load and is not a pass/fail.**
+
+## Goal 8 Baseline Live QA (Historical)
+
+Headed disposable Naver Whale 4.38.386.14 / Chromium 148 evidence from the frozen Goal 8 baseline `dist/`; rows that cite the earlier popup hash remain baseline evidence rather than fingerprints of the current follow-up bundle:
 
 - [x] Phase A structure matches the approved `e7274a1` Session, Rules, Review, Preferences, blocked, overlay, onboarding, pet-size, and theme states.
 - [x] English onboarding Steps 1-3, completion, persistence, replay, keyboard access, 128/160 px pets, light/dark representatives, and reduced motion pass.
@@ -79,15 +93,17 @@ The checked rows in this section belong to the prior v1.0.0 release executable. 
 - [x] All five stages x four moods in installed extension. **20 sprites / 20 atlas rows**
 - [x] Chrome cross-check for core redirect/overlay behavior. **Chrome for Testing 147 exact-final soft/medium pass**
 
-The core matrix passed in Whale. The exact headed pass additionally covered list-rerender dismissal, blank intent, Options keyboard/modal focus, normal/reduced completion motion, the full visual/accessibility sweep, alarm/schedule/lock recovery, and overdue browser restart. Instrumented exact-build checks used deterministic in-memory history latency and debugger-controlled worker replacement without changing repository files or the loaded bundle. Chrome for Testing 147 accepted the real optional-history prompt and passed grant/results/revoke/post-revoke core use. Stock Google Chrome 148 rejects command-line unpacked extensions before FocusWhale runs, so it is not counted as an application failure or pass. Local screenshots were used for visual assertions; no recording or external upload occurred.
+The historical core matrix passed in Whale. The exact headed pass additionally covered list-rerender dismissal, blank intent, Options keyboard/modal focus, normal/reduced completion motion, the full visual/accessibility sweep, alarm/schedule/lock recovery, and overdue browser restart. Instrumented exact-build checks used deterministic in-memory history latency and debugger-controlled worker replacement without changing repository files or the loaded bundle. Chrome for Testing 147 accepted the real optional-history prompt and passed grant/results/revoke/post-revoke core use. Stock Google Chrome 148 rejected command-line unpacked extensions before the historical FocusWhale build ran, so it is not counted as an application failure or pass. Local screenshots were used for visual assertions; no recording or external upload occurred.
 
 ## Privacy And Security
 
-- [x] `PRIVACY.md` covers the versioned onboarding record, local analytics, optional history, browser sync boundary, retention, and deletion behavior.
-- [x] [GitHub Issues](https://github.com/lovebubbly/FocusWhale/issues) remains the prepared support/privacy contact channel.
+- [x] `PRIVACY.md` covers the versioned onboarding record, user-selected language, domain-level attempt counts, local analytics, optional history, browser sync boundary, retention, and deletion behavior.
+- [x] The first onboarding screen prominently discloses current-address handling, local records and intent text, optional 30-day history analysis, browser-sync fields, and zero developer transfer in both languages.
+- [x] Soft-overlay temporary allow state stays inside the isolated content-script world and is not written to host-page `sessionStorage`; a source regression test enforces this boundary.
+- [ ] Verify [Focus Dolphin GitHub Issues](https://github.com/lovebubbly/FocusDolphin/issues) after the repository remote is renamed; this is the intended support/privacy contact channel.
 - [x] Manifest permissions remain `declarativeNetRequest`, `storage`, and `alarms`; `history` remains optional and is requested only from Analyze.
 - [x] Static production verifier confirms no backend, telemetry, advertising, remote AI, CDN, remote font, or unexpected external URL.
-- [x] Final Goal 8 intended working-tree scan finds no cloud/API/provider token, private key, personal email, `/Users/...` path, browser profile/storage/database, or QA-result file in tracked content; `npm audit --omit=dev` reports zero vulnerabilities. Dummy credential-bearing URLs remain only as explicit sanitization tests/checklist data. Ignored `dist/`, `output/`, and `release/` plus the pre-existing untracked `.playwright-mcp/` are excluded from staging.
+- [x] Final Goal 8 intended working-tree scan finds no cloud/API/provider token, private key, personal email, `/Users/...` path, browser profile/storage/database, or QA-result file in tracked content; a live full `npm audit --audit-level=low` reports zero vulnerabilities. Dummy credential-bearing URLs remain only as explicit sanitization tests/checklist data. Ignored `dist/`, `output/`, `release/`, and `.playwright-mcp/` are excluded from staging.
 - [ ] Repeat the same scan against the clean rebuilt Goal 8 archive after packaging.
 - [ ] Re-verify the public privacy-policy URL and Limited Use statement immediately before store entry.
 - [ ] Add the public privacy URL to store metadata.
@@ -96,8 +112,9 @@ The core matrix passed in Whale. The exact headed pass additionally covered list
 ## Package
 
 - [x] Review and commit the exact Goal 8 executable candidate on the dedicated branch: `5029d2a924cc14b5175fe1da1f4f9a2fcf274fb8` (`Implement Goal 8 web product polish`).
-- [ ] Rebuild the selected commit in a detached clean checkout after `npm ci`; require build, typecheck, 33/250 tests, and byte-for-byte comparison with reviewed `dist/`.
-- [ ] Regenerate `release/FocusWhale-1.0.0.zip` with `manifest.json` at archive root. **The existing ZIP predates Goal 8 and must not be relabeled.**
+- [ ] Rebuild the selected commit in a detached clean checkout after `npm ci`; require build, typecheck, 264 application tests plus 9 package tests, and byte-for-byte comparison with reviewed `dist/`.
+- [ ] Run `npm run package:release` from that clean checkout and retain its `.sha256` and `.package-report.json` sidecars as release evidence.
+- [ ] Regenerate `release/focus-dolphin-1.0.0.zip` with `manifest.json` at archive root. **Existing FocusWhale ZIPs predate the public rename and must not be relabeled.**
 - [ ] Record new archive byte size, SHA-256, and file/entry count.
 - [ ] Confirm localized manifest/version/icons and all required license notices in the extracted archive.
 - [ ] Confirm no source maps, tests, TypeScript, source sheets, browser profiles/storage, local QA evidence, or private docs are included.
@@ -109,17 +126,21 @@ Historical package evidence: the current tracked/release-area archive belongs to
 
 ## Store Materials
 
-- [x] Choose the first target store. **Whale Store first; Chrome follows only after separate browser-specific QA and listing approval**
+- [x] Choose target stores. **Chrome Web Store and Whale Store; one exact MV3 ZIP may be reused only after separate browser QA, with independent listings, reviews, IDs, and publication records**
 - [x] Draft bilingual listing title/description, category, and language coverage. **`store/STORE_LISTING.md`; re-review against Goal 8 before upload**
 - [ ] Capture exact rebuilt-archive Goal 8 screenshots in English and Korean at store dimensions, with checksums and no personal data.
 - [ ] Replace or explicitly archive every pre-Goal-8 core-flow composite before upload.
-- [x] Confirm the icon and copy-free promotional tile remain byte-identical and accurate.
-- [x] Prepare support URL. **Public GitHub Issues**
+- [x] Confirm the packaged/store 128 px Focus Dolphin icons are byte-identical; regenerate the icon and copy-free promotional tile from the recorded mature-dolphin atlas frame. **SHA-256 `f2aad78150573693d4236377b830017315890d2c8f59cc85fabb2d0cc08e4714`; deterministic generator and provenance recorded.**
+- [ ] Rename the GitHub repository/remote to `lovebubbly/FocusDolphin`, then verify the intended public Issues and privacy-policy URLs.
+- [ ] Update the Chrome Web Store and Whale Store dashboard names independently; do not infer either external rename from source changes.
 - [ ] Product owner confirms that the public support channel will be monitored.
 - [x] Prepare the privacy URL and Limited Use statement. **Reachability must be re-verified; dashboard entry remains a separate gate**
 - [x] Update reviewer instructions for first-install onboarding, language behavior, blocklist/medium/hard, and optional-history testing. **`store/REVIEWER_INSTRUCTIONS.md`**
 - [x] Document why broad HTTP(S) host access and the content script are necessary. **`store/PERMISSIONS_AND_PRIVACY.md`**
 - [x] Select the repository license deliberately. **Publicly viewable, all rights reserved; third-party licenses preserved**
+- [x] Select a distinct public product name before publication. **Focus Dolphin — Website Blocker; FocusWhale remains an unreleased development codename only.**
+- [x] Record owner acceptance of the residual Focus Dolphin knock-out-screen risk. **Choi Yunseong directed the project to proceed on 2026-07-12 after the Apple metadata correction; this is not legal clearance.**
+- [ ] Complete broader international, common-law, and confusing-similarity review before asserting exclusivity; professional review remains recommended.
 
 ## Approval And Publication
 
@@ -135,4 +156,4 @@ Historical package evidence: the current tracked/release-area archive belongs to
 
 ## Current Decision
 
-**Goal 8 executable commit `5029d2a924cc14b5175fe1da1f4f9a2fcf274fb8`, source-level automated gates, and all exact unpacked-build Whale suites are green, but the candidate is not publication-ready.** The old archive and store imagery are stale. A clean detached rebuild, regenerated/rescanned archive, extracted-archive critical-flow smoke, refreshed bilingual imagery, exact-package owner approval, support/privacy metadata, publisher upload, review, and publication remain separate open gates.
+**The public-name decision and documented conditional-go risk acceptance are complete, but the integrated Focus Dolphin candidate is not publication-ready.** The old FocusWhale archive, whale screenshots, and exact-build hashes remain historical rather than proof of the renamed build. A clean detached rebuild, regenerated/rescanned Focus Dolphin archive, extracted-archive critical-flow smoke in both browsers, refreshed bilingual dolphin imagery, live GitHub and dashboard renames, exact-package owner approval, two publisher submissions, reviews, and publication remain separate open gates.

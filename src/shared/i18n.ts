@@ -3,6 +3,10 @@ import koreanMessages from "../../public/_locales/ko/messages.json";
 
 export type SupportedLocale = "ko" | "en";
 export type UiLocale = SupportedLocale;
+export type UiLocalePreference = "auto" | UiLocale;
+
+const UI_LOCALE_STORAGE_KEY = "uiLocale";
+let uiLocalePreference: UiLocalePreference = "auto";
 
 interface MessagePlaceholder {
   content: string;
@@ -27,6 +31,10 @@ function localeFromLanguageTag(language: string | undefined): UiLocale {
 }
 
 export function getUiLocale(): UiLocale {
+  if (uiLocalePreference !== "auto") {
+    return uiLocalePreference;
+  }
+
   try {
     const runtimeLocale = globalThis.chrome?.i18n?.getUILanguage?.();
     if (runtimeLocale) {
@@ -40,6 +48,35 @@ export function getUiLocale(): UiLocale {
     ? undefined
     : globalThis.navigator?.language;
   return navigatorLocale ? localeFromLanguageTag(navigatorLocale) : "ko";
+}
+
+export function normalizeUiLocalePreference(value: unknown): UiLocalePreference {
+  return value === "ko" || value === "en" ? value : "auto";
+}
+
+export function setUiLocalePreference(value: unknown): UiLocalePreference {
+  uiLocalePreference = normalizeUiLocalePreference(value);
+  return uiLocalePreference;
+}
+
+export function getUiLocalePreference(): UiLocalePreference {
+  return uiLocalePreference;
+}
+
+export async function initializeUiLocale(): Promise<UiLocale> {
+  try {
+    const syncStorage = globalThis.chrome?.storage?.sync;
+    if (syncStorage) {
+      const stored = await syncStorage.get(UI_LOCALE_STORAGE_KEY);
+      setUiLocalePreference(stored[UI_LOCALE_STORAGE_KEY]);
+      return getUiLocale();
+    }
+  } catch {
+    // Keep the browser-derived locale when sync storage is unavailable.
+  }
+
+  setUiLocalePreference("auto");
+  return getUiLocale();
 }
 
 function normalizeSubstitutions(substitutions: string | string[] | undefined): string[] {

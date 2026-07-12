@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Assemble four generated 4x5 mood sheets into the FocusWhale 4x20 atlas."""
+"""Assemble four generated 4x5 mood sheets into the Focus Dolphin 4x20 atlas."""
 
 from __future__ import annotations
 
@@ -12,9 +12,9 @@ from PIL import Image
 
 
 MOODS = ("idle", "happy", "focus", "celebrate")
-STAGE_TARGETS = (48, 60, 70, 78, 84)
-FRAME_SIZE = 96
-SAFE_MARGIN = 6
+STAGE_TARGETS = (96, 120, 140, 156, 168)
+FRAME_SIZE = 192
+SAFE_MARGIN = 12
 SOURCE_PADDING = 4
 
 
@@ -106,14 +106,36 @@ def split_sheet(path: Path) -> list[list[Image.Image]]:
 def transparent_rgb_count(image: Image.Image) -> int:
     return sum(
         1
-        for red, green, blue, alpha in image.getdata()
+        for red, green, blue, alpha in image.get_flattened_data()
         if alpha == 0 and (red != 0 or green != 0 or blue != 0)
     )
 
 
+def artifact_record(path: Path, *, mood: str, role: str) -> dict[str, object]:
+    with Image.open(path) as image:
+        dimensions = [image.width, image.height]
+        mode = image.mode
+    return {
+        "mood": mood,
+        "role": role,
+        "path": path.as_posix(),
+        "sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
+        "bytes": path.stat().st_size,
+        "dimensions": dimensions,
+        "mode": mode,
+    }
+
+
 def main() -> None:
     args = parse_args()
-    sources = {mood: split_sheet(getattr(args, mood)) for mood in MOODS}
+    input_paths = {mood: getattr(args, mood) for mood in MOODS}
+    sources = {mood: split_sheet(path) for mood, path in input_paths.items()}
+    source_artifacts: list[dict[str, object]] = []
+    for mood, path in input_paths.items():
+        original_path = path.with_name(path.name.replace("-transparent.png", "-source.png"))
+        if original_path.exists() and original_path != path:
+            source_artifacts.append(artifact_record(original_path, mood=mood, role="generated-source"))
+        source_artifacts.append(artifact_record(path, mood=mood, role="transparent-input"))
     source_issues: list[str] = []
     source_metrics: list[dict[str, object]] = []
 
@@ -227,6 +249,7 @@ def main() -> None:
             "safeMargin": SAFE_MARGIN,
         },
         "sourceMetrics": source_metrics,
+        "sourceArtifacts": source_artifacts,
         "outputMetrics": output_metrics,
         "issues": output_issues,
     }

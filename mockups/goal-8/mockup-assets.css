@@ -11,7 +11,7 @@
   width: var(--pet-size);
   height: var(--pet-size);
   flex: 0 0 var(--pet-size);
-  background-image: url("../../assets/sprites/focuswhale-atlas.png");
+  background-image: url("../../assets/sprites/focusdolphin-atlas.png");
   background-position: 0 calc(var(--pet-row) * var(--pet-size) * -1);
   background-size: calc(var(--pet-size) * 4) calc(var(--pet-size) * 20);
   image-rendering: auto;

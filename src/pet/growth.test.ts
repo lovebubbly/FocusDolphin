@@ -132,22 +132,33 @@ describe("growth presentation", () => {
     expect(petDisplayName("윤성의 고래", "en")).toBe("윤성의 고래");
   });
 
+  it("keeps the newborn dolphin at stage zero without changing XP thresholds", () => {
+    expect(growthProgress(0, 0)).toMatchObject({
+      currentStageName: "갓 태어난 돌고래",
+      nextStageName: "아기 돌고래",
+      currentStageXp: 0,
+      nextStageXp: 100,
+      percentToNext: 0,
+      remainingXp: 100
+    });
+  });
+
   it("never offers a lower next stage for a non-regressing legacy stage", () => {
     expect(growthProgress(1_000, 4)).toMatchObject({
-      currentStageName: "별고래",
+      currentStageName: "별빛 돌고래",
       nextStageName: null,
       percentToNext: 100,
       remainingXp: 0
     });
     expect(growthProgress(200, 2)).toMatchObject({
-      currentStageName: "어린 고래",
-      nextStageName: "푸른 고래",
+      currentStageName: "어린 돌고래",
+      nextStageName: "푸른 돌고래",
       percentToNext: 0,
       remainingXp: 1_800
     });
     expect(growthProgress(200, 2, "en")).toMatchObject({
-      currentStageName: "Young whale",
-      nextStageName: "Blue whale"
+      currentStageName: "Young dolphin",
+      nextStageName: "Blue dolphin"
     });
     expect(crossedHalfWay(1_000, 4_000, 4)).toBe(false);
   });

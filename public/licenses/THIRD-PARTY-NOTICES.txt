@@ -1,8 +1,8 @@
-FocusWhale Third-Party Notices
+Focus Dolphin Third-Party Notices
 ================================
 
-FocusWhale's compiled interface includes software distributed under the
-following licenses. These notices do not change the license for FocusWhale's
+Focus Dolphin's compiled interface includes software distributed under the
+following licenses. These notices do not change the license for Focus Dolphin's
 original source code or visual assets.
 
 Tailwind CSS

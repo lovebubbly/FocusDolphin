@@ -1,10 +1,10 @@
-# FocusWhale Smoke Test
+# Focus Dolphin Smoke Test
 
 Documentation refresh: **OpenAI Codex (GPT-5)** for product owner **Choi Yunseong (최윤성)**, **2026-07-12 KST**.
 
 Use a dedicated Naver Whale or Chromium profile with the freshly built `dist/` loaded unpacked. Do not reuse stale build output.
 
-This checklist targets Goal 8 on `codex/goal-8-web-product-polish`. Phase A commit `e7274a1` was approved by Choi Yunseong on 2026-07-11 for every presented state, with no exceptions. The approval fixes the visual contract; it does not replace executable, package, or publication verification. Older Goal 7 and v1.0.0 evidence is retained as historical regression context only.
+This checklist targets **Focus Dolphin — Website Blocker** after its pre-release rename from the unreleased `FocusWhale` development codename. Phase A commit `e7274a1` was approved by Choi Yunseong on 2026-07-11 for every presented state, with no exceptions, but that approval predates the dolphin identity. It remains structural history and does not replace renamed executable, package, visual, or publication verification.
 
 ## Preconditions
 
@@ -14,13 +14,15 @@ npm test
 npm run build
 ```
 
-Expected automated result for the frozen Goal 8 candidate: 33 test files / 250 tests; 42,956-byte `assets/background.js` with SHA-256 `172ca0d895958575048e022f1ef3051fb76d46b74ff1efe1ba80c731ab6f1d0e`; 25,240-byte `assets/popup.js` with SHA-256 `e191845b3f549fe92007c61d1002b10d233847751616c6bc04b277f566b16390`; classic `assets/content.js` at 194,791 bytes with SHA-256 `1e61912aa791d63278fa79a8233ef5118c537e302e0c73d3f2948dc9f515b2df`; 11 verified manifest targets; exact four-resource WAR allowlist; no source maps, root-relative asset URLs, or unexpected external URLs; packaged Pretendard license; onboarding page; 530-key English/Korean catalogs; 115 authored production surface CSS lines; and raw colors only in theme declarations.
+Historical expected result for the frozen pre-rename Goal 8 candidate: 33 test files / 250 tests; 42,956-byte `assets/background.js` with SHA-256 `172ca0d895958575048e022f1ef3051fb76d46b74ff1efe1ba80c731ab6f1d0e`; 25,240-byte `assets/popup.js` with SHA-256 `e191845b3f549fe92007c61d1002b10d233847751616c6bc04b277f566b16390`; classic `assets/content.js` at 194,791 bytes with SHA-256 `1e61912aa791d63278fa79a8233ef5118c537e302e0c73d3f2948dc9f515b2df`; 11 verified manifest targets; exact four-resource WAR allowlist; no source maps, root-relative asset URLs, or unexpected external URLs; packaged Pretendard license; onboarding page; 530-key English/Korean catalogs; 115 authored production surface CSS lines; and raw colors only in theme declarations. Record fresh counts and hashes for the integrated Focus Dolphin build rather than copying these values.
 
-Current release artifact boundary: the existing `release/FocusWhale-1.0.0.zip` predates Goal 8. Do not submit, relabel, or use it as evidence for this branch. After selecting the executable commit, rebuild in a clean checkout, regenerate/rescan the ZIP, compare it byte-for-byte, and repeat the critical flows from the extracted archive.
+Current release artifact boundary: every existing `FocusWhale` ZIP is a historical development artifact. Do not submit, relabel, or use one as evidence for Focus Dolphin. After selecting the executable commit, rebuild in a clean checkout, generate `release/focus-dolphin-1.0.0.zip`, rescan and compare it byte-for-byte, and repeat the critical flows from that extracted archive.
 
-## Goal 8 Current Exact-Build Matrix
+## Goal 8 Pre-Rename Exact-Build Matrix (Historical)
 
 Environment: visible Naver Whale 4.38.386.14 / Chromium 148, isolated disposable profiles, frozen rebuilt `dist/`, development-path extension ID `ojojphoncmkplfcinppanpbbhhfjcpgi`. Every suite checked the background fingerprint above. Local evidence is under ignored `output/goal-8-final/`; profiles and CDP ports were cleaned after use.
+
+These passes establish behavior for unchanged core flows but do not verify the Focus Dolphin name, dolphin atlas, icons, localized animal copy, or renamed ZIP. Repeat every mascot/name-bearing row against the extracted Focus Dolphin archive before publication.
 
 | Surface / behavior | Result | Exact evidence boundary |
 | --- | --- | --- |
@@ -121,6 +123,8 @@ Expected while applicable:
 - `focuswhale:temp-allow:<domain>` for a medium temporary allow.
 - `focuswhale:emergency-end` only after confirmed hard emergency scheduling.
 
+These alarm names intentionally retain the unreleased development codename as compatibility identifiers. Do not rename them as part of public branding.
+
 ### Storage
 
 ```js
@@ -135,6 +139,8 @@ Expected:
 - Local onboarding: `focuswhaleOnboarding` with version, completion timestamp, and `skipped`, `setup_only`, or `session_started` outcome.
 - Finalization/settlement journals disappear after successful recovery.
 - No raw browser-history export, page title, or page body is persisted.
+
+`focuswhaleOnboarding` intentionally remains a compatibility storage key; the public product name is Focus Dolphin.
 
 ## Surface Smoke Flows
 
@@ -234,7 +240,7 @@ Headless and headed checks used isolated disposable profiles. Naver Whale 4.38 /
 Remaining evidence boundary:
 
 - Every technical row in the historical v1.0.0 matrix was checked at that time. The history-latency and worker-interruption rows are explicitly instrumented evidence rather than unmodified user-flow evidence.
-- Consumer Google Chrome 148 rejects command-line unpacked-extension loading before FocusWhale runs; Chrome for Testing remains the supported disposable-profile cross-check channel.
+- Consumer Google Chrome 148 rejected command-line unpacked-extension loading before the historical FocusWhale build ran; Chrome for Testing remains the supported disposable-profile cross-check channel. Repeat the cross-check for the extracted Focus Dolphin archive.
 - Goal 7 still requires the normal-browser active-session localization matrix, a live zero-network trace, refreshed archive proof, product-owner reward/visual judgment, public privacy/store metadata review, and publication sign-off.
 
 Track owner/publication work in [QA.md](QA.md) and [RELEASE_CHECKLIST.md](RELEASE_CHECKLIST.md). Do not infer approval or publication from technical green checks.

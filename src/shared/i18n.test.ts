@@ -3,7 +3,14 @@ import { join, resolve } from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import englishMessages from "../../public/_locales/en/messages.json";
 import koreanMessages from "../../public/_locales/ko/messages.json";
-import { getUiLocale, translate } from "./i18n";
+import {
+  getUiLocale,
+  getUiLocalePreference,
+  initializeUiLocale,
+  normalizeUiLocalePreference,
+  setUiLocalePreference,
+  translate
+} from "./i18n";
 
 interface CatalogEntry {
   message: string;
@@ -18,12 +25,30 @@ const catalogs = {
 };
 
 afterEach(() => {
+  setUiLocalePreference("auto");
   vi.unstubAllGlobals();
 });
 
 describe("localization catalogs", () => {
   it("keeps Korean and English message keys in exact parity", () => {
     expect(Object.keys(catalogs.ko).sort()).toEqual(Object.keys(catalogs.en).sort());
+  });
+
+  it("uses the approved full store title and compact product name", () => {
+    for (const catalog of Object.values(catalogs)) {
+      expect(catalog.appName.message).toBe("Focus Dolphin — Website Blocker");
+      expect(catalog.brandName.message).toBe("Focus Dolphin");
+    }
+  });
+
+  it("contains no legacy product or whale-species copy in live messages", () => {
+    const legacyCopy = /FocusWhale|whale|(?<!돌)고래/iu;
+
+    for (const [locale, catalog] of Object.entries(catalogs)) {
+      for (const [key, entry] of Object.entries(catalog)) {
+        expect(entry.message, `${locale}.${key} must use the current product and species copy`).not.toMatch(legacyCopy);
+      }
+    }
   });
 
   it("keeps named placeholders declared and structurally identical", () => {
@@ -73,7 +98,7 @@ describe("localization catalogs", () => {
   });
 
   it("contains every message key referenced by production TypeScript", () => {
-    const keyPrefix = /^(?:app|analysis|automation|badge|behavior|blocked|category|common|current|dashboard|day|default|domain|duration|focus|generic|goal8|growth|history|intensity|list|local|metric|mode|newList|onboarding|options|pet|popup|privacy|recommendation|recommended|schedule|settings|soft|visits|weekly)[A-Z0-9]/u;
+    const keyPrefix = /^(?:app|analysis|automation|badge|behavior|blocked|brand|category|common|current|dashboard|day|default|domain|duration|focus|generic|goal8|growth|history|intensity|list|local|metric|mode|newList|onboarding|options|pet|popup|privacy|recommendation|recommended|schedule|settings|soft|visits|weekly)[A-Z0-9]/u;
     const nonMessageKeys = new Set([
       "categoryOverrides",
       "focusHours",
@@ -131,6 +156,29 @@ describe("localization catalogs", () => {
 });
 
 describe("translate", () => {
+  it("normalizes and applies an explicit user language preference", () => {
+    vi.stubGlobal("chrome", { i18n: { getMessage: () => "", getUILanguage: () => "ko-KR" } });
+
+    expect(normalizeUiLocalePreference(undefined)).toBe("auto");
+    expect(normalizeUiLocalePreference("fr")).toBe("auto");
+    expect(setUiLocalePreference("en")).toBe("en");
+    expect(getUiLocalePreference()).toBe("en");
+    expect(getUiLocale()).toBe("en");
+    expect(translate("commonNext")).toBe("Next");
+  });
+
+  it("initializes the user language preference from sync storage", async () => {
+    const get = vi.fn(async () => ({ uiLocale: "ko" }));
+    vi.stubGlobal("chrome", {
+      i18n: { getMessage: () => "", getUILanguage: () => "en-US" },
+      storage: { sync: { get } }
+    });
+
+    await expect(initializeUiLocale()).resolves.toBe("ko");
+    expect(get).toHaveBeenCalledWith("uiLocale");
+    expect(translate("commonNext")).toBe("다음");
+  });
+
   it("prefers the browser i18n runtime when no locale override is supplied", () => {
     const getMessage = vi.fn((key: string) => key === "@@ui_locale" ? "ko" : "Runtime translation");
     vi.stubGlobal("chrome", { i18n: { getMessage, getUILanguage: () => "ko-KR" } });

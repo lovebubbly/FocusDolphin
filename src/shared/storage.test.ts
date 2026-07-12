@@ -39,12 +39,42 @@ describe("storage helpers", () => {
     });
   });
 
+  it("retains persisted storage keys across the public rename", () => {
+    expect(STORAGE_KEYS.sync).toEqual({
+      uiLocale: "uiLocale",
+      settings: "settings",
+      siteLists: "siteLists",
+      schedules: "schedules",
+      petState: "petState"
+    });
+    expect({
+      activeSession: STORAGE_KEYS.local.activeSession,
+      tempAllows: STORAGE_KEYS.local.tempAllows,
+      sessionLog: STORAGE_KEYS.local.sessionLog,
+      intentLog: STORAGE_KEYS.local.intentLog,
+      dailyStats: STORAGE_KEYS.local.dailyStats("2026-07-12")
+    }).toEqual({
+      activeSession: "activeSession",
+      tempAllows: "tempAllows",
+      sessionLog: "sessionLog",
+      intentLog: "intentLog",
+      dailyStats: "dailyStats:2026-07-12"
+    });
+  });
+
   it("sets and gets typed sync values", async () => {
     await setTyped("sync", STORAGE_KEYS.sync.settings, { softOverlaySeconds: 10 });
 
     await expect(getTyped("sync", STORAGE_KEYS.sync.settings)).resolves.toEqual({
       softOverlaySeconds: 10
     });
+  });
+
+  it("stores the UI locale independently from session settings", async () => {
+    await setTyped("sync", STORAGE_KEYS.sync.uiLocale, "en");
+
+    await expect(getTyped("sync", STORAGE_KEYS.sync.uiLocale)).resolves.toBe("en");
+    expect(syncStore.settings).toBeUndefined();
   });
 
   it("resolves missing or malformed settings to one shared product default", () => {

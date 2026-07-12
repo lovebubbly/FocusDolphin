@@ -33,7 +33,7 @@ describe("requireTrustedBlockedPageSender", () => {
     { id: "focuswhale-id", frameId: 0, url: `${EXTENSION_ORIGIN}/src/pages/blocked/index.html` }
   ])("rejects an untrusted sender", (sender) => {
     expect(() => requireTrustedBlockedPageSender(sender as chrome.runtime.MessageSender)).toThrow(
-      /FocusWhale blocked-page|FocusWhale blocked page/u
+      /Focus Dolphin blocked-page|Focus Dolphin blocked page/u
     );
   });
 });

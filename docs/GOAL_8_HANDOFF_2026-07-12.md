@@ -25,6 +25,8 @@ Preferences remains secondary. The redesign borrows only structural lessons from
 
 The current production tree keeps the existing MV3 runtime, shared contracts, message types, storage schema, session engine, DNR behavior, alarms, recovery journals, pet settlement, and privacy model. Goal 8 changes presentation and truthful view-model projections around those contracts. Two small pure helpers were added for display correctness: latest-badge selection by award time and recent Review aggregation.
 
+The 2026-07-12 follow-up adds semantic UI motion without changing those contracts. Popup state changes, Options view/lock changes, onboarding steps, blocked states, and newly created soft overlays use compositor-only entrances keyed by semantic state. The Review chart now visibly grows on first entry, and overlay readiness plus local async work receive restrained confirmation feedback. Same-state rerenders and reduced-motion mode stay still.
+
 One runtime integrity correction was required by exact browser QA: natural session finalization now invokes full pet reconciliation rather than XP-only settlement. This keeps XP, streak, badges, and their completion association inside one serialized mutation. A later popup reconciliation remains idempotent. The finalize-then-reconcile regression reproduces the real service-worker pipeline and verifies both first-session and first-hard badge events retain the completed session ID.
 
 Final review found a separate presentation boundary: a session could associate more milestones than the four rows shown in the popup. The acknowledgement batch now contains the session overview plus at most those four rendered rows. Extra events remain pending, use the existing more-changes summary, and receive a later acknowledgement screen instead of being silently consumed.
@@ -33,11 +35,11 @@ Automated gates on the frozen production bundle are green:
 
 - `npm run build`: pass.
 - `npm run typecheck`: pass.
-- `npm test`: **33 files / 250 tests**, pass.
-- Final popup bundle: **25,240 bytes**, SHA-256 `e191845b3f549fe92007c61d1002b10d233847751616c6bc04b277f566b16390`.
-- Classic content script: **194,791 bytes**.
+- `npm test`: **34 Vitest files / 259 application tests plus 6 release-package boundary tests**, pass.
+- Current popup bundle: **27,173 bytes**, SHA-256 `50c92044b6deb4b924e21c8d5a6cff20b52378544ffe92d1e2818220c1c77718`.
+- Classic content script: **203,956 bytes**, SHA-256 `123c8ef35b632bb6b1ce590947924ced97673ad85e386824fca53ae33b3b0306`.
 - Build verifier: 11 manifest targets, exact four-resource web-accessible allowlist, no source maps, no root-relative asset URLs, no unexpected external network URLs, matching Pretendard license, and classic content output.
-- Locale catalogs: **530 English / 530 Korean** keys with placeholder parity and production-reference coverage.
+- Locale catalogs: **541 English / 541 Korean** keys with placeholder parity and production-reference coverage.
 - Authored production surface CSS: **115 lines** across shared app/overlay entries and four one-line page imports.
 - Raw colors: confined to the two daisyUI theme declarations.
 
@@ -161,6 +163,7 @@ Primary file: `src/pages/onboarding/main.ts`.
 - Pretendard Variable remains locally bundled with SIL OFL.
 - Numeric timers and metrics use tabular figures.
 - Reduced-motion rules keep state transitions usable and collapse sprite animation to one frame.
+- New Web Animations are limited to opacity and transform, skip reduced-motion users, and never gate focus, navigation, storage, countdowns, or session state.
 
 ## Pet Renderer Contract
 
@@ -170,18 +173,20 @@ Primary file: `src/pages/onboarding/main.ts`.
 - `large`: 128 px.
 - `hero`: 160 px.
 
-The renderer scales container size, atlas background geometry, frame offsets, and animation endpoint together. It does not stretch a 96 px CSS background into a larger box. Tests cover 128/160 geometry and reduced-motion behavior.
+The renderer scales container size, atlas background geometry, frame offsets, and animation endpoint together. The 192 px source frames remain denser than every approved 96/128/160 CSS px render size. Tests cover default, 128/160 geometry, source density, and reduced-motion behavior.
 
 ## Localization Contract
 
-- Korean and English catalogs contain the same 530 keys and placeholder structures.
+- Korean and English catalogs contain matching keys and placeholder structures.
 - All new Goal 8 copy routes through the shared translator.
 - Unsupported browser UI languages fall back to English.
-- Korean Whale's observed stale runtime-catalog mismatch continues to use the bundled catalog matching `getUILanguage()`.
+- Users can choose Automatic, English, or Korean in Preferences. Automatic follows the browser UI language; an explicit choice uses the matching bundled catalog.
 - Product defaults are localized; user-authored values are never translated.
 - Catalog tests scan production TypeScript for referenced message families and reject missing keys.
 
 ## Verification Boundary
+
+The current uncommitted motion follow-up has its own **MOTION FOLLOW-UP EXACT BUILD** evidence in `QA.md`: isolated Whale 4.38 / Chromium 148 verified one-time semantic entrances, actual multi-frame Review chart growth, no replay on same-state rerenders, stable focus/countdowns, and zero new Web Animations in representative reduced-motion states. The disposable clone/profile and debugging port were removed. This does not relabel the frozen Goal 8 suite below or create a store executable commit.
 
 All exact headed suites used Naver Whale 4.38.386.14 / Chromium 148 and the same frozen 42,956-byte background worker, SHA-256 `172ca0d895958575048e022f1ef3051fb76d46b74ff1efe1ba80c731ab6f1d0e`.
 

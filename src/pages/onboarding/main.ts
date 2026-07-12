@@ -1,7 +1,8 @@
 import { DEFAULT_PET_STATE, normalizePetState } from "../../pet/defaultState";
 import { mountPet, PET_RENDER_SIZES } from "../../pet/renderer";
 import { sendMessage } from "../../shared/messaging";
-import { getUiLocale, translate } from "../../shared/i18n";
+import { getUiLocale, initializeUiLocale, setUiLocalePreference, translate } from "../../shared/i18n";
+import { playMotion, prefersReducedMotion, shouldAnimateSurface } from "../../shared/motion";
 import {
   DEFAULT_SITE_LISTS,
   migrateSiteListsForCurrentDefaults,
@@ -53,10 +54,12 @@ interface OnboardingHandlers {
 
 const app = document.querySelector<HTMLElement>("#app");
 if (!app) {
-  throw new Error("FocusWhale onboarding root was not found.");
+  throw new Error("Focus Dolphin onboarding root was not found.");
 }
 
-void bootstrapOnboarding(app).catch(() => renderOnboardingLoadFailure(app));
+void initializeUiLocale()
+  .then(() => bootstrapOnboarding(app))
+  .catch(() => renderOnboardingLoadFailure(app));
 
 export function renderOnboardingLoadFailure(root: HTMLElement): void {
   document.title = translate("onboardingDocumentTitle");
@@ -91,6 +94,7 @@ export function renderOnboardingLoadFailure(root: HTMLElement): void {
   section.append(body);
   wrap.append(section);
   root.append(header, wrap);
+  playMotion(section, "hero");
 }
 
 export async function bootstrapOnboarding(root: HTMLElement): Promise<void> {
@@ -216,6 +220,16 @@ export async function bootstrapOnboarding(root: HTMLElement): Promise<void> {
   };
 
   rerender(Boolean(model.completedOutcome));
+  chrome.storage.onChanged.addListener((changes, areaName) => {
+    if (areaName !== "sync" || !changes[STORAGE_KEYS.sync.uiLocale]) {
+      return;
+    }
+
+    setUiLocalePreference(changes[STORAGE_KEYS.sync.uiLocale]?.newValue);
+    document.title = translate("onboardingDocumentTitle");
+    document.documentElement.lang = getUiLocale();
+    rerender();
+  });
 }
 
 async function loadSiteLists(): Promise<SiteList[]> {
@@ -279,6 +293,9 @@ function renderOnboarding(
   model: OnboardingModel,
   handlers: OnboardingHandlers
 ): void {
+  const motionKey = model.completedOutcome ? "complete" : `step:${model.step}`;
+  const animateSurface = shouldAnimateSurface(root.dataset.motionKey, motionKey, prefersReducedMotion());
+  root.dataset.motionKey = motionKey;
   root.replaceChildren();
   root.className = "mx-auto flex min-h-screen w-full max-w-[720px] flex-col px-5 py-6 sm:px-6";
 
@@ -297,7 +314,11 @@ function renderOnboarding(
   root.append(header);
 
   if (model.completedOutcome) {
-    root.append(renderCompletion(model, handlers));
+    const completion = renderCompletion(model, handlers);
+    root.append(completion);
+    if (animateSurface) {
+      playMotion(completion.querySelector("section"), "hero");
+    }
     return;
   }
 
@@ -312,6 +333,9 @@ function renderOnboarding(
         : renderIntensityStep(model, handlers)
   );
   root.append(content, renderFooter(model, handlers));
+  if (animateSurface) {
+    playMotion(content.querySelector("section"), model.step === 1 ? "hero" : "surface");
+  }
 }
 
 function renderProgress(step: OnboardingStep): HTMLElement {
@@ -370,7 +394,14 @@ function renderIntro(model: OnboardingModel): HTMLElement {
     principleRow("onboardingIntroPrivacyTitle", "onboardingIntroPrivacyBody"),
     principleRow("onboardingIntroPetTitle", "onboardingIntroPetBody")
   );
-  body.append(hero, principles);
+  const disclosure = document.createElement("div");
+  disclosure.className = "alert alert-soft items-start border border-primary/15 bg-base-100/70";
+  const disclosureCopy = document.createElement("div");
+  disclosureCopy.className = "space-y-1";
+  appendText(disclosureCopy, "h2", translate("onboardingIntroDataTitle"), "font-black");
+  appendText(disclosureCopy, "p", translate("onboardingIntroDataBody"), "text-sm leading-6 text-base-content/75");
+  disclosure.append(disclosureCopy);
+  body.append(hero, principles, disclosure);
   section.append(body);
   return section;
 }
@@ -481,7 +512,7 @@ function renderIntensityStep(model: OnboardingModel, handlers: OnboardingHandler
   for (const option of intensityOptions) {
     const label = document.createElement("label");
     const selectedOption = model.intensity === option.value;
-    label.className = "join-item flex min-h-20 cursor-pointer items-center gap-4 border border-base-content/10 px-4 py-3 has-[:checked]:border-primary has-[:checked]:bg-primary/5 has-[:checked]:ring-1 has-[:checked]:ring-primary/60 has-[:checked]:shadow-lg";
+    label.className = "join-item flex min-h-20 cursor-pointer items-center gap-4 border border-base-content/10 px-4 py-3 motion-safe:transition motion-safe:duration-200 motion-reduce:transition-none has-[:checked]:border-primary has-[:checked]:bg-primary/5 has-[:checked]:ring-1 has-[:checked]:ring-primary/60 has-[:checked]:shadow-lg";
     const radio = document.createElement("input");
     radio.type = "radio";
     radio.name = "onboarding-intensity";

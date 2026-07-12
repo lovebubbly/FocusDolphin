@@ -1,6 +1,6 @@
-# FocusWhale v1.0.0 Handoff
+# Focus Dolphin v1.0.0 Handoff
 
-> **Goal 8 supersession notice (2026-07-12 KST):** this document preserves the Goal 7 architecture and release-preparation baseline. For the current approved redesign, exact frozen-bundle Whale evidence, the session-finalization milestone correction, changed-file inventory, and publication sequence, use [GOAL_8_HANDOFF_2026-07-12.md](GOAL_8_HANDOFF_2026-07-12.md), [../QA.md](../QA.md), and [../RELEASE_CHECKLIST.md](../RELEASE_CHECKLIST.md). The pre-Goal-8 ZIP and store imagery described below are historical artifacts and must not be submitted as the Goal 8 candidate.
+> **Goal 8 and rename supersession notice (2026-07-12 KST):** this document preserves the Goal 7/Goal 8 architecture and release-preparation baseline. `FocusWhale` was the unreleased development codename; **Focus Dolphin — Website Blocker** is the selected public identity. Exact frozen-bundle whale evidence and all pre-rename ZIPs/screenshots remain historical and must not be relabeled. For current operational gates, use [../QA.md](../QA.md), [../RELEASE_CHECKLIST.md](../RELEASE_CHECKLIST.md), and [LICENSE_AND_IP_AUDIT_2026-07-12.md](LICENSE_AND_IP_AUDIT_2026-07-12.md).
 
 > **Document provenance**
 >
@@ -14,23 +14,23 @@
 
 ## Executive State
 
-FocusWhale is now a coherent **v1.0.0 local release candidate**, not merely the original MVP scaffold. The core session/DNR engine, crash recovery, pet settlement, four-mood sprite system, UI surfaces, optional local-history recommendations, privacy controls, install-only onboarding, Korean/English localization, and production build verification are implemented.
+Focus Dolphin is now a coherent **v1.0.0 local release candidate**, not merely the original MVP scaffold. The core session/DNR engine, crash recovery, pet settlement, four-mood sprite system, UI surfaces, optional local-history recommendations, privacy controls, install-only onboarding, Korean/English localization, and production build verification are implemented.
 
-Automated release gates are green:
+The following automated results belong to the last pre-rename candidate and remain regression evidence, not proof of the integrated Focus Dolphin package:
 
 - `npm run typecheck`: pass.
-- `npm test`: **33 files / 237 tests**, pass.
+- `npm test`: **34 Vitest files / 259 application tests plus the then-current release-package boundary tests**, pass.
 - `npm run build`: pass.
-- Classic content script: **178,301-byte IIFE**.
+- Classic content script: **203,956-byte IIFE**, SHA-256 `123c8ef35b632bb6b1ce590947924ced97673ad85e386824fca53ae33b3b0306`.
 - Release verifier: 11 required manifest/onboarding/locale targets, English localized-manifest defaults, exact four web-accessible resources, no source maps, no unexpected external URLs, and matching packaged Pretendard license.
 
 Commit `acb45b6` remains the exact pre-Goal-7 executable baseline for the recorded soft/medium/hard, recovery, DNR, pet, accessibility, and optional-history browser matrix. Those checks support unchanged core design, but they are not exact-current proof for the bilingual build.
 
-On the current Goal 7 build, headed disposable-profile Whale 4.38 visual checks passed the English and Korean onboarding flows, popup, Options, and Korean blocked page with the expected language, no untranslated message-key leakage, no horizontal overflow, visible pet artwork, and no page-console errors. The local completion record prevented an automatic second onboarding opening, while Options replay reopened it intentionally.
+On the pre-rename Goal 8 follow-up build, disposable-profile Whale and Chrome-for-Testing checks covered onboarding, popup, Options, blocked, overlay, light/dark, reduced motion, localization, session completion, DNR, recovery, and active-session locking. That candidate also added exact duration entry, a user-selected language preference, high-density mascot rendering, semantic motion, prominent bilingual first-run data disclosure, and an isolated-memory fix for soft-overlay temporary access. Reuse those results only as regression context until the integrated Focus Dolphin archive repeats the name/mascot-bearing paths.
 
-Playwright-launched Whale 4.38 stalls when session startup reaches `chrome.alarms.create`. An identical run of the exact `acb45b6` baseline reproduces the same stall. Treat this as a **harness limitation/pre-existing baseline behavior**, not a Goal 7 regression. It is also not a normal-browser session pass; a normal-browser/manual current-build session smoke remains a publication gate.
+The old Playwright-launched Whale alarm stall is retained only as historical Goal 7 evidence. Later visible Goal 8 automation completed real session starts, alarms, blocking, completion, reward acknowledgement, and restart/recovery paths. Exact-package QA must still be repeated after the Focus Dolphin commit and ZIP are fixed.
 
-The candidate is **not store-published**. Executable commit `bc62727` passes a detached clean `npm ci` rebuild, typecheck, all 237 tests, build verification, and byte comparison against every packaged file. The current archive is 2,754,338 bytes with SHA-256 `cba02253a1422d8f19ed7ddb16288f0c51a442656cbd02cf459740e68b5656a0`; its 31-file extracted tree carries all required notices and passes token/private-key/personal-path/content-exclusion scans plus a production-only dependency audit. Exact 1280 x 800 onboarding captures exist in both languages. An extracted-archive ordinary-browser active-session smoke, refresh or owner approval of four prior-build core-flow composites, and owner approval remain required before upload. Whale Store remains the first target; no publisher-dashboard entry, upload, review, or publication is recorded.
+The candidate is **not store-published**. The integrated Focus Dolphin source now passes build, typecheck, 264 application tests, 9 package tests, 542-key locale parity, dependency audit, sensitive-data scan, deterministic asset checks, and a working-tree package rehearsal. Chrome Web Store and Whale Store are both targets. The exact `FocusWhale` collision was resolved by selecting Focus Dolphin before publication, and the owner accepted the documented conditional-go risk after correction of the irrelevant Apple metadata. The selected-commit rebuild, `lovebubbly/FocusDolphin` GitHub rename, both store dashboard renames, exact-package QA, fresh screenshots, and submission remain open. See `docs/LICENSE_AND_IP_AUDIT_2026-07-12.md` and `RELEASE_CHECKLIST.md`.
 
 ## Evidence Discipline
 
@@ -111,9 +111,9 @@ The production build is intentionally two-stage:
 The four web-accessible resources are:
 
 - `src/pages/blocked/index.html`
-- `assets/focuswhale-atlas.png`
+- `assets/focusdolphin-atlas.png`
 - `assets/PretendardVariable.woff2`
-- `icons/focuswhale-128.png`
+- `icons/focusdolphin-128.png`
 
 Do not broaden this list with `assets/*` without a reviewed need.
 
@@ -175,7 +175,7 @@ The pet is additive and non-regressing.
 - Pending celebrations are read non-destructively and acknowledged by event ID.
 - Growth events and acknowledgement records retain at most 500 unique IDs; acknowledgement retries are deduplicated before pruning.
 
-The new atlas is `384 x 1920`, four columns by twenty rows, with eighty validated 96 px frames. It supplies five stages for `idle`, `happy`, `focus`, and `celebrate`. Stage 4 is a star-marked adult; the old clipped crown design is retired. Source sheets are deterministically assembled and recorded in `assets/sprites/atlas-report.json`.
+The runtime atlas is `768 x 3840`, four columns by twenty rows, with eighty validated 192 px source frames. It supplies five stages for `idle`, `happy`, `focus`, and `celebrate` while keeping 96/128/160 CSS px render sizes. Stage 4 is a star-marked adult; the old clipped crown design is retired. Source sheets are deterministically assembled and recorded in `assets/sprites/atlas-report.json`.
 
 The renderer resolves extension URLs correctly in pages and content-script shadow roots, validates geometry, injects CSS into the correct root, respects reduced motion, and falls back to the packaged icon on load failure. Exact-final popup, blocked, and overlay checks show visible focus pets. The installed-extension matrix rendered all 20 stage/mood combinations, used all 20 atlas rows, and disabled all animations under reduced motion.
 
@@ -205,15 +205,15 @@ Onboarding is a three-step, install-only experience:
 2. Select and optionally edit a focus list; domains are normalized before the existing background mutation is requested.
 3. Choose an explicit intensity for an optional 25-minute first session. The default is `soft`; no intensity is raised automatically.
 
-The user may skip, finish setup without a session, or explicitly start the session. Completion is stored in `chrome.storage.local` as `focuswhaleOnboarding` with schema version `1`, `completedAt`, and outcome `skipped`, `setup_only`, or `session_started`. Automatic opening is limited to `runtime.onInstalled` reason `install` and a missing valid current-version record. Updates and browser startups do not open it. Options can open `?replay=1` intentionally. Onboarding does not request optional history permission.
+The user may skip, finish setup without a session, or explicitly start the session. Completion is stored in `chrome.storage.local` as `focuswhaleOnboarding` with schema version `1`, `completedAt`, and outcome `skipped`, `setup_only`, or `session_started`. That key intentionally retains the unreleased development codename for compatibility. Automatic opening is limited to `runtime.onInstalled` reason `install` and a missing valid current-version record. Updates and browser startups do not open it. Options can open `?replay=1` intentionally. Onboarding does not request optional history permission.
 
-`public/_locales/en/messages.json` and `public/_locales/ko/messages.json` contain 460 matching keys. Manifest name, description, and action title use `__MSG_*__`; English is the manifest fallback. Popup, Options, blocked page, soft overlay, onboarding, pet stages, badges, growth copy, product defaults, validation, and runtime errors use the shared translator. Korean UI-language tags select Korean; other/unsupported tags select English. If Whale's requested UI language and `@@ui_locale` runtime catalog disagree, the bundled catalog matching the requested language is used. Product defaults are localized, while user-authored pet/list names, domains, schedules, and intent text remain verbatim.
+The English and Korean locale catalogs must retain matching keys and placeholders. Manifest name, description, and action title use `__MSG_*__`; English is the manifest fallback. Popup, Options, blocked page, soft overlay, onboarding, pet stages, badges, growth copy, product defaults, validation, and runtime errors use the shared translator. Korean UI-language tags select Korean; other/unsupported tags select English. If Whale's requested UI language and `@@ui_locale` runtime catalog disagree, the bundled catalog matching the requested language is used. Product defaults are localized, while user-authored pet/list names, domains, schedules, and intent text remain verbatim. Record the final post-rename catalog count only after the full suite runs.
 
 ## Analytics, Privacy, And Deletion
 
 History is optional. Options requests `history` only when the user invokes analysis and provides a revoke control; onboarding never requests it. Analysis rejects non-HTTP(S) history items before domain extraction. Thirty-day metrics call `history.getVisits` for a bounded recent URL sample and count actual in-window timestamps rather than lifetime URL counters. Raw history/visit records remain in memory during analysis; persisted recommendations contain domain/category/visit aggregates, never titles, full paths, queries, or visit timestamps. Computation stays off the session-operation queue so a long scan cannot delay alarms. The final write re-enters the queue, and a mutation generation discards a stale result after a successful local clear. The pre-Goal-7 headed Chrome-for-Testing baseline passed real grant, controlled domain-only results, extension-URL exclusion, revoke, and post-revoke session start.
 
-FocusWhale has no backend, telemetry, advertising, crash-reporting, or remote AI integration. The current production build contains no unexpected external URLs and packages fonts/assets locally.
+Focus Dolphin has no backend, telemetry, advertising, crash-reporting, or remote AI integration. The production build packages fonts/assets locally and its exact renamed output must repeat the external-URL verifier before release.
 
 Repository documentation was also scanned for machine-specific path leakage; absolute `/Users/...` paths in `docs/SNSLOCK_CORE_CONCEPT_PORT_PLAN.md` were sanitized before the final archive scan.
 
@@ -227,7 +227,7 @@ Options provides a localized local-data clear action. It:
 
 Clearing the onboarding record does not fire a new install event, so it does not reopen the flow by itself. Options replay remains available.
 
-The repository privacy policy is `PRIVACY.md`. [GitHub Issues](https://github.com/lovebubbly/FocusWhale/issues) is the public support/privacy channel. The stable policy URL is `https://github.com/lovebubbly/FocusWhale/blob/main/PRIVACY.md`; both it and the Limited Use statement were publicly verified on 2026-07-11.
+The repository privacy policy is `PRIVACY.md`. The intended public support channel is [Focus Dolphin GitHub Issues](https://github.com/lovebubbly/FocusDolphin/issues), and the intended policy URL is `https://github.com/lovebubbly/FocusDolphin/blob/main/PRIVACY.md`. The former FocusWhale URLs and Limited Use statement were publicly verified on 2026-07-11; the repository/remote rename and verification of the new URLs remain pending.
 
 ## Notion Issue Resolution
 
@@ -253,58 +253,48 @@ The full ticket-by-ticket audit is `docs/NOTION_ISSUE_TRIAGE.md`. High-level sta
 
 ## Current QA Boundary
 
-Automated current, verified 2026-07-11 12:15 KST:
+Automated pre-rename baseline, verified 2026-07-12 KST:
 
-- typecheck, 33 Vitest files / 237 tests, and the two-stage production build pass;
-- 460-key Korean/English catalog parity, declared placeholders, manifest localization, computed-key families, and referenced-key coverage pass;
-- onboarding install/update/replay/completion parsing, model normalization, site-list editing, and explicit session-request behavior are covered;
-- DNR adapter coverage proves removal filtering and empty-update suppression;
-- verifier confirms 11 required manifest/onboarding/locale targets, four exact WAR entries, a 178,301-byte classic content script, no source maps, no root-relative asset URLs, no unexpected external URLs, and exact Pretendard licensing.
+- typecheck, 34 Vitest files / 259 application tests, the then-current release-package boundary tests, and the two-stage production build pass;
+- 541-key Korean/English catalog parity, declared placeholders, manifest localization, computed-key families, and referenced-key coverage pass;
+- verifier confirms 11 required manifest/onboarding/locale targets, four exact WAR entries, a 203,956-byte classic content script, no source maps, no root-relative asset URLs, no unexpected external URLs, and exact Pretendard licensing;
+- live full dependency audit reports zero vulnerabilities;
+- the generated mascot sources, transparent intermediates, final atlas, icons, and promotional tile have recorded hashes and deterministic generation paths.
 
-Headed current Goal 7 visual/lifecycle pass in disposable-profile Whale 4.38:
+Pre-rename exact unpacked-build evidence:
 
-- English onboarding steps 1-3, skip/completion, popup at 360 x 600, and Options activity view show English without Hangul leakage, message keys, horizontal overflow, missing pet art, or page-console errors;
-- Korean onboarding steps 1-3, completion, popup at 360 x 600, Options activity/growth, and blocked no-session page show Korean without message keys, horizontal overflow, missing pet art, or page-console errors;
-- the Korean requested-language/stale-English-runtime-catalog case falls back to the bundled Korean catalog;
-- the versioned completion record prevents an automatic second opening in the same unpacked profile, and the Options replay action opens `?replay=1` deliberately;
-- onboarding does not grant or request optional history permission.
+- visible disposable-profile Goal 8 suites exercised English/Korean onboarding, popup, Options, blocked, overlay, true hard completion, milestone batching, DNR, recovery, active-session locking, accessibility, contrast, keyboard use, and reduced motion;
+- isolated Whale 4.38 and Chrome for Testing 147 load the current production extension without console, page, request, or worker errors;
+- the normal user browser profile was not modified by isolated QA;
+- use `QA.md` for exact browser/profile/fingerprint details and keep direct-page, unpacked-build, extracted-ZIP, and store-installed evidence distinct.
 
-Harness-limited current session path:
+Pending publication states:
 
-- Playwright-launched Whale 4.38 stalls when startup reaches `chrome.alarms.create`;
-- the exact pre-Goal-7 executable at `acb45b6` reproduces the same API-boundary stall under the same harness;
-- therefore this is a harness limitation/pre-existing baseline behavior, not evidence of a Goal 7 regression;
-- it is not evidence of normal-browser success either. A current-build normal-browser/manual start, alarm, blocking, and completion smoke remains pending.
-
-Historical pre-Goal-7 baseline at `acb45b6`:
-
-- isolated Whale/Chrome-for-Testing runs covered soft/medium/hard behavior, popup emergency, temporary allow, safe return, `x.com.`, schedule suppression, process restart, simultaneous alarms, Options locking, all 20 pet states, accessibility/motion, optional-history grant/revoke, and clean-profile archive loading;
-- instrumented runs covered history latency/stale-result rejection and worker replacement at both durable recovery-journal boundaries;
-- use `QA.md` for exact browser/profile/fingerprint details. Do not relabel this historical matrix as an exact-current Goal 7 pass.
-
-Pending manual/publication states:
-
-- normal-browser/manual current-build session start through alarm/block/completion;
-- a new exact bilingual/onboarding ZIP, checksum, extracted-tree comparison, clean-profile load, and final secret/privacy scan;
-- localized store copy/image comparison, product-owner visual/reward judgment, final sign-off, support monitoring confirmation, publisher-dashboard metadata entry, upload, review, and publication.
+- record final confusing-similarity risk acceptance for Focus Dolphin; the knock-out screen is not legal clearance;
+- commit and push the selected source, rename the GitHub repository/remote to `lovebubbly/FocusDolphin`, then verify the intended Issues and privacy URLs;
+- update the Chrome Web Store and Whale Store dashboard names independently;
+- build a clean exact bilingual ZIP, record checksum/entry count, compare its extracted tree with reviewed `dist/`, and repeat dependency/license/secret scans;
+- run critical-flow smoke from that exact extracted package in Whale and Chrome;
+- capture four current English and four current Korean 1280 x 800 screenshots without personal data;
+- complete independent Chrome Web Store and Whale Store metadata, owner confirmation at the final submit actions, review, and publication records.
 
 ## Release Handoff Sequence
 
-1. Preserve `acb45b6` as the historical executable/browser-evidence baseline; do not describe its archive as the current Goal 7 binary.
-2. Run `npm run typecheck`, `npm test`, and `npm run build` again after any change.
-3. Complete a normal-browser/manual current-build session start, alarm, blocking, and completion smoke; keep the Playwright/Whale alarm stall labeled harness-limited.
-4. Preserve the verified public `PRIVACY.md` URL and GitHub Issues support channel; recheck both at submission time.
-5. Run a final secret/privacy scan against the exact release diff and archive.
-6. Build a new bilingual/onboarding ZIP, record its checksum, prove its extracted tree equals `dist/`, and repeat the clean-profile archive load.
-7. Review the prepared `store/` copy and `store-assets/` images against the exact Korean/English build; do not replace them with simulated product UI.
-8. Obtain product-owner release approval and confirmation that GitHub Issues will be monitored.
-9. Upload the checksum-verified ZIP to Whale Store, request review, and record its item ID/date/URL. Re-review browser-neutral metadata before any Chrome Web Store upload.
+1. Treat **Focus Dolphin — Website Blocker** as the selected public name and keep `FocusWhale` only in compatibility identifiers and truthful historical labels.
+2. Run `npm run typecheck`, `npm test`, and `npm run build` after integration; commit and push the selected candidate.
+3. Rename the GitHub repository/remote to `lovebubbly/FocusDolphin`, then verify the public `PRIVACY.md` URL and GitHub Issues support channel.
+4. Build the release ZIP in a clean checkout, record its checksum and entries, prove its extracted tree equals `dist/`, and repeat full dependency/license/secret scans.
+5. Load that extracted package in disposable Whale and Chrome profiles and repeat the critical session, blocking, overlay, completion, language, and active-session-lock journeys.
+6. Capture and checksum four current English plus four current Korean store screenshots from the exact package.
+7. Review the bilingual `store/` copy, declarations, icon, promotional tile, and screenshots against the exact package.
+8. Complete both publisher dashboards up to the final submit action and obtain action-time product-owner confirmation.
+9. Submit independently to Chrome Web Store and Whale Store, then record both item IDs, dates, review feedback, approval states, and publication URLs.
 
 Use `RELEASE_CHECKLIST.md` as the operational gate.
 
 ## Known Limits
 
-- A user can disable/remove an extension or use another browser/profile; FocusWhale is not an enforcement/security boundary.
+- A user can disable/remove an extension or use another browser/profile; Focus Dolphin is not an enforcement/security boundary.
 - Whale and Chrome can differ despite Chromium compatibility.
 - Tailwind automatic discovery is disabled with `source(none)`; explicit `@source` directives cover production page, content, and pet code. Preserve that boundary or add new production directories explicitly so documentation prose cannot alter executable CSS.
 - Playwright-launched Whale 4.38 currently stalls at `chrome.alarms.create`, including on exact baseline `acb45b6`. Keep this separate from normal-browser product behavior.

@@ -1,8 +1,53 @@
-# FocusWhale QA Evidence And Checklist
+# Focus Dolphin QA Evidence And Checklist
 
 Last refreshed: **2026-07-12 KST** by **OpenAI Codex (GPT-5)**, for requester and product owner **Choi Yunseong (최윤성)**.
 
-Current evidence boundary: **Goal 8 Phase B executable commit `5029d2a924cc14b5175fe1da1f4f9a2fcf274fb8` on `codex/goal-8-web-product-polish`, exercised against a rebuilt `dist/` whose 42,956-byte background worker has SHA-256 `172ca0d895958575048e022f1ef3051fb76d46b74ff1efe1ba80c731ab6f1d0e` and whose final 25,240-byte popup has SHA-256 `e191845b3f549fe92007c61d1002b10d233847751616c6bc04b277f566b16390`**. Choi Yunseong approved the complete Phase A mockup contract at commit `e7274a1` on 2026-07-11 with no exceptions. That design approval is not a substitute for the executable evidence below or approval of a future store archive.
+Frozen Goal 8 baseline evidence boundary: **Phase B executable commit `5029d2a924cc14b5175fe1da1f4f9a2fcf274fb8` on `codex/goal-8-web-product-polish`, exercised against a rebuilt `dist/` whose 42,956-byte background worker has SHA-256 `172ca0d895958575048e022f1ef3051fb76d46b74ff1efe1ba80c731ab6f1d0e` and whose final 25,240-byte popup has SHA-256 `e191845b3f549fe92007c61d1002b10d233847751616c6bc04b277f566b16390`**. This and every hash below that predates the rename belong to the unreleased `FocusWhale` development codename. Choi Yunseong approved the complete Phase A mockup contract at commit `e7274a1` on 2026-07-11 with no exceptions. That historical whale-design approval is not a substitute for Focus Dolphin executable, dolphin-art, package, or publication evidence.
+
+## 2026-07-12 Pre-Rename Automated Candidate (Historical)
+
+The privacy-and-provenance candidate recorded below was verified statically and by automated gates before the Focus Dolphin identity migration. It has not received a Focus Dolphin browser-pass label.
+
+- Automated gates pass: build, typecheck, **34 Vitest files / 259 application tests**, and **6 release-package boundary tests**. The verifier reports 11 manifest targets, exact four-resource WAR, classic content output, no source maps, root-relative asset URLs, or unexpected external URLs.
+- Current fingerprints: manifest `0c0e21ab55def509f97c677e671ee429f362a5d3ea35ded75678f995b82ef9c9`; background **42,956 bytes** / `1e5cddc9a4cd79f0444b6927d17f77534b37bffaa7c6d1f59ccb2a098b85dfa2`; popup **27,173 bytes** / `50c92044b6deb4b924e21c8d5a6cff20b52378544ffe92d1e2818220c1c77718`; content **203,956 bytes** / `123c8ef35b632bb6b1ce590947924ced97673ad85e386824fca53ae33b3b0306`; Options **52,001 bytes** / `2960003197b7efaf7f72ec8339d11edecf899f3f4bbb362c9601734371c2392a`; onboarding **14,754 bytes** / `9fb2df04bd38894e20fcddd86c351486ffc9a2b7f65579cae4b27d789f691bd1`; blocked **16,813 bytes** / `722e6ac71d5d5f3fc82171eac09044eddd3681679abaea849791b9b7af3383cd`; atlas `b92f007ed9a87bb203596e26db0c125562a045ff75ef6eac5ac2beb3dbe7022e`.
+- Static verification confirms the full English/Korean data disclosures are bundled in onboarding step 1 before the footer, and the host-page soft-allow `sessionStorage` write is absent.
+- A fresh isolated Whale/Chrome disclosure-layout run was attempted but did not start the pre-rename FocusWhale build: headed browser launch was rejected by the environment's exhausted GUI approval quota, while all sandboxed headless Chromium binaries terminated before DevTools connection (`MachPortRendezvousServer ... Permission denied (1100)`). This is neither a product pass nor a product failure.
+- The syntax-checked rerun harness at `/tmp/focuswhale-bilingual-disclosure-rehearsal.cjs` is local-only evidence and is not part of the repository. It must be rerun after browser-launch approval is available, in both languages at 1280 x 800 and 720 x 820, before packaging.
+
+## 2026-07-12 Focus Dolphin Integrated Automated Candidate
+
+This is exact evidence for the integrated working tree after the public-name, bilingual-copy, mascot, privacy, duration, language, and motion changes. It is not yet the selected executable commit or a browser pass.
+
+- Automated gates pass: `npm run typecheck`, `npm run build`, **34 Vitest files / 264 application tests**, and **9 release-package boundary tests**.
+- Locale catalogs have exact key and placeholder parity at **542 English / 542 Korean** entries. Both expose `Focus Dolphin — Website Blocker` as the manifest/store name and `Focus Dolphin` as the compact brand. The catalog regression rejects `FocusWhale`, standalone English `whale`, and standalone Korean `고래` in live product copy while preserving user-authored names.
+- Current bundle fingerprints: manifest **1,381 bytes** / `2d19f370e02fc7adb83e26c9fa2cc04502413eef132de983dbf5a8952d0fac9a`; background **42,962 bytes** / `38859b70d94ddb37be951f2081bf8d75906b9b1e85b7d7e2d28e25b76dd06af6`; popup **27,175 bytes** / `6e51bd056c4ea5dfe0274f3edff50c088e7deb7710d0f3b16c99defa5328e567`; content **204,679 bytes** / `877062f6880153e6e74daceec4231a64e9339dc4b4fcc419c980b062d18812db`; Options **52,003 bytes** / `e8679d17ba29066ad467f6192ed9880ed56a3c1ba908c3f7d2cd5e693c9af2d5`; onboarding **14,757 bytes** / `17c04bf1f8e2ba3fe18b5dc422de77e05cdd7b15f7dbee1b334a3d459c8dbda2`; blocked **16,819 bytes** / `d8fb80445ac10b6ef986e32f9e063cfa30bc2762ced5809956c8b2fa8ff93cec`.
+- The dolphin atlas is **768 x 3,840 RGBA**, eighty nonempty validated frames, and SHA-256 `b7a7a53b1b3b95e108da6b7e8970a4dd5ab1c75fc3b4ed6b598025e5107379e5`. Deterministic reassembly is byte-identical; all source/output metrics pass the 12 px safe margin. Light/dark contact-sheet review rejected angry focus and whale-like celebration drafts before selecting the final art.
+- The packaged and store 128 px icons are byte-identical at SHA-256 `f2aad78150573693d4236377b830017315890d2c8f59cc85fabb2d0cc08e4714`; the 16/32/48/128 matrix keeps the rostrum, dorsal fin, and flukes visible.
+- The deterministic working-tree rehearsal archive is `focus-dolphin-1.0.0.zip`: **3,715,534 bytes**, **31 entries**, SHA-256 `9477352d13105d1176c3cf540550b5a0252cbb2422528d92b943820bba1f5048`. `--verify-only` proves sorted, fixed-metadata, byte-equal `dist/` contents with manifest at the root. A selected-commit rebuild must reproduce this before it becomes release evidence.
+- The archive contains the exact four Dolphin web-accessible resources, both locale catalogs, local font, four icons, and both required license notices. It contains no source maps, tests, TypeScript, source sheets, browser profiles, QA output, external network URLs, or stale live whale copy.
+- Repository-sensitive-data scanning found no private key, provider/API token, personal email, machine path, credential file, or tracked browser database. The only password match is the deliberate `parsed.password = ""` URL-sanitization line. Ignored local browser profiles are not tracked and do not enter `dist/` or the archive.
+- Live registry audit reports **0 total npm vulnerabilities** across 146 dependencies. Direct dependency licenses resolve to MIT, SIL OFL 1.1, or Apache 2.0; release-relevant notices are packaged.
+
+## Focus Dolphin Candidate Evidence Required
+
+- [x] Record fresh build, typecheck, application-test, package-test, locale-parity, and exact-bundle hashes after the public-name and mascot migration are integrated.
+- [ ] Load the extracted `focus-dolphin-1.0.0.zip` in isolated ordinary Whale and Chrome profiles.
+- [ ] Exercise onboarding, popup idle/active/completion, Options Review/Rules/Preferences, medium/hard blocked states, and soft overlay in English and Korean.
+- [x] Confirm dolphin atlas resolution, all five stages x four moods, icon consistency, and no stale whale copy in current public surfaces through deterministic/static gates. **Browser reduced-motion, keyboard/focus, and extension-diagnostic checks remain pending below.**
+- [ ] Capture fresh store imagery from that exact archive. Historical FocusWhale/whale screenshots must not be relabeled or submitted.
+
+## 2026-07-12 Retained Motion Follow-Up
+
+**MOTION FOLLOW-UP EXACT BUILD** means an earlier rebuilt working tree was loaded in a separate disposable Naver Whale 4.38.386.14 / Chromium 148 clone and profile. It is exact evidence for that pre-disclosure motion follow-up, not for the current hashes above, a store executable commit, or publication.
+
+- Exercised fingerprints: background `18803d1704bf429c3515759ac68686873d761bc66d4fda8df8c078f3564938ef`; popup `410936dea5fc8389aea9fe2eb78aa6bfc5e7bd7127a073fa39ddb03e6712ff2c`; content `0ef9bbda96a03fec911e2923227f64f4d11354346a744b9e8f35cb51fdd2709f`; Options `c362d1a01cba7995de2965a67c3a7ac7c0e1d7d393d3a37aa893be8792c79d81`; onboarding `730c007d0664ffd196e346ca5588c602aefb88c9d652aa9a2c00903c76f6033c`; blocked `7cd6dd2d1edb4aad4a535e65b6f88ecb8fcad0ef3c91fb755eedb61979233846`.
+- Onboarding showed the 260 ms hero entrance and 220 ms step entrance. A same-step intensity rerender produced zero new Web Animations and retained input focus.
+- Popup idle showed one hero and one supporting-content entrance. Duration stepping and intensity selection stayed at motion key `idle` with zero replay; starting the session changed the key and produced the active hero/support entrances.
+- Options Review and Rules each entered once. Re-selecting Rules produced zero Web Animations and retained tab focus. The fixed-height Review chart visibly rose across measured frames; reduced motion rendered final heights immediately.
+- A new soft overlay produced one 260 ms card entrance while focus remained on Return to focus. Readiness produced one 320 ms badge confirmation without moving focus. Reduced motion produced zero new Web Animations and froze the sprite.
+- The medium blocked card produced one 260 ms entrance and focused Return to focus. A Korean locale refresh retained the same semantic key and countdown while producing zero replay; Automatic was restored. The full 30-second intent gate and temporary-access success state also completed.
+- Representative onboarding, popup, Options, blocked, and overlay reduced-motion states produced zero new Web Animations; their sprite animation computed to `none`. No animation controlled focus, navigation, storage, countdowns, or session state.
+- The normal user Whale window was not targeted. The disposable app/profile were removed and local debugging port `9339` was closed after QA. No recording or external upload occurred.
 
 ## Evidence Labels
 
@@ -24,17 +69,17 @@ Do not turn an automated, prior-build live, or earlier-baseline result into an e
 | Gate | Result | Evidence |
 | --- | --- | --- |
 | TypeScript | PASS | `npm run typecheck` |
-| Tests | PASS | `npm test`: 33 files / 250 tests |
+| Tests | PASS | `npm test`: 34 Vitest files / 264 application tests plus 9 release-package boundary tests |
 | Production build | PASS | two-stage Vite build plus `verify:build` |
-| Background worker | PASS | 42,956 bytes; SHA-256 `172ca0d895958575048e022f1ef3051fb76d46b74ff1efe1ba80c731ab6f1d0e` |
-| Popup bundle | PASS | 25,240 bytes; SHA-256 `e191845b3f549fe92007c61d1002b10d233847751616c6bc04b277f566b16390` |
-| Content script | PASS | classic IIFE, 194,791 bytes; SHA-256 `1e61912aa791d63278fa79a8233ef5118c537e302e0c73d3f2948dc9f515b2df` |
+| Background worker | PASS | 42,962 bytes; SHA-256 `38859b70d94ddb37be951f2081bf8d75906b9b1e85b7d7e2d28e25b76dd06af6` |
+| Popup bundle | PASS | 27,175 bytes; SHA-256 `6e51bd056c4ea5dfe0274f3edff50c088e7deb7710d0f3b16c99defa5328e567` |
+| Content script | PASS | classic IIFE, 204,679 bytes; SHA-256 `877062f6880153e6e74daceec4231a64e9339dc4b4fcc419c980b062d18812db` |
 | Build hygiene | PASS | no source maps, root-relative asset URLs, or unexpected external URLs |
 | WAR surface | PASS | exact four-resource allowlist |
 | Font license | PASS | packaged Pretendard OFL matches source license |
-| Localization package | PASS | `default_locale: en`; localized manifest fields; 530 English and 530 Korean catalog entries with placeholder parity and production-reference coverage |
+| Localization package | PASS | `default_locale: en`; localized manifest fields; 542 English and 542 Korean catalog entries with placeholder parity, live-brand guards, and production-reference coverage |
 | CSS/theme acceptance | PASS | 115 authored production surface lines; raw colors only in daisyUI theme declarations; local font/assets only |
-| Goal 8 release archive | PENDING | existing ZIP and store imagery predate Goal 8 and are not evidence for this branch |
+| Focus Dolphin release archive | WORKING-TREE PASS | 3,715,534 bytes / 31 entries / SHA-256 `9477352d13105d1176c3cf540550b5a0252cbb2422528d92b943820bba1f5048`; selected-commit rebuild and browser QA pending |
 
 ## Goal 8 Current Headed Whale Evidence
 
@@ -87,7 +132,7 @@ The Korean suite passed every requested intervention row on the same frozen back
 | Theme, motion, layout, and controls | PASS | Light/dark representatives, reduced pet/button motion, no overflow/clipping/key leaks, and no target below 40 px |
 | Runtime diagnostics | PASS | Zero console errors/warnings, page errors, failed requests, or HTTP 400+ responses; worker exception details were null and error-event list empty |
 
-The `lc.getunicorn.org` resources visible on the host page were injected by Naver Whale, not requested or referenced by FocusWhale. Host stderr contained only browser video-capture/crashpad cleanup warnings. Retained screenshots were visually inspected and byte-matched to stable verification captures; transient compositor captures were rejected.
+The `lc.getunicorn.org` resources visible on the host page were injected by Naver Whale, not requested or referenced by the historical FocusWhale build. Host stderr contained only browser video-capture/crashpad cleanup warnings. Retained screenshots were visually inspected and byte-matched to stable verification captures; transient compositor captures were rejected.
 
 ### Locale, Network, And Evidence Boundaries
 
@@ -111,7 +156,7 @@ Everything in this section through the historical matrix was recorded for the pr
 Environment:
 
 - Exact-final browsers: Naver Whale 4.38.386.14 / Chromium 148 and Google Chrome for Testing 147 in isolated disposable headed profiles, plus isolated disposable headless profiles for the core matrix. The final notice-inclusive archive smoke used a visible disposable Whale profile.
-- Consumer Google Chrome 148 rejected command-line unpacked-extension loading before FocusWhale ran, so it is not counted as an app failure or pass.
+- Consumer Google Chrome 148 rejected command-line unpacked-extension loading before the historical FocusWhale build ran, so it is not counted as an app failure or pass.
 - Development-path extension ID: `ojojphoncmkplfcinppanpbbhhfjcpgi`. The current clean-profile extracted archive used ID `ejhfobkhmdabjhobogffeineggppeafj`; extension IDs are path/profile dependent.
 - Exact artifact boundary: the behavioral rows exercised the executable payload retained in the current release ZIP. The publication refresh adds only `licenses/THIRD-PARTY-NOTICES.txt`; every pre-existing extracted file remains byte-identical. The popup emergency and recovery harnesses fingerprinted the loaded bundles; the built background worker SHA-256 remains `f3884cdd70e425b5cb6f061b98c0f4f3acddcf300fbd69c8513fd144fc53d0ad`.
 - Capture boundary: visual assertions saved local screenshots under `/tmp`; the restart, `x.com`, and archive-load checks explicitly recorded `screenCapture: false`. No recording or external upload was used.

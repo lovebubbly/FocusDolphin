@@ -13,11 +13,20 @@ import {
 } from "../../pet/growth";
 import { mountPet, PET_RENDER_SIZES } from "../../pet/renderer";
 import { BADGE_DEFINITIONS } from "../../shared/gamification";
-import { getUiLocale, translate, type SupportedLocale } from "../../shared/i18n";
+import {
+  getUiLocale,
+  initializeUiLocale,
+  normalizeUiLocalePreference,
+  setUiLocalePreference,
+  translate,
+  type SupportedLocale,
+  type UiLocalePreference
+} from "../../shared/i18n";
 import { sendMessage } from "../../shared/messaging";
 import { LatestRequestGuard } from "../../shared/latestRequest";
+import { playMotion, prefersReducedMotion, shouldAnimateSurface } from "../../shared/motion";
 import { siteListDisplayName } from "../../shared/siteLists";
-import { getTyped, STORAGE_KEYS } from "../../shared/storage";
+import { getTyped, setTyped, STORAGE_KEYS } from "../../shared/storage";
 import type { Intensity, PetState, Schedule, Session, SiteList } from "../../shared/types";
 import { openOnboardingPage } from "../onboarding/lifecycle";
 import {
@@ -38,6 +47,7 @@ import {
 } from "./model";
 
 interface OptionsState {
+  uiLocalePreference: UiLocalePreference;
   settings: OptionsSettings;
   siteLists: SiteList[];
   schedules: Schedule[];
@@ -63,6 +73,7 @@ interface OptionsUiState {
 interface OptionsHandlers {
   reload: (notice?: string, noticeTone?: NoticeTone, focusId?: string) => Promise<void>;
   setView: (view: OptionsView, restoreTabFocus?: boolean) => void;
+  changeUiLocale: (preference: UiLocalePreference) => Promise<void>;
   analyzeHistory: () => Promise<void>;
   clearLocalData: () => Promise<void>;
   revokeHistoryAccess: () => Promise<void>;
@@ -84,13 +95,11 @@ const MODAL_FOCUSABLE_SELECTOR = [
 ].join(",");
 const root = typeof document === "undefined" ? null : document.querySelector<HTMLElement>("#app");
 
-if (typeof document !== "undefined") {
-  document.documentElement.lang = getUiLocale();
-  document.title = translate("optionsDocumentTitle");
-}
-
 if (root && document.body.dataset.page === "focuswhale-options") {
-  void bootstrapOptions(root).catch((error: unknown) => {
+  void initializeUiLocale().then(() => {
+    updateLocalizedDocumentMetadata();
+    return bootstrapOptions(root);
+  }).catch((error: unknown) => {
     root.textContent = localizeOptionsRuntimeError(
       error instanceof Error ? error.message : undefined,
       translate("optionsLoadFailed")
@@ -119,6 +128,16 @@ async function bootstrapOptions(container: HTMLElement): Promise<void> {
       setView: (view, restoreTabFocus = false) => {
         ui.view = view;
         rerender(restoreTabFocus ? optionsTabId(view) : undefined);
+      },
+      changeUiLocale: async (preference) => {
+        try {
+          await setTyped("sync", STORAGE_KEYS.sync.uiLocale, preference);
+          setUiLocalePreference(preference);
+          updateLocalizedDocumentMetadata();
+          await reload(translate("optionsLanguageSaved"), "success", "ui-language-select");
+        } catch {
+          await reload(translate("optionsLanguageSaveFailed"), "error", "ui-language-select");
+        }
       },
       analyzeHistory: async () => {
         if (ui.analyzing) {
@@ -180,9 +199,14 @@ async function bootstrapOptions(container: HTMLElement): Promise<void> {
   };
 
   chrome.storage.onChanged.addListener((changes, areaName) => {
+    if (areaName === "sync" && hasStorageChange(changes, STORAGE_KEYS.sync.uiLocale)) {
+      setUiLocalePreference(changes[STORAGE_KEYS.sync.uiLocale]?.newValue);
+      updateLocalizedDocumentMetadata();
+    }
     if (
       (areaName === "local" && Object.keys(changes).length > 0)
       || (areaName === "sync" && [
+        STORAGE_KEYS.sync.uiLocale,
         STORAGE_KEYS.sync.settings,
         STORAGE_KEYS.sync.siteLists,
         STORAGE_KEYS.sync.schedules,
@@ -205,10 +229,15 @@ export async function loadState(notice?: string, noticeTone: NoticeTone = "neutr
   // happen afterwards because the initial storage listener is not installed yet.
   const activeSession = await getAuthoritativeActiveSession();
   const localSnapshot = await chrome.storage.local.get(null);
-  const settings = normalizeOptionsSettings(await getTyped("sync", STORAGE_KEYS.sync.settings));
-  const historyAccessGranted = await hasHistoryAccess();
+  const [storedSettings, storedUiLocalePreference, historyAccessGranted] = await Promise.all([
+    getTyped("sync", STORAGE_KEYS.sync.settings),
+    getTyped("sync", STORAGE_KEYS.sync.uiLocale),
+    hasHistoryAccess()
+  ]);
+  const settings = normalizeOptionsSettings(storedSettings);
 
   return {
+    uiLocalePreference: normalizeUiLocalePreference(storedUiLocalePreference),
     settings,
     siteLists: (await getTyped("sync", STORAGE_KEYS.sync.siteLists)) ?? [],
     schedules: (await getTyped("sync", STORAGE_KEYS.sync.schedules)) ?? [],
@@ -244,10 +273,13 @@ function renderOptions(
   handlers: OptionsHandlers
 ): void {
   const locked = isOptionsLocked(state.activeSession);
+  const motionKey = locked ? `locked:${state.activeSession?.id ?? "active"}` : `view:${ui.view}`;
+  const animateSurface = shouldAnimateSurface(container.dataset.motionKey, motionKey, prefersReducedMotion());
+  container.dataset.motionKey = motionKey;
   container.replaceChildren();
 
   if (locked) {
-    renderLockedOptions(container, state);
+    renderLockedOptions(container, state, handlers, animateSurface);
     return;
   }
 
@@ -273,7 +305,7 @@ function renderOptions(
   if (ui.view === "review") {
     content.append(
       renderReviewHero(state),
-      renderDashboard(state),
+      renderDashboard(state, animateSurface),
       renderGrowth(state, handlers)
     );
   } else if (ui.view === "rules") {
@@ -290,6 +322,9 @@ function renderOptions(
   }
 
   container.append(content);
+  if (animateSurface) {
+    playMotion(content, "surface");
+  }
   for (const [view] of OPTIONS_VIEWS) {
     if (view === ui.view) {
       continue;
@@ -312,7 +347,7 @@ function renderOptionsHeader(
   header.className = "flex items-start justify-between gap-5";
   const copy = document.createElement("div");
   copy.className = "min-w-0 space-y-1";
-  appendText(copy, "p", "FocusWhale", "text-sm font-bold");
+  appendText(copy, "p", translate("brandName"), "text-sm font-bold");
   const titleKey = view === "review"
     ? "goal8OptionsReviewTitle"
     : view === "rules"
@@ -608,7 +643,12 @@ function renderGrowth(
   return section;
 }
 
-function renderLockedOptions(container: HTMLElement, state: OptionsState): void {
+function renderLockedOptions(
+  container: HTMLElement,
+  state: OptionsState,
+  handlers: OptionsHandlers,
+  animateSurface: boolean
+): void {
   const session = state.activeSession;
   container.className = "fw-depth mx-auto grid min-h-screen w-full max-w-[520px] place-items-center bg-base-300 px-4 py-8 text-base-content";
 
@@ -630,7 +670,9 @@ function renderLockedOptions(container: HTMLElement, state: OptionsState): void 
   const selectedList = state.siteLists.find((list) => list.id === session?.listId);
   appendFact(facts, translate("goal8OptionsTargetsLabel"), selectedList ? siteListDisplayName(selectedList) : translate("listNone"));
   appendFact(facts, translate("commonMode"), formatIntensity(session?.intensity));
-  body.append(petSlot, copy, facts);
+  const language = languagePreferenceField(state, handlers);
+  language.classList.add("w-full", "text-left");
+  body.append(petSlot, copy, facts, language);
 
   const actions = document.createElement("div");
   actions.className = "card-actions w-full";
@@ -647,6 +689,9 @@ function renderLockedOptions(container: HTMLElement, state: OptionsState): void 
   body.append(actions);
   panel.append(body);
   container.append(panel);
+  if (animateSurface) {
+    playMotion(panel, "hero");
+  }
 }
 
 function updateLockedOptionsCountdown(container: HTMLElement, session: Session | null): void {
@@ -672,16 +717,17 @@ function renderSessionPreferences(
   const form = document.createElement("form");
   form.className = "grid gap-4";
   const fields = document.createElement("div");
-  fields.className = "grid gap-4 sm:grid-cols-3";
+  fields.className = "grid gap-4 sm:grid-cols-2";
   const start = input("time", translate("focusHoursStart"), state.settings.focusHours.startHHMM, locked);
   const end = input("time", translate("focusHoursEnd"), state.settings.focusHours.endHHMM, locked);
   const softSeconds = input("number", translate("softDelaySecondsLabel"), String(state.settings.softOverlaySeconds), locked);
+  const language = languagePreferenceField(state, handlers);
   start.control.required = true;
   end.control.required = true;
   softSeconds.control.min = "3";
   softSeconds.control.max = "60";
   softSeconds.control.required = true;
-  fields.append(start.label, end.label, softSeconds.label);
+  fields.append(start.label, end.label, softSeconds.label, language);
   const save = submitButton(translate("goal8PreferencesSave"), locked, "primary");
   save.id = "preferences-save";
   const action = document.createElement("div");
@@ -716,6 +762,31 @@ function renderSessionPreferences(
   });
   section.append(form);
   return section;
+}
+
+function languagePreferenceField(state: OptionsState, handlers: OptionsHandlers): HTMLLabelElement {
+  const language = select(translate("optionsLanguageLabel"), [
+    ["auto", translate("optionsLanguageAutomatic")],
+    ["en", translate("optionsLanguageEnglish")],
+    ["ko", translate("optionsLanguageKorean")]
+  ], state.uiLocalePreference, false);
+  language.control.id = "ui-language-select";
+  language.control.setAttribute("aria-describedby", "ui-language-description");
+  language.control.addEventListener("change", () => {
+    language.control.disabled = true;
+    void handlers.changeUiLocale(normalizeUiLocalePreference(language.control.value));
+  });
+  const description = document.createElement("span");
+  description.id = "ui-language-description";
+  description.className = "fieldset-label leading-5";
+  description.textContent = translate("optionsLanguageDescription");
+  language.label.append(description);
+  return language.label;
+}
+
+function updateLocalizedDocumentMetadata(): void {
+  document.documentElement.lang = getUiLocale();
+  document.title = translate("optionsDocumentTitle");
 }
 
 function renderSiteLists(
@@ -1227,7 +1298,9 @@ function renderRecommendations(
   });
   analyzeButton.id = "history-analyze";
   analyzeButton.disabled = permissionState.analyzeDisabled;
-  analyzeButton.textContent = translate(ui.analyzing ? "historyAnalyzing" : "historyAnalyze");
+  if (ui.analyzing) {
+    setButtonBusyContent(analyzeButton, translate("historyAnalyzing"));
+  }
   analyzeButton.classList.add("min-h-10");
   const revokeButton = button(translate("historyPermissionRevoke"), "ghost", () => {
     void handlers.revokeHistoryAccess();
@@ -1410,7 +1483,7 @@ export function requestOnboardingReplay(): Promise<void> {
   return openOnboardingPage(true);
 }
 
-function renderDashboard(state: OptionsState): HTMLElement {
+function renderDashboard(state: OptionsState, animateSurface: boolean): HTMLElement {
   const section = document.createElement("section");
   section.className = "grid gap-4";
   const aggregate = aggregateDashboard(state.dailyStats, state.sessionLog);
@@ -1438,6 +1511,7 @@ function renderDashboard(state: OptionsState): HTMLElement {
     const bars = document.createElement("div");
     bars.className = "grid h-36 items-end gap-2";
     bars.style.gridTemplateColumns = `repeat(${weekly.length}, minmax(0, 1fr))`;
+    const barAnimations: Array<{ fill: HTMLElement; targetHeight: string }> = [];
     for (const entry of weekly) {
       const column = document.createElement("div");
       column.className = "grid h-full grid-rows-[1fr_auto] items-end gap-1 text-center";
@@ -1445,7 +1519,11 @@ function renderDashboard(state: OptionsState): HTMLElement {
       track.className = "flex h-full items-end overflow-hidden rounded-field bg-primary/10";
       const fill = document.createElement("div");
       fill.className = "w-full rounded-field bg-primary motion-safe:transition-[height] motion-safe:duration-700 motion-reduce:transition-none";
-      fill.style.height = weeklyBarHeight(entry.focusMinutes, max);
+      const targetHeight = weeklyBarHeight(entry.focusMinutes, max);
+      fill.style.height = animateSurface ? "0" : targetHeight;
+      if (animateSurface) {
+        barAnimations.push({ fill, targetHeight });
+      }
       fill.setAttribute("role", "img");
       const weekLabel = formatOptionsWeekDate(entry.weekStart);
       fill.setAttribute("aria-label", translate("weeklyFocusAria", [weekLabel, formatOptionsNumber(entry.focusMinutes)]));
@@ -1455,6 +1533,15 @@ function renderDashboard(state: OptionsState): HTMLElement {
       bars.append(column);
     }
     chart.append(bars);
+    if (barAnimations.length > 0) {
+      window.requestAnimationFrame(() => {
+        window.requestAnimationFrame(() => {
+          for (const { fill, targetHeight } of barAnimations) {
+            fill.style.height = targetHeight;
+          }
+        });
+      });
+    }
   }
   reviewGrid.append(chart);
 
@@ -1750,6 +1837,13 @@ function submitButton(text: string, disabled: boolean, variant: "primary" | "sof
   return element;
 }
 
+function setButtonBusyContent(button: HTMLButtonElement, text: string): void {
+  const spinner = document.createElement("span");
+  spinner.className = "loading loading-spinner loading-sm";
+  spinner.setAttribute("aria-hidden", "true");
+  button.replaceChildren(spinner, document.createTextNode(text));
+}
+
 async function runGuardedMutation(
   trigger: HTMLButtonElement,
   busyText: string,
@@ -1766,7 +1860,7 @@ async function runGuardedMutation(
   trigger.dataset.busy = "true";
   trigger.disabled = true;
   trigger.setAttribute("aria-busy", "true");
-  trigger.textContent = busyText;
+  setButtonBusyContent(trigger, busyText);
 
   try {
     await task();

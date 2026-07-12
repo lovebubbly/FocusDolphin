@@ -1,7 +1,11 @@
 {
   "appName": {
-    "message": "FocusWhale",
+    "message": "Focus Dolphin — Website Blocker",
     "description": "Extension name shown in the browser and store listing."
+  },
+  "brandName": {
+    "message": "Focus Dolphin",
+    "description": "Compact product name shown inside the extension."
   },
   "appDescription": {
     "message": "A local-first focus assistant for healthier browsing habits.",
@@ -95,7 +99,7 @@
     "message": "Current site"
   },
   "blockedDocumentTitle": {
-    "message": "FocusWhale"
+    "message": "Focus Dolphin"
   },
   "blockedEmergencyConfirmWarning": {
     "message": "Press once more to schedule an emergency end. Go back if you pressed it by mistake."
@@ -119,7 +123,7 @@
     "message": "Schedule end in 5 minutes"
   },
   "blockedErrorBlockedPageRequired": {
-    "message": "This action requires the FocusWhale blocked page."
+    "message": "This action requires the Focus Dolphin blocked page."
   },
   "blockedErrorDomainNotBlocked": {
     "message": "This site is not blocked by the active session."
@@ -140,7 +144,7 @@
     "message": "Temporary access requires the matching active confirm-to-continue session."
   },
   "blockedErrorTopLevelPageRequired": {
-    "message": "This action requires a top-level FocusWhale blocked-page tab."
+    "message": "This action requires a top-level Focus Dolphin blocked-page tab."
   },
   "blockedGoBack": {
     "message": "Go back"
@@ -243,7 +247,7 @@
     "placeholders": {
       "stage": {
         "content": "$1",
-        "example": "Young whale"
+        "example": "Young dolphin"
       }
     }
   },
@@ -275,7 +279,7 @@
     "placeholders": {
       "stage": {
         "content": "$1",
-        "example": "Young whale"
+        "example": "Young dolphin"
       }
     }
   },
@@ -427,7 +431,7 @@
     "message": "Clear activity"
   },
   "localDataClearDescription": {
-    "message": "This clears sessions, intention entries, recommendations, statistics, and the growth log. Synced blocking rules, schedules, and whale growth remain."
+    "message": "This clears sessions, intention entries, recommendations, statistics, and the growth log. Synced blocking rules, schedules, and dolphin growth remain."
   },
   "localDataClearFailed": {
     "message": "We couldn't clear local activity."
@@ -591,7 +595,7 @@
     "placeholders": {
       "stage": {
         "content": "$1",
-        "example": "Young whale"
+        "example": "Young dolphin"
       },
       "percent": {
         "content": "$2",
@@ -619,7 +623,7 @@
     "placeholders": {
       "stage": {
         "content": "$1",
-        "example": "Egg"
+        "example": "Newborn dolphin"
       }
     }
   },
@@ -649,7 +653,7 @@
     "placeholders": {
       "stage": {
         "content": "$1",
-        "example": "Young whale"
+        "example": "Young dolphin"
       },
       "xp": {
         "content": "$2",
@@ -658,16 +662,16 @@
     }
   },
   "petNameLabel": {
-    "message": "Whale name"
+    "message": "Dolphin name"
   },
   "petNameSave": {
     "message": "Save name"
   },
   "petNameSaveFailed": {
-    "message": "We couldn't save the whale's name."
+    "message": "We couldn't save the dolphin's name."
   },
   "petNameSaved": {
-    "message": "Whale name saved."
+    "message": "Dolphin name saved."
   },
   "intensityHard": {
     "message": "Full block"
@@ -679,7 +683,7 @@
     "message": "Gentle reminder"
   },
   "petAriaLabel": {
-    "message": "FocusWhale pet, $STAGE$, $MOOD$",
+    "message": "Focus Dolphin pet, $STAGE$, $MOOD$",
     "placeholders": {
       "stage": {
         "content": "$1",
@@ -704,19 +708,19 @@
     "message": "Resting"
   },
   "petStageName0": {
-    "message": "Egg"
+    "message": "Newborn dolphin"
   },
   "petStageName1": {
-    "message": "Calf"
+    "message": "Dolphin calf"
   },
   "petStageName2": {
-    "message": "Young whale"
+    "message": "Young dolphin"
   },
   "petStageName3": {
-    "message": "Blue whale"
+    "message": "Blue dolphin"
   },
   "petStageName4": {
-    "message": "Star whale"
+    "message": "Star dolphin"
   },
   "popupActiveCurrentIntensity": {
     "message": "Current setting: $INTENSITY$",
@@ -795,7 +799,7 @@
     "placeholders": {
       "stage": {
         "content": "$1",
-        "example": "Egg"
+        "example": "Newborn dolphin"
       }
     }
   },
@@ -803,7 +807,7 @@
     "message": "Growing steadily"
   },
   "popupCompletionHeading": {
-    "message": "Your focus helped the whale grow"
+    "message": "Your focus helped the dolphin grow"
   },
   "popupCompletionLabel": {
     "message": "Session complete"
@@ -824,7 +828,7 @@
     "message": "Development preview"
   },
   "popupDocumentTitle": {
-    "message": "FocusWhale"
+    "message": "Focus Dolphin"
   },
   "popupEmergencyConfirmWarning": {
     "message": "Press once more to schedule an emergency end in 5 minutes."
@@ -892,6 +896,9 @@
   "popupFormDurationSelection": {
     "message": "Duration selection"
   },
+  "popupDurationInvalid": {
+    "message": "Enter a whole number from 1 to 240."
+  },
   "popupFormHardNote": {
     "message": "Emergency end requires two confirmations, takes effect after 5 minutes, and can be used once per week."
   },
@@ -926,7 +933,7 @@
     "message": "You're now sailing the deepest sea."
   },
   "popupGrowthNeverRegresses": {
-    "message": "Your whale keeps every bit of growth you've earned."
+    "message": "Your dolphin keeps every bit of growth you've earned."
   },
   "popupGrowthTotalFocusXp": {
     "message": "Total focus $MINUTES$ min · $XP$ XP",
@@ -946,7 +953,7 @@
     "placeholders": {
       "stage": {
         "content": "$1",
-        "example": "Young whale"
+        "example": "Young dolphin"
       },
       "xp": {
         "content": "$2",
@@ -1007,13 +1014,13 @@
     }
   },
   "popupNamePrompt": {
-    "message": "What would you like to call this whale?"
+    "message": "What would you like to call this dolphin?"
   },
   "popupNameSaveError": {
     "message": "We couldn't save the name."
   },
   "popupNameSubmit": {
-    "message": "Name the whale"
+    "message": "Name the dolphin"
   },
   "popupNameSuccess": {
     "message": "Sailing with $NAME$.",
@@ -1046,22 +1053,22 @@
     "message": "Session started."
   },
   "popupPetGrowthHint": {
-    "message": "Complete focus sessions to help your whale grow."
+    "message": "Complete focus sessions to help your dolphin grow."
   },
   "popupPetStageLine0": {
-    "message": "The egg is getting ready to hatch"
+    "message": "A newborn dolphin is ready for its first swim"
   },
   "popupPetStageLine1": {
-    "message": "Growing into a whale calf"
+    "message": "A dolphin calf is growing"
   },
   "popupPetStageLine2": {
-    "message": "A young whale is sailing"
+    "message": "A young dolphin is sailing"
   },
   "popupPetStageLine3": {
-    "message": "The blue whale is going deeper"
+    "message": "The blue dolphin is going deeper"
   },
   "popupPetStageLine4": {
-    "message": "Sailing with the star whale"
+    "message": "Sailing with the star dolphin"
   },
   "popupSaving": {
     "message": "Saving..."
@@ -1094,7 +1101,7 @@
     "message": "Allow only listed sites"
   },
   "onboardingAllowlistBody": {
-    "message": "Edit the domains that should stay available during a session. FocusWhale adds friction to sites outside this list."
+    "message": "Edit the domains that should stay available during a session. Focus Dolphin adds friction to sites outside this list."
   },
   "onboardingAllowlistTitle": {
     "message": "Choose what should stay available"
@@ -1106,7 +1113,7 @@
     "message": "Block listed sites"
   },
   "onboardingBrand": {
-    "message": "FocusWhale"
+    "message": "Focus Dolphin"
   },
   "onboardingCloseHint": {
     "message": "You won't need to keep this page open."
@@ -1115,10 +1122,10 @@
     "message": "Close tab"
   },
   "onboardingCompleteSetupBody": {
-    "message": "FocusWhale is ready. Start a session from the popup whenever you choose."
+    "message": "Focus Dolphin is ready. Start a session from the popup whenever you choose."
   },
   "onboardingCompleteStartedBody": {
-    "message": "Your 25-minute session is running. Open the FocusWhale popup any time to check the remaining time."
+    "message": "Your 25-minute session is running. Open the Focus Dolphin popup any time to check the remaining time."
   },
   "onboardingCompleteTitle": {
     "message": "You're ready to focus"
@@ -1130,7 +1137,7 @@
     "message": "Continue"
   },
   "onboardingDocumentTitle": {
-    "message": "Welcome to FocusWhale"
+    "message": "Welcome to Focus Dolphin"
   },
   "onboardingDomainCount": {
     "message": "$COUNT$ domains",
@@ -1178,7 +1185,7 @@
     "message": "Stay fully blocked"
   },
   "onboardingIntensityBody": {
-    "message": "This choice applies only to the first 25-minute session. FocusWhale never raises it automatically."
+    "message": "This choice applies only to the first 25-minute session. Focus Dolphin never raises it automatically."
   },
   "onboardingIntensityEyebrow": {
     "message": "STEP 3 · FIRST SESSION"
@@ -1190,28 +1197,34 @@
     "message": "Choose how much friction you want"
   },
   "onboardingIntroBody": {
-    "message": "FocusWhale adds a thoughtful pause before distracting sites and helps you protect the focus time you choose."
+    "message": "Focus Dolphin adds a thoughtful pause before distracting sites and helps you protect the focus time you choose."
   },
   "onboardingIntroEyebrow": {
     "message": "LOCAL-FIRST FOCUS"
   },
   "onboardingIntroPetBody": {
-    "message": "Completed sessions add to your whale's growth. On rest days, your progress stays right where it is."
+    "message": "Completed sessions add to your dolphin's growth. On rest days, your progress stays right where it is."
   },
   "onboardingIntroPetTitle": {
     "message": "Growth at your pace"
   },
   "onboardingIntroPrivacyBody": {
-    "message": "FocusWhale has no backend. Sessions and optional history analysis stay on this device; synced preferences may use your browser's sync service."
+    "message": "Focus Dolphin has no backend. Sessions and optional history analysis stay on this device; synced preferences may use your browser's sync service."
   },
   "onboardingIntroPrivacyTitle": {
     "message": "Your browsing stays on this device"
+  },
+  "onboardingIntroDataTitle": {
+    "message": "What Focus Dolphin keeps"
+  },
+  "onboardingIntroDataBody": {
+    "message": "To apply your rules, Focus Dolphin checks the current site's address. A blocked return keeps only the web origin and path after removing credentials, queries, and fragments. Session history, focus totals, domain-level blocked attempts, and any medium-mode reason you enter are stored locally. Optional 30-day history access is requested only when you start analysis; raw URLs are transient and only domain summaries are saved. Language, settings, lists, schedules, and dolphin progress may use browser sync. Nothing is sent to the developer, and page text, forms, passwords, and messages are never read."
   },
   "onboardingIntroTitle": {
     "message": "Meet your focus companion"
   },
   "onboardingListBody": {
-    "message": "Edit the domains FocusWhale should add friction to during a session. You can change them later in Settings."
+    "message": "Edit the domains Focus Dolphin should add friction to during a session. You can change them later in Settings."
   },
   "onboardingListEyebrow": {
     "message": "STEP 2 · FOCUS LIST"
@@ -1232,7 +1245,7 @@
     "message": "Confirm your intention"
   },
   "onboardingPetAria": {
-    "message": "A cheerful FocusWhale companion"
+    "message": "A cheerful Focus Dolphin companion"
   },
   "onboardingProgressAria": {
     "message": "Step $CURRENT$ of $TOTAL$",
@@ -1505,7 +1518,7 @@
     "message": "Review the name, growth stage, keepsakes, and recent activity."
   },
   "growthSectionTitle": {
-    "message": "Whale growth"
+    "message": "Dolphin growth"
   },
   "listsSectionDescription": {
     "message": "Open a list to edit blocked or allowed domains."
@@ -1515,6 +1528,9 @@
   },
   "currentIntensity": {
     "message": "Current intensity"
+  },
+  "durationMinuteUnit": {
+    "message": "min"
   },
   "domainCount": {
     "message": "$COUNT$ domains",
@@ -1668,10 +1684,31 @@
     "message": "Gentle reminder wait time (seconds)"
   },
   "optionsDescription": {
-    "message": "Manage focus history, blocking rules, auto-start, and whale growth in one place."
+    "message": "Manage focus history, blocking rules, auto-start, and dolphin growth in one place."
   },
   "optionsDocumentTitle": {
-    "message": "FocusWhale Settings"
+    "message": "Focus Dolphin Settings"
+  },
+  "optionsLanguageLabel": {
+    "message": "Language"
+  },
+  "optionsLanguageDescription": {
+    "message": "Choose a language or follow your browser setting."
+  },
+  "optionsLanguageAutomatic": {
+    "message": "Automatic (browser)"
+  },
+  "optionsLanguageEnglish": {
+    "message": "English"
+  },
+  "optionsLanguageKorean": {
+    "message": "Korean (한국어)"
+  },
+  "optionsLanguageSaved": {
+    "message": "Language updated."
+  },
+  "optionsLanguageSaveFailed": {
+    "message": "We couldn't update the language."
   },
   "optionsLockedDescription": {
     "message": "Blocking rules, auto-start, and recommendation analysis will be available again when the focus session ends."
@@ -1683,7 +1720,7 @@
     "message": "Auto-start"
   },
   "optionsTabGrowth": {
-    "message": "Whale growth"
+    "message": "Dolphin growth"
   },
   "optionsTabInsights": {
     "message": "Activity"
@@ -1695,7 +1732,7 @@
     "message": "Settings sections"
   },
   "optionsTitle": {
-    "message": "Manage FocusWhale"
+    "message": "Manage Focus Dolphin"
   },
   "privacySectionDescription": {
     "message": "Manage data stored on this device and optional permissions."
@@ -1767,10 +1804,10 @@
     "message": "Keep focusing"
   },
   "goal8PopupDurationDecrease": {
-    "message": "Decrease duration by one minute"
+    "message": "Decrease duration in 5-minute steps"
   },
   "goal8PopupDurationIncrease": {
-    "message": "Increase duration by one minute"
+    "message": "Increase duration in 5-minute steps"
   },
   "goal8PopupMilestoneNew": {
     "message": "New"
@@ -1855,7 +1892,7 @@
     }
   },
   "goal8GrowthNeverRegresses": {
-    "message": "Every bit of growth stays with your whale, including on rest days."
+    "message": "Every bit of growth stays with your dolphin, including on rest days."
   },
   "goal8GrowthLatestBadge": {
     "message": "Latest · $BADGE$",

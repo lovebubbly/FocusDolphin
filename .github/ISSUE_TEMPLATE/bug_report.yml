@@ -1,5 +1,5 @@
 name: 버그 제보
-description: FocusWhale의 재현 가능한 문제를 알려 주세요
+description: Focus Dolphin의 재현 가능한 문제를 알려 주세요
 title: "[Bug] "
 labels:
   - bug
@@ -20,8 +20,8 @@ body:
     id: versions
     attributes:
       label: 버전
-      description: 브라우저 버전과 FocusWhale 버전을 적어 주세요.
-      placeholder: "Whale 4.xx / FocusWhale 1.0.0"
+      description: 브라우저 버전과 Focus Dolphin 버전을 적어 주세요.
+      placeholder: "Whale 4.xx / Focus Dolphin 1.0.0"
     validations:
       required: true
   - type: textarea

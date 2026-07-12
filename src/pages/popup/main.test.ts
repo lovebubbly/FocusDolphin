@@ -14,6 +14,7 @@ import {
   loadPopupModel,
   mergeCelebrationDismissal,
   mergePetNameSave,
+  parseExactDuration,
   stepDuration,
   type PopupModel
 } from "./main";
@@ -238,9 +239,23 @@ describe("popup interaction helpers", () => {
     expect(coerceCustomDuration("", 25)).toBe(25);
   });
 
-  it("keeps the Goal 8 duration stepper inside the supported 1-240 minute range", () => {
-    expect(stepDuration(25, -1)).toBe(24);
-    expect(stepDuration(25, 1)).toBe(26);
+  it("accepts exact whole-minute input across the supported range", () => {
+    expect(parseExactDuration("1")).toBe(1);
+    expect(parseExactDuration("90")).toBe(90);
+    expect(parseExactDuration("240")).toBe(240);
+    expect(parseExactDuration("")).toBeNull();
+    expect(parseExactDuration("0")).toBeNull();
+    expect(parseExactDuration("241")).toBeNull();
+    expect(parseExactDuration("25.5")).toBeNull();
+  });
+
+  it("moves to adjacent five-minute marks inside the 1-240 minute range", () => {
+    expect(stepDuration(25, -1)).toBe(20);
+    expect(stepDuration(25, 1)).toBe(30);
+    expect(stepDuration(26, -1)).toBe(25);
+    expect(stepDuration(26, 1)).toBe(30);
+    expect(stepDuration(1, 1)).toBe(5);
+    expect(stepDuration(238, 1)).toBe(240);
     expect(stepDuration(1, -1)).toBe(1);
     expect(stepDuration(240, 1)).toBe(240);
   });

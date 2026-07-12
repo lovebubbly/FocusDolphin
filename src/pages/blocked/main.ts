@@ -1,5 +1,6 @@
 import { STORAGE_KEYS, getTyped } from "../../shared/storage";
-import { translate } from "../../shared/i18n";
+import { getUiLocale, initializeUiLocale, setUiLocalePreference, translate } from "../../shared/i18n";
+import { playMotion, shouldAnimateSurface } from "../../shared/motion";
 import type { Session } from "../../shared/types";
 import { normalizeDomain, sanitizeHttpReturnUrl } from "../../background/rules";
 import { normalizePetState } from "../../pet/defaultState";
@@ -37,11 +38,7 @@ export interface BlockedOutcomePresentation {
 
 const app = typeof document === "undefined" ? null : document.getElementById("app");
 const originalUrl = typeof window === "undefined" ? null : originalHttpUrlFromHash(window.location.hash);
-const domain = typeof window === "undefined"
-  ? translate("blockedCurrentSite")
-  : (originalUrl ? normalizeDomain(new URL(originalUrl).hostname) : "")
-    || normalizeDomain(new URLSearchParams(window.location.search).get("d") ?? "")
-    || translate("blockedCurrentSite");
+let domain = "";
 let refreshQueue = Promise.resolve();
 let remainingTimer: number | undefined;
 let actionTimer: number | undefined;
@@ -49,16 +46,14 @@ let tempAllowRequestInFlight = false;
 let mediumActionState: MediumActionState | null = null;
 let blockedPetState = normalizePetState(undefined);
 
-if (typeof document !== "undefined") {
-  document.documentElement.lang = translate("appLocale");
-  document.title = translate("blockedDocumentTitle");
-}
-
 if (app) {
   void bootstrapBlockedPage();
 }
 
 async function bootstrapBlockedPage(): Promise<void> {
+  await initializeUiLocale();
+  updateLocalizedDocumentMetadata();
+  domain = currentBlockedDomain();
   try {
     await sendRuntime({ type: "RECORD_BLOCKED_ATTEMPT", payload: { domain } });
   } catch {
@@ -66,6 +61,11 @@ async function bootstrapBlockedPage(): Promise<void> {
   }
   queueRefresh();
   chrome.storage.onChanged.addListener((changes, areaName) => {
+    if (areaName === "sync" && hasOwn(changes, STORAGE_KEYS.sync.uiLocale)) {
+      setUiLocalePreference(changes[STORAGE_KEYS.sync.uiLocale]?.newValue);
+      updateLocalizedDocumentMetadata();
+      domain = currentBlockedDomain();
+    }
     if (shouldRefreshBlockedPage(changes, areaName)) {
       queueRefresh();
     }
@@ -86,8 +86,27 @@ export function shouldRefreshBlockedPage(
   changes: Record<string, chrome.storage.StorageChange>,
   areaName: string
 ): boolean {
-  return areaName === "local"
-    && (hasOwn(changes, STORAGE_KEYS.local.activeSession) || hasOwn(changes, "pendingEmergency"));
+  return (
+    areaName === "local"
+    && (hasOwn(changes, STORAGE_KEYS.local.activeSession) || hasOwn(changes, "pendingEmergency"))
+  ) || (
+    areaName === "sync" && hasOwn(changes, STORAGE_KEYS.sync.uiLocale)
+  );
+}
+
+function currentBlockedDomain(): string {
+  if (typeof window === "undefined") {
+    return translate("blockedCurrentSite");
+  }
+
+  return (originalUrl ? normalizeDomain(new URL(originalUrl).hostname) : "")
+    || normalizeDomain(new URLSearchParams(window.location.search).get("d") ?? "")
+    || translate("blockedCurrentSite");
+}
+
+function updateLocalizedDocumentMetadata(): void {
+  document.documentElement.lang = getUiLocale();
+  document.title = translate("blockedDocumentTitle");
 }
 
 async function refreshBlockedPage(): Promise<void> {
@@ -98,9 +117,14 @@ async function refreshBlockedPage(): Promise<void> {
   const state = await sendRuntime<{ state: BlockedRuntimeState }>({ type: "GET_STATE" });
 
   if (!state.ok) {
+    const animateSurface = shouldAnimateSurface(app.dataset.motionKey, "unavailable", prefersReducedMotion());
+    app.dataset.motionKey = "unavailable";
     clearPageTimers();
     app.className = "grid min-h-screen place-items-center bg-base-300 px-4 py-6 text-base-content sm:p-8";
     app.innerHTML = baseMarkup(null, false);
+    if (animateSurface) {
+      playMotion(document.getElementById("blocked-card"), "hero");
+    }
     await mountBlockedPet(null);
     renderStateUnavailable();
     return;
@@ -108,6 +132,11 @@ async function refreshBlockedPage(): Promise<void> {
 
   const session = state.state.activeSession;
   const pendingEmergency = state.state.pendingEmergency;
+  const motionKey = session?.status === "active"
+    ? `active:${session.id}:${session.intensity}`
+    : "ended";
+  const animateSurface = shouldAnimateSurface(app.dataset.motionKey, motionKey, prefersReducedMotion());
+  app.dataset.motionKey = motionKey;
 
   if (!shouldPreserveTemporaryAllowView(mediumActionState?.sessionId ?? null, session)) {
     mediumActionState = null;
@@ -116,6 +145,9 @@ async function refreshBlockedPage(): Promise<void> {
   clearPageTimers();
   app.className = "grid min-h-screen place-items-center bg-base-300 px-4 py-6 text-base-content sm:p-8";
   app.innerHTML = baseMarkup(session, true);
+  if (animateSurface) {
+    playMotion(document.getElementById("blocked-card"), "hero");
+  }
   await mountBlockedPet(session);
   wireRemainingTime(session);
 
@@ -409,12 +441,20 @@ function renderTempAllowFailure(sessionId: string, intent: string): void {
 
 function renderTempAllowSuccess(): void {
   const outcome = blockedOutcomePresentation("temporary-allow");
+  const outcomeMotionKey = `temporary-allow:${mediumActionState?.sessionId ?? "active"}`;
+  const animateOutcome = shouldAnimateSurface(app?.dataset.outcomeMotionKey, outcomeMotionKey, prefersReducedMotion());
+  if (app) {
+    app.dataset.outcomeMotionKey = outcomeMotionKey;
+  }
   prepareOutcomeShell(outcome);
   setActionArea(`
     <span class="badge badge-success badge-soft mx-auto">${outcome.badge}</span>
     <h1 id="blocked-outcome-title" class="text-xl font-black leading-7">${outcome.message}</h1>
     <button id="continue-button" type="button" class="btn btn-primary min-h-11 w-full">${translate("commonContinue")}</button>
   `, "#continue-button");
+  if (animateOutcome) {
+    playMotion(document.getElementById("pet-shell"), "success");
+  }
   document.getElementById("continue-button")?.addEventListener("click", returnToRequestedPage);
 }
 
@@ -691,8 +731,8 @@ function localizeBlockedRuntimeError(error: string | undefined, fallbackKey: str
     "The requested domain is not blocked by the active session.": "blockedErrorDomainNotBlocked",
     "Emergency end is only available during an active hard session.": "blockedErrorEmergencyUnavailable",
     "\uc774\ubc88 \uc8fc \ube44\uc0c1 \uc885\ub8cc \uc694\uccad\uc740 \uc774\ubbf8 \uc0ac\uc6a9\ud588\uc2b5\ub2c8\ub2e4.": "blockedErrorEmergencyAlreadyUsed",
-    "This action requires a top-level FocusWhale blocked-page tab.": "blockedErrorTopLevelPageRequired",
-    "This action requires the FocusWhale blocked page.": "blockedErrorBlockedPageRequired"
+    "This action requires a top-level Focus Dolphin blocked-page tab.": "blockedErrorTopLevelPageRequired",
+    "This action requires the Focus Dolphin blocked page.": "blockedErrorBlockedPageRequired"
   };
   const key = error ? keyByMessage[error] : undefined;
   if (key) {

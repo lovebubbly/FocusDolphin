@@ -13,12 +13,12 @@ const ROOT_RELATIVE_ASSET_URL_PATTERN = /(?:["'`(=:]\s*)\/assets\//u;
 const NON_NETWORK_URLS = new Set(["http://www.w3.org/2000/svg"]);
 const EXPECTED_WEB_ACCESSIBLE_RESOURCES = new Set([
   "src/pages/blocked/index.html",
-  "assets/focuswhale-atlas.png",
+  "assets/focusdolphin-atlas.png",
   "assets/PretendardVariable.woff2",
-  "icons/focuswhale-128.png"
+  "icons/focusdolphin-128.png"
 ]);
 const REQUIRED_CONTENT_ASSET_PATHS = [
-  "assets/focuswhale-atlas.png",
+  "assets/focusdolphin-atlas.png",
   "assets/PretendardVariable.woff2"
 ];
 const REQUIRED_LOCALIZED_PATHS = [

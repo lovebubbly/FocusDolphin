@@ -10,6 +10,8 @@ Branch: `codex/goal-8-web-product-polish`
 
 Production baseline: `683f6f5f3bb496417f2cba1f442abac59bf676bc`
 
+Post-approval identity note: Choi Yunseong authorized the Focus Dolphin rename on 2026-07-12. The current HTML/CSS mockup source uses the renamed dolphin atlas and species copy without changing layout, classes, behavior, theme/data identifiers, or approved state coverage. The approval-time names, screenshots, hashes, verification counts, and statements below remain unchanged as historical evidence and do not claim a second visual approval of the replacement character art.
+
 ## Scope Delivered
 
 - A static, offline gallery and eight canonical surface/state pages: Session, Rules, Review, Preferences, blocked, soft overlay, onboarding, and the pet matrix.

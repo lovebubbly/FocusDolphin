@@ -16,7 +16,7 @@ describe("sprite manifest contract", () => {
   it("accepts the runtime manifest and matches the PNG dimensions", () => {
     const validation = validateSpriteManifest(spriteManifestData);
     const manifest = normalizeSpriteManifest(spriteManifestData, "atlas.png");
-    const dimensions = readPngDimensions(resolve(process.cwd(), "assets/sprites/focuswhale-atlas.png"));
+    const dimensions = readPngDimensions(resolve(process.cwd(), "assets/sprites/focusdolphin-atlas.png"));
 
     expect(validation).toEqual({ valid: true, errors: [] });
     expect(validateSpriteSheetGeometry(manifest, dimensions)).toEqual({ valid: true, errors: [] });
@@ -54,7 +54,7 @@ describe("sprite manifest contract", () => {
     const normalized = normalizeSpriteManifest(invalid, "safe-atlas.png");
 
     expect(normalized.image).toBe("safe-atlas.png");
-    expect(normalized).toMatchObject({ frameWidth: 96, frameHeight: 96, columns: 4, rows: 20 });
+    expect(normalized).toMatchObject({ frameWidth: 192, frameHeight: 192, columns: 4, rows: 20 });
     expect(normalized.stages["0"].idle).toEqual({ row: 0, frames: 4, durationMs: 1200 });
     expect(Object.keys(normalized.stages["0"])).toEqual(PET_MOODS);
     expect(normalized.stages["4"].focus).toEqual({ row: 14, frames: 4, durationMs: 1000 });
@@ -64,6 +64,12 @@ describe("sprite manifest contract", () => {
   it("scales the atlas geometry for approved hero sizes without changing its rows", () => {
     const manifest = normalizeSpriteManifest(spriteManifestData, "atlas.png");
 
+    expect(spriteRenderGeometry(manifest)).toEqual({
+      frameWidth: 96,
+      frameHeight: 96,
+      sheetWidth: 384,
+      sheetHeight: 1920
+    });
     expect(spriteRenderGeometry(manifest, PET_RENDER_SIZES.large)).toEqual({
       frameWidth: 128,
       frameHeight: 128,
@@ -80,16 +86,16 @@ describe("sprite manifest contract", () => {
 
   it("rejects a decoded image whose dimensions do not match the manifest", () => {
     const manifest = normalizeSpriteManifest(spriteManifestData, "atlas.png");
-    const validation = validateSpriteSheetGeometry(manifest, { width: 383, height: 1920 });
+    const validation = validateSpriteSheetGeometry(manifest, { width: 767, height: 3840 });
 
     expect(validation).toEqual({
       valid: false,
-      errors: ["sprite image width must be 384px, received 383px"]
+      errors: ["sprite image width must be 768px, received 767px"]
     });
   });
 
   it("matches the deterministic atlas assembly report", () => {
-    const atlasPath = resolve(process.cwd(), "assets/sprites/focuswhale-atlas.png");
+    const atlasPath = resolve(process.cwd(), "assets/sprites/focusdolphin-atlas.png");
     const reportPath = resolve(process.cwd(), "assets/sprites/atlas-report.json");
     const atlas = readFileSync(atlasPath);
     const report = JSON.parse(readFileSync(reportPath, "utf8")) as AtlasAssemblyReport;
@@ -97,15 +103,16 @@ describe("sprite manifest contract", () => {
     expect(report.ok).toBe(true);
     expect(report.issues).toEqual([]);
     expect(report.contract).toMatchObject({
-      frameWidth: 96,
-      frameHeight: 96,
+      frameWidth: 192,
+      frameHeight: 192,
       columns: 4,
       rows: 20,
       moods: PET_MOODS,
-      safeMargin: 6
+      safeMargin: 12
     });
     expect(report.sourceMetrics).toHaveLength(80);
     expect(report.outputMetrics).toHaveLength(80);
+    expect(report.contract.frameWidth).toBeGreaterThanOrEqual(PET_RENDER_SIZES.hero);
 
     for (const metric of report.outputMetrics) {
       expect(Math.min(...Object.values(metric.margins))).toBeGreaterThanOrEqual(report.contract.safeMargin);

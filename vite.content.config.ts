@@ -14,13 +14,13 @@ export default defineConfig({
       input: resolve(__dirname, "src/content/index.ts"),
       output: {
         format: "iife",
-        name: "FocusWhaleContent",
+        name: "FocusDolphinContent",
         entryFileNames: "assets/content.js",
         inlineDynamicImports: true,
         assetFileNames: (assetInfo) => {
           const sourceName = assetInfo.names[0] ?? "";
-          if (sourceName === "focuswhale-atlas.png") {
-            return "assets/focuswhale-atlas.png";
+          if (sourceName === "focusdolphin-atlas.png") {
+            return "assets/focusdolphin-atlas.png";
           }
           if (sourceName === "PretendardVariable.woff2") {
             return "assets/PretendardVariable.woff2";

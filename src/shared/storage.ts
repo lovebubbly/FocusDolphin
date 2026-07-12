@@ -1,4 +1,5 @@
 import type { DailyStats, PetState, Schedule, Session, SiteList, TempAllow } from "./types";
+import type { UiLocalePreference } from "./i18n";
 
 export interface Settings {
   focusHours?: { startHHMM: string; endHHMM: string };
@@ -36,6 +37,7 @@ export function normalizeSettings(value: unknown): ResolvedSettings {
 }
 
 export interface SyncStorageSchema {
+  uiLocale: UiLocalePreference;
   settings: Settings;
   siteLists: SiteList[];
   schedules: Schedule[];
@@ -55,6 +57,7 @@ export type LocalStorageKey = keyof LocalStorageSchema | `dailyStats:${string}`;
 
 export const STORAGE_KEYS = {
   sync: {
+    uiLocale: "uiLocale",
     settings: "settings",
     siteLists: "siteLists",
     schedules: "schedules",

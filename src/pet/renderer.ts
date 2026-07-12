@@ -48,9 +48,9 @@ export interface SpriteRenderGeometry {
   sheetHeight: number;
 }
 
-const SPRITE_BUILD_URL = new URL("../../assets/sprites/focuswhale-atlas.png", import.meta.url).toString();
-const SPRITE_IMAGE_URL = extensionAssetUrl("assets/focuswhale-atlas.png", SPRITE_BUILD_URL);
-const FALLBACK_ICON_PATH = "icons/focuswhale-128.png";
+const SPRITE_BUILD_URL = new URL("../../assets/sprites/focusdolphin-atlas.png", import.meta.url).toString();
+const SPRITE_IMAGE_URL = extensionAssetUrl("assets/focusdolphin-atlas.png", SPRITE_BUILD_URL);
+const FALLBACK_ICON_PATH = "icons/focusdolphin-128.png";
 const PET_STAGE_LABEL_KEYS: Record<string, string> = {
   "0": "petStageName0",
   "1": "petStageName1",
@@ -66,8 +66,8 @@ const PET_MOOD_LABEL_KEYS: Record<PetMood, string> = {
 };
 const DEFAULT_MANIFEST: SpriteManifest = {
   image: SPRITE_IMAGE_URL,
-  frameWidth: 96,
-  frameHeight: 96,
+  frameWidth: 192,
+  frameHeight: 192,
   columns: 4,
   rows: 20,
   stages: {
@@ -247,7 +247,7 @@ function ensurePetStyles(styleRoot: Document | ShadowRoot): void {
 
 export function spriteRenderGeometry(
   manifest: SpriteManifest,
-  requestedWidth = manifest.frameWidth
+  requestedWidth: number = PET_RENDER_SIZES.default
 ): SpriteRenderGeometry {
   const frameWidth = Number.isFinite(requestedWidth) && requestedWidth > 0
     ? requestedWidth

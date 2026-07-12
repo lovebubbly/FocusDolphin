@@ -12,13 +12,14 @@ import {
 } from "./main";
 
 describe("blocked page runtime updates", () => {
-  it("refreshes for active-session and emergency changes only in local storage", () => {
+  it("refreshes for runtime state and UI-language changes", () => {
     const activeChange = { activeSession: { oldValue: null, newValue: { id: "session" } } };
     const emergencyChange = { pendingEmergency: { oldValue: null, newValue: { dueAt: 123 } } };
 
     expect(shouldRefreshBlockedPage(activeChange, "local")).toBe(true);
     expect(shouldRefreshBlockedPage(emergencyChange, "local")).toBe(true);
     expect(shouldRefreshBlockedPage(activeChange, "sync")).toBe(false);
+    expect(shouldRefreshBlockedPage({ uiLocale: { oldValue: "auto", newValue: "en" } }, "sync")).toBe(true);
     expect(shouldRefreshBlockedPage({ unrelated: { newValue: true } }, "local")).toBe(false);
   });
 });

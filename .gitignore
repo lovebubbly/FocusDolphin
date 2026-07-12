@@ -3,6 +3,7 @@ dist/
 coverage/
 output/
 .playwright-cli/
+.playwright-mcp/
 .worktrees/
 release/
 .DS_Store

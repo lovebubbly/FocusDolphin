@@ -1,14 +1,15 @@
-# FocusWhale Gamification v2
+# Focus Dolphin Gamification v2
 
 > **Document provenance**
 >
 > - Product owner and repository author of record: **Choi Yunseong (최윤성)** (`Yunseong Choi` in Git history)
 > - Introduced in commit: `00c43e5` on **2026-07-07 18:16:28 KST**
 > - Release-candidate accuracy refresh: **OpenAI Codex, GPT-5 coding agent**, on **2026-07-10 20:29 KST**
+> - Focus Dolphin identity and sprite-contract refresh: **OpenAI Codex, GPT-5 coding agent**, authorized by Choi Yunseong and recorded on **2026-07-12 22:45 KST**
 > - Time zone: **Asia/Seoul (UTC+09:00)**
 > - Documentation attribution does not imply product-owner approval
 
-This is the code-facing contract for pet growth, rewards, celebration delivery, and hard-mode escape in FocusWhale v1.0.0.
+This is the code-facing contract for pet growth, rewards, celebration delivery, and hard-mode escape in Focus Dolphin v1.0.0.
 
 ## Non-Negotiable Rules
 
@@ -32,11 +33,11 @@ hard = 1.5
 
 | Stage | Name | Threshold |
 | ---: | --- | ---: |
-| 0 | 알 | 0 XP |
-| 1 | 새끼 고래 | 100 XP |
-| 2 | 어린 고래 | 600 XP |
-| 3 | 푸른 고래 | 2,000 XP |
-| 4 | 별고래 | 6,000 XP |
+| 0 | 갓 태어난 돌고래 | 0 XP |
+| 1 | 아기 돌고래 | 100 XP |
+| 2 | 어린 돌고래 | 600 XP |
+| 3 | 푸른 돌고래 | 2,000 XP |
+| 4 | 별빛 돌고래 | 6,000 XP |
 
 `normalizePetState` never lowers an existing stage, even when migrating inconsistent legacy XP. Aborted/interrupted sessions subtract nothing and may add a neutral `session_ended_early` record.
 
@@ -128,11 +129,11 @@ Freeze UI uses `보호막`, not penalty language. A break with protection consum
 
 ## Sprite Contract
 
-Production atlas: `assets/sprites/focuswhale-atlas.png`.
+Production atlas: `assets/sprites/focusdolphin-atlas.png`.
 
-- Dimensions: **384 x 1,920**.
+- Dimensions: **768 x 3,840**.
 - Grid: four columns x twenty rows.
-- Frame: 96 x 96.
+- Source frame: 192 x 192; rendered at 96, 128, or 160 CSS px.
 - Total: eighty frames.
 - Stages: five.
 - Moods: `idle`, `happy`, `focus`, `celebrate`.
@@ -146,7 +147,7 @@ Row mapping:
 | `focus` | 10-14 |
 | `celebrate` | 15-19 |
 
-Each mood block maps stage 0 through stage 4 in order. Stage 4 is the star-marked adult whale; the earlier crown artwork is retired.
+Each mood block maps stage 0 through stage 4 in order. Stage 4 is the star-marked adult dolphin; the earlier crown artwork is retired.
 
 The deterministic assembler normalizes size/baseline, enforces safe margins, and writes `assets/sprites/atlas-report.json`. Renderer tests verify manifest dimensions, all 20 stage/mood mappings, all 80 frame metrics, and the atlas hash/report contract. The renderer injects styles into documents or shadow roots and falls back to the packaged icon on failure.
 

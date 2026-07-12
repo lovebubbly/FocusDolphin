@@ -1,6 +1,7 @@
 import { sendMessage, type FocusWhaleState } from "../../shared/messaging";
 import { LatestRequestGuard } from "../../shared/latestRequest";
-import { getUiLocale, translate } from "../../shared/i18n";
+import { getUiLocale, initializeUiLocale, setUiLocalePreference, translate } from "../../shared/i18n";
+import { playMotion, shouldAnimateSurface } from "../../shared/motion";
 import { getTyped, setTyped, STORAGE_KEYS } from "../../shared/storage";
 import { DEFAULT_SITE_LISTS, migrateSiteListsForCurrentDefaults, siteListDisplayName } from "../../shared/siteLists";
 import type { Intensity, PetState, Session, SiteList } from "../../shared/types";
@@ -108,14 +109,28 @@ export function coerceCustomDuration(rawValue: string, fallbackMinutes: number):
     : fallbackMinutes;
 }
 
+export function parseExactDuration(rawValue: string): number | null {
+  const normalized = rawValue.trim();
+  if (!/^\d{1,3}$/u.test(normalized)) {
+    return null;
+  }
+
+  const parsed = Number(normalized);
+  return Number.isInteger(parsed) && parsed >= 1 && parsed <= 240 ? parsed : null;
+}
+
 export function stepDuration(minutes: number, delta: -1 | 1): number {
-  return Math.min(240, Math.max(1, Math.round(minutes) + delta));
+  const rounded = Math.min(240, Math.max(1, Math.round(minutes)));
+  const next = delta > 0
+    ? Math.floor(rounded / 5) * 5 + 5
+    : Math.ceil(rounded / 5) * 5 - 5;
+  return Math.min(240, Math.max(1, next));
 }
 
 function renderPopupHeader(root: HTMLElement, model: PopupModel, handlers: PopupHandlers): void {
   const header = document.createElement("header");
   header.className = "flex h-12 shrink-0 items-center justify-between px-4";
-  appendText(header, "p", "FocusWhale", "text-sm font-bold");
+  appendText(header, "p", translate("brandName"), "text-sm font-bold");
 
   if (model.activeSession?.status === "active") {
     appendText(
@@ -593,6 +608,7 @@ function renderActiveSession(root: HTMLElement, model: PopupModel, handlers: Pop
   const session = model.activeSession;
   const section = document.createElement("section");
   section.className = "grid flex-1 content-start gap-3 px-4 pt-4";
+  section.dataset.popupMotionSupport = "true";
 
   const facts = document.createElement("div");
   facts.dataset.popupSessionFacts = "true";
@@ -732,6 +748,7 @@ function renderHardEmergencyConfirmation(
 function renderSessionForm(root: HTMLElement, model: PopupModel, selection: SelectionState, handlers: PopupHandlers): void {
   const form = document.createElement("form");
   form.className = "flex min-h-0 flex-1 flex-col";
+  form.dataset.popupMotionSupport = "true";
   form.addEventListener("submit", (event) => {
     event.preventDefault();
     void handlers.startSession();
@@ -763,15 +780,54 @@ function renderSessionForm(root: HTMLElement, model: PopupModel, selection: Sele
   decrement.dataset.popupFocus = "duration-decrement";
   decrement.setAttribute("aria-label", translate("goal8PopupDurationDecrease"));
   decrement.disabled = selection.durationMinutes <= 1;
-  const durationValue = document.createElement("div");
-  durationValue.className = "join-item grid min-h-11 place-items-center border border-base-100/10 bg-base-200";
-  appendText(
-    durationValue,
-    "span",
-    translate("commonMinutes", String(selection.durationMinutes)),
-    "text-2xl font-black tabular-nums"
-  );
-  const increment = createButton("+", "btn join-item min-h-11 text-xl", () => {
+  let increment: HTMLButtonElement | null = null;
+  const durationValue = document.createElement("label");
+  durationValue.className = "join-item flex min-h-11 items-center justify-center gap-1 border border-base-100/10 bg-base-200 px-2 focus-within:border-primary/50 focus-within:ring-2 focus-within:ring-primary/20";
+  const durationInput = document.createElement("input");
+  durationInput.type = "text";
+  durationInput.inputMode = "numeric";
+  durationInput.pattern = "[0-9]*";
+  durationInput.required = true;
+  durationInput.maxLength = 3;
+  durationInput.value = String(selection.durationMinutes);
+  durationInput.dataset.popupFocus = "duration-value";
+  durationInput.className = "min-w-0 w-16 bg-transparent text-right text-2xl font-black tabular-nums outline-none";
+  durationInput.setAttribute("aria-label", translate("popupFormCustomDurationAria"));
+  durationInput.addEventListener("focus", () => durationInput.select());
+  durationInput.addEventListener("input", () => {
+    const parsed = parseExactDuration(durationInput.value);
+    const invalid = parsed === null;
+    durationInput.setCustomValidity(invalid ? translate("popupDurationInvalid") : "");
+    durationValue.classList.toggle("border-error/60", invalid);
+    if (parsed !== null) {
+      // Step buttons share this render snapshot until the next rerender.
+      selection.durationMinutes = parsed;
+      selection.customMinutes = durationInput.value;
+      handlers.updateSelection({ durationMinutes: parsed, customMinutes: durationInput.value }, false);
+      decrement.disabled = parsed <= 1;
+      if (increment) {
+        increment.disabled = parsed >= 240;
+      }
+      const start = form.querySelector<HTMLButtonElement>("[data-start-session='true']");
+      if (start) {
+        start.textContent = translate("popupStartMinutes", String(parsed));
+      }
+    }
+  });
+  durationInput.addEventListener("keydown", (event) => {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      const parsed = parseExactDuration(durationInput.value);
+      if (parsed === null) {
+        durationInput.reportValidity();
+        return;
+      }
+      handlers.updateSelection({ durationMinutes: parsed, customMinutes: durationInput.value }, true, "duration-value");
+    }
+  });
+  appendText(durationValue, "span", translate("durationMinuteUnit"), "text-sm font-bold text-base-content/65");
+  durationValue.prepend(durationInput);
+  increment = createButton("+", "btn join-item min-h-11 text-xl", () => {
     const durationMinutes = stepDuration(selection.durationMinutes, 1);
     handlers.updateSelection(
       { durationMinutes, customMinutes: String(durationMinutes) },
@@ -869,6 +925,13 @@ function renderSessionForm(root: HTMLElement, model: PopupModel, selection: Sele
 }
 
 export function renderPopup(root: HTMLElement, model: PopupModel, selection: SelectionState, handlers: PopupHandlers): void {
+  const motionKey = model.activeSession?.status === "active"
+    ? `active:${model.activeSession.id}`
+    : model.celebrations.length > 0
+      ? `completion:${model.celebrations[0]?.id ?? "pending"}`
+      : "idle";
+  const animateSurface = shouldAnimateSurface(root.dataset.motionKey, motionKey, prefersReducedMotion());
+  root.dataset.motionKey = motionKey;
   root.replaceChildren();
   root.className = "flex h-[580px] w-[360px] flex-col overflow-y-auto bg-base-300 text-base-content shadow-xl";
   renderPopupHeader(root, model, handlers);
@@ -881,6 +944,11 @@ export function renderPopup(root: HTMLElement, model: PopupModel, selection: Sel
   } else {
     renderPetPanel(root, model);
     renderSessionForm(root, model, selection, handlers);
+  }
+
+  if (animateSurface) {
+    playMotion(root.querySelector(".fw-pet-hero"), "hero");
+    playMotion(root.querySelector("[data-popup-motion-support]"), "surface");
   }
 }
 
@@ -1198,12 +1266,21 @@ export async function bootstrapPopup(root: HTMLElement): Promise<void> {
   }, 1_000);
 
   chrome.storage.onChanged.addListener((changes, areaName) => {
+    if (areaName === "sync" && hasOwn(changes, STORAGE_KEYS.sync.uiLocale)) {
+      setUiLocalePreference(changes[STORAGE_KEYS.sync.uiLocale]?.newValue);
+      document.documentElement.lang = getUiLocale();
+      document.title = translate("popupDocumentTitle");
+    }
     const relevantChange = (
       areaName === "local"
       && (hasOwn(changes, STORAGE_KEYS.local.activeSession) || hasOwn(changes, "pendingEmergency"))
     ) || (
       areaName === "sync"
-      && (hasOwn(changes, STORAGE_KEYS.sync.siteLists) || hasOwn(changes, STORAGE_KEYS.sync.petState))
+      && (
+        hasOwn(changes, STORAGE_KEYS.sync.uiLocale)
+        || hasOwn(changes, STORAGE_KEYS.sync.siteLists)
+        || hasOwn(changes, STORAGE_KEYS.sync.petState)
+      )
     );
     if (relevantChange) {
       const focusKey = document.activeElement instanceof HTMLElement && root.contains(document.activeElement)
@@ -1291,12 +1368,12 @@ function hasOwn(value: object, key: PropertyKey): boolean {
 }
 
 const root = typeof document === "undefined" ? null : document.querySelector<HTMLElement>("#app");
-if (typeof document !== "undefined") {
-  document.documentElement.lang = translate("appLocale");
-  document.title = translate("popupDocumentTitle");
-}
 if (root && document.body.dataset.page === "focuswhale-popup") {
-  void bootstrapPopup(root).catch((error: unknown) => {
+  void initializeUiLocale().then(() => {
+    document.documentElement.lang = getUiLocale();
+    document.title = translate("popupDocumentTitle");
+    return bootstrapPopup(root);
+  }).catch((error: unknown) => {
     root.textContent = error instanceof Error
       ? localizePopupRuntimeError(error.message, "popupLoadFailed")
       : translate("popupLoadFailed");

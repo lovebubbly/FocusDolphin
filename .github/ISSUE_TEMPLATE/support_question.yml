@@ -1,5 +1,5 @@
 name: 지원 및 개인정보 질문
-description: FocusWhale 사용 또는 데이터 처리에 관해 질문해 주세요
+description: Focus Dolphin 사용 또는 데이터 처리에 관해 질문해 주세요
 title: "[Question] "
 labels:
   - question
@@ -7,13 +7,13 @@ body:
   - type: markdown
     attributes:
       value: |
-        이 채널은 공개됩니다. 방문 기록, 차단 전 입력한 이유, 계정 정보 또는 신원을 확인할 수 있는 내용을 적지 마세요. 로컬 기록과 권한은 FocusWhale 설정에서 직접 삭제하거나 해제할 수 있습니다.
+        이 채널은 공개됩니다. 방문 기록, 차단 전 입력한 이유, 계정 정보 또는 신원을 확인할 수 있는 내용을 적지 마세요. 로컬 기록과 권한은 Focus Dolphin 설정에서 직접 삭제하거나 해제할 수 있습니다.
   - type: input
     id: versions
     attributes:
       label: 버전
-      description: 제품 사용 질문이라면 브라우저와 FocusWhale 버전을 적어 주세요.
-      placeholder: "Whale 4.xx / FocusWhale 1.0.0"
+      description: 제품 사용 질문이라면 브라우저와 Focus Dolphin 버전을 적어 주세요.
+      placeholder: "Whale 4.xx / Focus Dolphin 1.0.0"
   - type: textarea
     id: question
     attributes:

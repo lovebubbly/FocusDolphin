@@ -1,11 +1,11 @@
 Copyright (c) 2026 Choi Yunseong. All rights reserved.
 
 This repository is publicly viewable, but no permission is granted to copy,
-modify, redistribute, sublicense, or create derivative works from FocusWhale's
+modify, redistribute, sublicense, or create derivative works from Focus Dolphin's
 source code, documentation, or original visual assets unless the copyright
 owner gives prior written permission.
 
-An end user may install and use an officially distributed FocusWhale extension
+An end user may install and use an officially distributed Focus Dolphin extension
 under the terms of the browser extension store and browser through which it is
 provided. That permission does not grant a right to redistribute the package or
 source code.
@@ -15,3 +15,8 @@ Pretendard is distributed under the SIL Open Font License recorded in
 `assets/fonts/Pretendard-LICENSE.txt`. Tailwind CSS, daisyUI, and Vite core
 runtime notices are recorded in `public/licenses/THIRD-PARTY-NOTICES.txt` and
 shipped with the extension package.
+
+The historical development-codename asset `assets/sprites/focuswhale-placeholder.svg`
+remains under the CC0-style public-domain dedication recorded when that file
+was introduced. This exception is not revoked by the all-rights-reserved terms
+above.

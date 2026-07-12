@@ -19,7 +19,7 @@ describe("normalizePetState", () => {
     });
   });
 
-  it("preserves and trims a saved whale name", () => {
+  it("preserves and trims a saved pet name", () => {
     expect(normalizePetState({ name: "  Miro  " })).toMatchObject({ name: "Miro" });
     expect(normalizePetState({ name: "   " }).name).toBeUndefined();
   });

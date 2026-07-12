@@ -13,6 +13,10 @@ import {
 } from "./lifecycle";
 
 describe("onboarding lifecycle", () => {
+  it("retains the legacy onboarding key across the public rename", () => {
+    expect(ONBOARDING_STATE_KEY).toBe("focuswhaleOnboarding");
+  });
+
   it("opens only for a fresh extension install", () => {
     expect(shouldOpenOnboarding("install")).toBe(true);
     expect(shouldOpenOnboarding("update")).toBe(false);

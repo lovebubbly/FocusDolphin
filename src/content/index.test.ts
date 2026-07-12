@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 import {
   buildBlockedPageRedirectUrl,
@@ -74,6 +76,11 @@ describe("soft overlay evaluation ownership", () => {
 });
 
 describe("content-script extension URLs", () => {
+  it("keeps soft-allow state out of the host page storage", () => {
+    const source = readFileSync(resolve("src/content/index.ts"), "utf8");
+    expect(source).not.toContain("sessionStorage");
+  });
+
   it("rewrites both stable and hashed root-relative Pretendard URLs", () => {
     const extensionFontUrl = "chrome-extension://focuswhale/assets/PretendardVariable.woff2";
 

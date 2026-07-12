@@ -1,7 +1,11 @@
 {
   "appName": {
-    "message": "FocusWhale",
+    "message": "Focus Dolphin — Website Blocker",
     "description": "브라우저와 스토어 목록에 표시되는 확장 프로그램 이름입니다."
+  },
+  "brandName": {
+    "message": "Focus Dolphin",
+    "description": "확장 프로그램 내부에 표시되는 짧은 제품 이름입니다."
   },
   "appDescription": {
     "message": "건강한 브라우징 습관을 위한 로컬 우선 집중 도우미입니다.",
@@ -95,7 +99,7 @@
     "message": "현재 사이트"
   },
   "blockedDocumentTitle": {
-    "message": "FocusWhale"
+    "message": "Focus Dolphin"
   },
   "blockedEmergencyConfirmWarning": {
     "message": "한 번 더 누르면 비상 종료가 예약됩니다. 잘못 눌렀다면 되돌아가세요."
@@ -119,7 +123,7 @@
     "message": "5분 뒤 종료 예약"
   },
   "blockedErrorBlockedPageRequired": {
-    "message": "FocusWhale 차단 페이지에서만 이 작업을 사용할 수 있습니다."
+    "message": "Focus Dolphin 차단 페이지에서만 이 작업을 사용할 수 있습니다."
   },
   "blockedErrorDomainNotBlocked": {
     "message": "이 사이트는 현재 세션에서 차단되지 않았습니다."
@@ -140,7 +144,7 @@
     "message": "현재 확인 후 허용 세션에서만 임시 허용을 사용할 수 있습니다."
   },
   "blockedErrorTopLevelPageRequired": {
-    "message": "최상위 FocusWhale 차단 페이지에서만 이 작업을 사용할 수 있습니다."
+    "message": "최상위 Focus Dolphin 차단 페이지에서만 이 작업을 사용할 수 있습니다."
   },
   "blockedGoBack": {
     "message": "되돌아가기"
@@ -243,7 +247,7 @@
     "placeholders": {
       "stage": {
         "content": "$1",
-        "example": "어린 고래"
+        "example": "어린 돌고래"
       }
     }
   },
@@ -275,7 +279,7 @@
     "placeholders": {
       "stage": {
         "content": "$1",
-        "example": "어린 고래"
+        "example": "어린 돌고래"
       }
     }
   },
@@ -427,7 +431,7 @@
     "message": "기록 지우기"
   },
   "localDataClearDescription": {
-    "message": "세션, 의도 입력, 추천, 통계와 성장 로그를 지웁니다. 동기화된 차단 규칙, 일정과 고래 성장은 유지됩니다."
+    "message": "세션, 의도 입력, 추천, 통계와 성장 로그를 지웁니다. 동기화된 차단 규칙, 일정과 돌고래 성장은 유지됩니다."
   },
   "localDataClearFailed": {
     "message": "로컬 기록을 지우지 못했습니다."
@@ -591,7 +595,7 @@
     "placeholders": {
       "stage": {
         "content": "$1",
-        "example": "어린 고래"
+        "example": "어린 돌고래"
       },
       "percent": {
         "content": "$2",
@@ -610,7 +614,7 @@
     "placeholders": {
       "stage": {
         "content": "$1",
-        "example": "새끼 고래"
+        "example": "아기 돌고래"
       }
     }
   },
@@ -619,7 +623,7 @@
     "placeholders": {
       "stage": {
         "content": "$1",
-        "example": "알"
+        "example": "갓 태어난 돌고래"
       }
     }
   },
@@ -628,7 +632,7 @@
     "placeholders": {
       "stage": {
         "content": "$1",
-        "example": "새끼 고래"
+        "example": "아기 돌고래"
       }
     }
   },
@@ -649,7 +653,7 @@
     "placeholders": {
       "stage": {
         "content": "$1",
-        "example": "어린 고래"
+        "example": "어린 돌고래"
       },
       "xp": {
         "content": "$2",
@@ -658,16 +662,16 @@
     }
   },
   "petNameLabel": {
-    "message": "고래 이름"
+    "message": "돌고래 이름"
   },
   "petNameSave": {
     "message": "이름 저장"
   },
   "petNameSaveFailed": {
-    "message": "고래 이름을 저장하지 못했습니다."
+    "message": "돌고래 이름을 저장하지 못했습니다."
   },
   "petNameSaved": {
-    "message": "고래 이름을 저장했습니다."
+    "message": "돌고래 이름을 저장했습니다."
   },
   "intensityHard": {
     "message": "완전 차단"
@@ -679,11 +683,11 @@
     "message": "가벼운 안내"
   },
   "petAriaLabel": {
-    "message": "FocusWhale 펫, $STAGE$, $MOOD$",
+    "message": "Focus Dolphin 펫, $STAGE$, $MOOD$",
     "placeholders": {
       "stage": {
         "content": "$1",
-        "example": "새끼 고래"
+        "example": "아기 돌고래"
       },
       "mood": {
         "content": "$2",
@@ -704,19 +708,19 @@
     "message": "쉬는 중"
   },
   "petStageName0": {
-    "message": "알"
+    "message": "갓 태어난 돌고래"
   },
   "petStageName1": {
-    "message": "새끼 고래"
+    "message": "아기 돌고래"
   },
   "petStageName2": {
-    "message": "어린 고래"
+    "message": "어린 돌고래"
   },
   "petStageName3": {
-    "message": "푸른 고래"
+    "message": "푸른 돌고래"
   },
   "petStageName4": {
-    "message": "별고래"
+    "message": "별빛 돌고래"
   },
   "popupActiveCurrentIntensity": {
     "message": "현재 설정 $INTENSITY$",
@@ -795,7 +799,7 @@
     "placeholders": {
       "stage": {
         "content": "$1",
-        "example": "알"
+        "example": "갓 태어난 돌고래"
       }
     }
   },
@@ -803,7 +807,7 @@
     "message": "차근차근 자라는 중"
   },
   "popupCompletionHeading": {
-    "message": "집중이 고래를 키웠어요"
+    "message": "집중이 돌고래를 키웠어요"
   },
   "popupCompletionLabel": {
     "message": "세션 완료"
@@ -824,7 +828,7 @@
     "message": "개발 프리뷰"
   },
   "popupDocumentTitle": {
-    "message": "FocusWhale"
+    "message": "Focus Dolphin"
   },
   "popupEmergencyConfirmWarning": {
     "message": "한 번 더 누르면 5분 뒤 비상 종료가 예약됩니다."
@@ -892,6 +896,9 @@
   "popupFormDurationSelection": {
     "message": "시간 선택"
   },
+  "popupDurationInvalid": {
+    "message": "1부터 240 사이의 정수를 입력해 주세요."
+  },
   "popupFormHardNote": {
     "message": "비상 종료는 두 번 확인한 뒤 5분 후 적용되며, 주 1회 사용할 수 있습니다."
   },
@@ -926,7 +933,7 @@
     "message": "지금은 가장 깊은 바다를 항해 중이에요."
   },
   "popupGrowthNeverRegresses": {
-    "message": "지금까지 쌓은 고래의 성장은 그대로 이어져요."
+    "message": "지금까지 쌓은 돌고래의 성장은 그대로 이어져요."
   },
   "popupGrowthTotalFocusXp": {
     "message": "누적 집중 $MINUTES$분 · $XP$ XP",
@@ -946,7 +953,7 @@
     "placeholders": {
       "stage": {
         "content": "$1",
-        "example": "어린 고래"
+        "example": "어린 돌고래"
       },
       "xp": {
         "content": "$2",
@@ -1007,7 +1014,7 @@
     }
   },
   "popupNamePrompt": {
-    "message": "이 고래를 뭐라고 부를까요?"
+    "message": "이 돌고래를 뭐라고 부를까요?"
   },
   "popupNameSaveError": {
     "message": "이름을 저장하지 못했습니다."
@@ -1049,19 +1056,19 @@
     "message": "집중 세션을 완료하면 자라요."
   },
   "popupPetStageLine0": {
-    "message": "알이 깨어날 준비 중"
+    "message": "갓 태어난 돌고래가 첫 헤엄을 준비 중"
   },
   "popupPetStageLine1": {
-    "message": "새끼 고래로 자라는 중"
+    "message": "아기 돌고래가 자라는 중"
   },
   "popupPetStageLine2": {
-    "message": "어린 고래가 항해 중"
+    "message": "어린 돌고래가 항해 중"
   },
   "popupPetStageLine3": {
-    "message": "푸른 고래가 깊어지는 중"
+    "message": "푸른 돌고래가 깊이 헤엄치는 중"
   },
   "popupPetStageLine4": {
-    "message": "별고래와 항해 중"
+    "message": "별빛 돌고래와 항해 중"
   },
   "popupSaving": {
     "message": "저장 중..."
@@ -1094,7 +1101,7 @@
     "message": "목록의 사이트만 허용"
   },
   "onboardingAllowlistBody": {
-    "message": "세션 중 계속 열어둘 도메인을 정리해 보세요. FocusWhale은 이 목록 밖의 사이트에 멈춤을 더해요."
+    "message": "세션 중 계속 열어둘 도메인을 정리해 보세요. Focus Dolphin은 이 목록 밖의 사이트에 멈춤을 더해요."
   },
   "onboardingAllowlistTitle": {
     "message": "계속 열어둘 사이트를 골라요"
@@ -1106,7 +1113,7 @@
     "message": "목록의 사이트 차단"
   },
   "onboardingBrand": {
-    "message": "FocusWhale"
+    "message": "Focus Dolphin"
   },
   "onboardingCloseHint": {
     "message": "이 페이지는 다시 열지 않아도 돼요."
@@ -1115,10 +1122,10 @@
     "message": "탭 닫기"
   },
   "onboardingCompleteSetupBody": {
-    "message": "FocusWhale이 준비됐어요. 원할 때 팝업에서 세션을 시작하세요."
+    "message": "Focus Dolphin이 준비됐어요. 원할 때 팝업에서 세션을 시작하세요."
   },
   "onboardingCompleteStartedBody": {
-    "message": "25분 세션이 진행 중이에요. 남은 시간은 언제든 FocusWhale 팝업에서 확인할 수 있어요."
+    "message": "25분 세션이 진행 중이에요. 남은 시간은 언제든 Focus Dolphin 팝업에서 확인할 수 있어요."
   },
   "onboardingCompleteTitle": {
     "message": "집중할 준비가 됐어요"
@@ -1130,7 +1137,7 @@
     "message": "계속"
   },
   "onboardingDocumentTitle": {
-    "message": "FocusWhale 시작하기"
+    "message": "Focus Dolphin 시작하기"
   },
   "onboardingDomainCount": {
     "message": "$COUNT$개",
@@ -1178,7 +1185,7 @@
     "message": "완전 차단"
   },
   "onboardingIntensityBody": {
-    "message": "이 선택은 첫 25분 세션에만 적용돼요. FocusWhale이 강도를 자동으로 높이지 않아요."
+    "message": "이 선택은 첫 25분 세션에만 적용돼요. Focus Dolphin이 강도를 자동으로 높이지 않아요."
   },
   "onboardingIntensityEyebrow": {
     "message": "3단계 · 첫 세션"
@@ -1190,25 +1197,31 @@
     "message": "원하는 만큼의 멈춤을 선택하세요"
   },
   "onboardingIntroBody": {
-    "message": "FocusWhale은 방해되는 사이트 앞에 잠깐의 멈춤을 만들고, 선택한 집중 시간을 지킬 수 있게 도와줘요."
+    "message": "Focus Dolphin은 방해되는 사이트 앞에 잠깐의 멈춤을 만들고, 선택한 집중 시간을 지킬 수 있게 도와줘요."
   },
   "onboardingIntroEyebrow": {
     "message": "기기 안에서 지키는 집중"
   },
   "onboardingIntroPetBody": {
-    "message": "완료한 세션만큼 고래가 자라고, 쉬는 날에는 지금까지의 성장이 그대로 유지돼요."
+    "message": "완료한 세션만큼 돌고래가 자라고, 쉬는 날에는 지금까지의 성장이 그대로 유지돼요."
   },
   "onboardingIntroPetTitle": {
     "message": "내 속도로 이어지는 성장"
   },
   "onboardingIntroPrivacyBody": {
-    "message": "FocusWhale에는 백엔드가 없어요. 세션과 선택적 방문 기록 분석은 기기에 머물고, 동기화 설정은 브라우저의 동기화 서비스를 사용할 수 있어요."
+    "message": "Focus Dolphin에는 백엔드가 없어요. 세션과 선택적 방문 기록 분석은 기기에 머물고, 동기화 설정은 브라우저의 동기화 서비스를 사용할 수 있어요."
   },
   "onboardingIntroPrivacyTitle": {
     "message": "브라우징은 기기 안에 머물러요"
   },
+  "onboardingIntroDataTitle": {
+    "message": "Focus Dolphin이 저장하는 정보"
+  },
+  "onboardingIntroDataBody": {
+    "message": "규칙을 적용하려고 현재 사이트 주소를 확인하고, 차단 뒤 돌아가기에는 자격 증명·쿼리·프래그먼트를 뺀 출처와 경로만 사용해요. 세션 기록, 집중 합계, 도메인별 차단 시도, 확인 후 허용에서 적은 이유는 기기에 저장돼요. 방문 기록은 분석을 누르고 권한을 준 경우 최근 30일만 일시 처리해 도메인 집계만 저장해요. 언어·설정·목록·일정·돌고래 성장은 브라우저 동기화를 사용할 수 있어요. 개발자에게 보내지 않으며 페이지 글, 폼, 비밀번호, 메시지는 읽지 않아요."
+  },
   "onboardingIntroTitle": {
-    "message": "집중을 함께할 고래를 만나보세요"
+    "message": "집중을 함께할 돌고래를 만나보세요"
   },
   "onboardingListBody": {
     "message": "세션 중 잠깐 멈춤을 더할 도메인을 정리해 보세요. 나중에 설정에서 언제든 바꿀 수 있어요."
@@ -1232,7 +1245,7 @@
     "message": "의도를 확인하고 허용"
   },
   "onboardingPetAria": {
-    "message": "반갑게 인사하는 FocusWhale 고래 친구"
+    "message": "반갑게 인사하는 Focus Dolphin 돌고래 친구"
   },
   "onboardingProgressAria": {
     "message": "전체 $TOTAL$단계 중 $CURRENT$단계",
@@ -1505,7 +1518,7 @@
     "message": "이름, 성장 단계, 징표와 최근 기록을 확인합니다."
   },
   "growthSectionTitle": {
-    "message": "고래 성장"
+    "message": "돌고래 성장"
   },
   "listsSectionDescription": {
     "message": "목록을 펼쳐 차단 또는 집중 허용 도메인을 수정합니다."
@@ -1515,6 +1528,9 @@
   },
   "currentIntensity": {
     "message": "현재 강도"
+  },
+  "durationMinuteUnit": {
+    "message": "분"
   },
   "domainCount": {
     "message": "$COUNT$개 도메인",
@@ -1668,10 +1684,31 @@
     "message": "가벼운 안내 대기 시간(초)"
   },
   "optionsDescription": {
-    "message": "기록, 차단 규칙, 자동 시작, 고래 성장을 한곳에서 관리합니다."
+    "message": "기록, 차단 규칙, 자동 시작, 돌고래 성장을 한곳에서 관리합니다."
   },
   "optionsDocumentTitle": {
-    "message": "FocusWhale 관리"
+    "message": "Focus Dolphin 관리"
+  },
+  "optionsLanguageLabel": {
+    "message": "언어"
+  },
+  "optionsLanguageDescription": {
+    "message": "언어를 직접 고르거나 브라우저 설정을 따릅니다."
+  },
+  "optionsLanguageAutomatic": {
+    "message": "자동 (브라우저 설정)"
+  },
+  "optionsLanguageEnglish": {
+    "message": "영어 (English)"
+  },
+  "optionsLanguageKorean": {
+    "message": "한국어"
+  },
+  "optionsLanguageSaved": {
+    "message": "언어를 변경했습니다."
+  },
+  "optionsLanguageSaveFailed": {
+    "message": "언어를 변경하지 못했습니다."
   },
   "optionsLockedDescription": {
     "message": "집중 세션이 끝나면 차단 규칙, 자동 시작, 추천 분석을 다시 열 수 있습니다."
@@ -1683,7 +1720,7 @@
     "message": "자동 시작"
   },
   "optionsTabGrowth": {
-    "message": "고래 성장"
+    "message": "돌고래 성장"
   },
   "optionsTabInsights": {
     "message": "기록"
@@ -1695,7 +1732,7 @@
     "message": "관리 화면"
   },
   "optionsTitle": {
-    "message": "FocusWhale 관리"
+    "message": "Focus Dolphin 관리"
   },
   "privacySectionDescription": {
     "message": "기기에 남은 기록과 선택 권한을 관리합니다."
@@ -1767,10 +1804,10 @@
     "message": "집중 계속하기"
   },
   "goal8PopupDurationDecrease": {
-    "message": "집중 시간을 1분 줄이기"
+    "message": "집중 시간을 5분 단위로 줄이기"
   },
   "goal8PopupDurationIncrease": {
-    "message": "집중 시간을 1분 늘리기"
+    "message": "집중 시간을 5분 단위로 늘리기"
   },
   "goal8PopupMilestoneNew": {
     "message": "새로 획득"
@@ -1855,7 +1892,7 @@
     }
   },
   "goal8GrowthNeverRegresses": {
-    "message": "쉬는 날에도 지금까지 쌓은 고래의 성장은 그대로 이어집니다."
+    "message": "쉬는 날에도 지금까지 쌓은 돌고래의 성장은 그대로 이어집니다."
   },
   "goal8GrowthLatestBadge": {
     "message": "최근 · $BADGE$",

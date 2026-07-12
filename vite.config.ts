@@ -21,8 +21,8 @@ export default defineConfig({
         chunkFileNames: "assets/[name]-[hash].js",
         assetFileNames: (assetInfo) => {
           const sourceName = assetInfo.names[0] ?? "";
-          if (sourceName === "focuswhale-atlas.png") {
-            return "assets/focuswhale-atlas.png";
+          if (sourceName === "focusdolphin-atlas.png") {
+            return "assets/focusdolphin-atlas.png";
           }
           if (sourceName === "PretendardVariable.woff2") {
             return "assets/PretendardVariable.woff2";

@@ -26,9 +26,9 @@ afterEach(() => {
 
 describe("options keyboard and display helpers", () => {
   it("uses the correct Korean particle for each pet stage", () => {
-    expect(stageSailingText("알", "ko")).toBe("알과 항해 중");
-    expect(stageSailingText("새끼 고래", "ko")).toBe("새끼 고래와 항해 중");
-    expect(stageSailingText("Egg", "en")).toBe("Sailing with Egg");
+    expect(stageSailingText("갓 태어난 돌고래", "ko")).toBe("갓 태어난 돌고래와 항해 중");
+    expect(stageSailingText("아기 돌고래", "ko")).toBe("아기 돌고래와 항해 중");
+    expect(stageSailingText("Newborn dolphin", "en")).toBe("Sailing with Newborn dolphin");
   });
 
   it("takes the initial dashboard snapshot after overdue-session reconciliation", async () => {

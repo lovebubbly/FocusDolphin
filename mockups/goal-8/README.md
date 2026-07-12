@@ -10,13 +10,13 @@ Baseline: `683f6f5f3bb496417f2cba1f442abac59bf676bc`
 
 ## Purpose
 
-These static files translate reviewed focus-product hierarchy and visual evidence into FocusWhale's browser context. They do not reuse third-party assets, copy, scores, or mobile-only behavior.
+These static files translate reviewed focus-product hierarchy and visual evidence into Focus Dolphin's browser context. They do not reuse third-party assets, copy, scores, or mobile-only behavior.
 
 The product hierarchy is:
 
 - **Session:** the browser-action popup plus active, completion, blocked, and soft-overlay states.
 - **Rules:** schedules, reusable target lists, intervention preferences, and advisory local-history suggestions.
-- **Review:** truthful focus activity plus whale growth and rewards.
+- **Review:** truthful focus activity plus dolphin growth and rewards.
 - **Preferences:** privacy, onboarding replay, analysis hours, and destructive data controls remain secondary.
 
 ## Approval Boundary
@@ -34,7 +34,7 @@ Approval must record:
 
 - `session.html`: popup idle, active, hard/emergency, and completion.
 - `rules.html`: schedule rows, target lists, focused editor, and active-session lock.
-- `review.html`: populated and empty truthful Review plus whale growth.
+- `review.html`: populated and empty truthful Review plus dolphin growth.
 - `preferences.html`: subordinate behavior, optional analysis, onboarding replay, and local-data controls.
 - `blocked.html`: medium and hard intervention state transitions.
 - `overlay.html`: soft overlay waiting and ready states on light/dark hosts.
@@ -42,11 +42,11 @@ Approval must record:
 - `pet-matrix.html`: the real five-stage/four-mood atlas and reduced-motion boundary.
 - `theme-parity.html`: representative light-theme parity states.
 
-Every review page opens directly from disk, uses local Pretendard and the real `384 x 1,920` whale atlas, and makes no external request. The toolbar switches the visual preview between English/Korean and dark/light without changing production localization behavior.
+Every review page opens directly from disk, uses local Pretendard and the real `768 x 3,840` high-density dolphin atlas, and makes no external request. The toolbar switches the visual preview between English/Korean and dark/light without changing production localization behavior.
 
 Open [`index.html`](./index.html) directly to enter the gallery. No build or local server is required. Query parameters are also available for deterministic review: `?lang=ko&theme=light&capture=1`.
 
-Representative frozen images live in [`previews/`](./previews/). The HTML pages remain the approval source of truth because they contain the full state matrix and responsive behavior.
+Representative frozen images live in [`previews/`](./previews/) and preserve the approval-time identity as historical evidence. The renamed HTML pages remain the current source of truth because they contain the full state matrix and responsive behavior.
 
 ## Transfer Decisions
 
@@ -54,7 +54,7 @@ Representative frozen images live in [`previews/`](./previews/). The HTML pages 
 2. Use one dominant number or action per state.
 3. Present Rules as truthful projections of existing schedules and target lists; do not invent a new runtime owner.
 4. Present only metrics supported by local records. Never show a composite score, inferred productivity, time saved, or passive browsing duration.
-5. Keep the whale as FocusWhale's atmospheric hero. Do not import third-party imagery or branding.
+5. Keep the dolphin as Focus Dolphin's atmospheric hero. Do not import third-party imagery or branding.
 6. Keep both production themes. Dark is the design lead, not the only supported theme.
 7. Preserve every wellness invariant, intensity meaning, weekly emergency limit, active-session Options lock, local-only privacy rule, and acknowledgement/reward contract.
 

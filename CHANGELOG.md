@@ -2,26 +2,38 @@
 
 Documentation refresh: **OpenAI Codex (GPT-5)** for requester and product owner **Choi Yunseong (최윤성)**, **2026-07-12 KST**.
 
-All notable FocusWhale changes are documented here. The project has not yet recorded a public store release.
+All notable Focus Dolphin changes are documented here. `FocusWhale` was the unreleased development codename, so earlier entries and compatibility identifiers retain that name where historically or technically accurate. The project has not yet recorded a public store release.
 
 ## [Unreleased] - 2026-07-12 (Goal 8 Web Polish Candidate)
 
 ### Added
 
+- Adopted the public product name **Focus Dolphin — Website Blocker** before the first store release; the GitHub remote and store dashboard records remain pending until renamed and verified live.
+- Replaced the public mascot and animal-specific copy with a coherent dolphin identity while preserving legacy internal identifiers needed for development-install compatibility.
+- User-selectable Automatic, English, or Korean UI language in Preferences, persisted independently from session policy.
+- Direct whole-minute session entry for the full 1-240 minute range.
 - Approved Goal 8 production information architecture: Session in the toolbar popup, Rules and Review in Options, and secondary Preferences.
-- Locally truthful Review states for the current week, eight-week recorded focus, attempted targets/categories, whale growth, and timestamp-derived latest badges.
+- Locally truthful Review states for the current week, eight-week recorded focus, attempted targets/categories, dolphin growth, and timestamp-derived latest badges.
 - Permission-status row for optional browsing-history analysis, including a non-prompting `contains` check and a disabled Revoke action when access is absent.
-- Explicit 128 px large and 160 px hero pet-render sizes on top of the existing validated 96 px atlas geometry.
+- Explicit 128 px large and 160 px hero pet-render sizes backed by 192 px source frames.
 - Soft-overlay ready badge and outcome-led temporary-access/emergency-pending blocked states.
+- Semantic, reduced-motion-aware surface transitions for popup state changes, Options views, onboarding steps, blocked states, and new soft overlays.
+- An always-visible bilingual first-run data disclosure covering address handling, local records and intent text, optional history analysis, browser sync, and zero developer transfer.
+- A reproducible icon and promotional-tile generator derived from the documented high-density mascot atlas.
+- A deterministic, self-verifying Chrome/Whale release packager with fixed ZIP metadata, whole-archive comparison, SHA-256 sidecar, and per-file provenance report.
+- A repository/package license and IP audit for Chrome Web Store and Whale Store release gating.
 
 ### Changed
 
+- Duration minus/plus controls now move to adjacent five-minute marks; exact values remain directly editable.
+- Reassembled the approved whale from its original high-resolution source sheets into a 768 x 3,840 atlas without changing animation, mood, or growth-stage identity. This records the pre-rename Goal 8 art baseline; the later Focus Dolphin migration supersedes it for publication.
+- Made the eight-week Review chart grow from zero on first entry, added a one-time overlay-readiness confirmation pop, and added daisyUI busy indicators for local analysis and guarded mutations.
 - Transplanted the product-owner-approved Goal 8 mockups from commit `e7274a1` into production after the exact no-exception approval recorded in `mockups/goal-8/PHASE_A_REPORT.md`.
-- Reworked the popup around one duration stepper, one target summary, one user-selected intensity, one dominant Start action, an active radial timer, and a whale-led completion overview.
+- Reworked the popup around one duration stepper, one target summary, one user-selected intensity, one dominant Start action, an active radial timer, and a dolphin-led completion overview.
 - Reworked Options into a 720 px Review/Rules workspace with compact schedule and target-list rows, focused editors, and separate Preferences.
 - Reworked blocked and shadow-DOM intervention surfaces around a centered outcome card, safe return-to-focus primary action, and preserved medium/hard commitment mechanics.
 - Updated both production themes while preserving the `focuswhale` / `focuswhale-dark` identifiers and operating-system theme selection.
-- Expanded Korean/English localization to 530 parity-checked messages.
+- Expanded Korean/English localization to 541 parity-checked messages.
 
 ### Fixed
 
@@ -36,19 +48,22 @@ All notable FocusWhale changes are documented here. The project has not yet reco
 - Preferences enabling history-permission revocation when access was not granted.
 - Newly earned badge events lacking the completed session association and therefore disappearing from the post-session milestone batch.
 - Completion acknowledgement consuming more session milestones than the four rows it displayed; extra events now remain pending for the next acknowledgement screen.
+- Soft-overlay temporary access exposing its session identifier through host-page `sessionStorage`; the allowance now remains inside isolated content-script memory.
 
-### Automated Verification
+### Pre-Rename Automated Verification
 
 - `npm run build`: pass; 11 manifest targets, exact four-resource WAR, local font/license, classic content output, no source maps, root-relative asset URLs, or unexpected external URLs.
 - `npm run typecheck`: pass.
-- `npm test`: 33 files / 250 tests pass.
-- English/Korean catalogs: 530 / 530 keys with placeholder parity.
+- `npm test`: 34 Vitest files / 259 application tests plus the then-current release-package boundary tests pass.
+- English/Korean catalogs: 541 / 541 keys with placeholder parity.
 - Authored production surface CSS: 115 lines; raw colors remain confined to theme definitions.
+- The integrated Focus Dolphin build, final package-test total, exact hashes, and browser evidence must be recorded after the full suite reruns.
 
 ### Release Boundary
 
 - Source version remains 1.0.0 and no store publication is claimed.
-- The existing release ZIP and older store screenshots predate Goal 8. They must be regenerated and reviewed from the eventual committed Goal 8 executable before submission.
+- Every existing FocusWhale ZIP and whale screenshot is historical. A Focus Dolphin ZIP and fresh bilingual screenshots must be generated and reviewed from the selected executable before submission.
+- Chrome Web Store and Whale Store are both release targets. The exact-name `FocusWhale` conflict was resolved for this product by selecting **Focus Dolphin — Website Blocker** before publication; final confusing-similarity review and live repository/dashboard renames remain release gates.
 - Phase A approval covers every presented mockup state with no exceptions. It does not by itself constitute store submission or publication approval.
 
 ## [1.0.0] - 2026-07-10 (Local Release Candidate)

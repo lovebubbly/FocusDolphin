@@ -1,4 +1,4 @@
-# FocusWhale Decisions
+# Focus Dolphin Decisions
 
 Last refreshed: **2026-07-12 KST** by **OpenAI Codex (GPT-5)**, for requester and product owner **Choi Yunseong (최윤성)**.
 
@@ -64,9 +64,9 @@ This file records durable choices that are easy to accidentally undo. New undocu
 
 **Why:** Local-first does not mean unbounded retention.
 
-## D-011: Four-Mood Star Whale Atlas
+## D-011: Four-Mood Star Whale Atlas (Historical Baseline)
 
-**Decision:** Use a deterministic 384 x 1,920 atlas with five stages and four moods (`idle`, `happy`, `focus`, `celebrate`). Stage 4 uses attached star markings; the crown design is retired.
+**Decision:** Use a deterministic 384 x 1,920 whale atlas with five stages and four moods (`idle`, `happy`, `focus`, `celebrate`). Stage 4 uses attached star markings; the crown design is retired. D-052 supersedes this for current public art; this entry remains the truthful pre-rename baseline.
 
 **Why:** The old crown frames clipped and the two-mood atlas lacked purposeful product states. Deterministic assembly provides repeatable geometry and validation.
 
@@ -108,7 +108,7 @@ This file records durable choices that are easy to accidentally undo. New undocu
 
 ## D-018: Repository Support And Policy Target
 
-**Decision:** Use [GitHub Issues](https://github.com/lovebubbly/FocusWhale/issues) as the support/privacy contact channel. Use `https://github.com/lovebubbly/FocusWhale/blob/main/PRIVACY.md` as the stable policy URL; both were publicly reachable and the policy's Limited Use statement was verified on 2026-07-11.
+**Decision:** Use [GitHub Issues](https://github.com/lovebubbly/FocusDolphin/issues) as the intended support/privacy contact channel. Use `https://github.com/lovebubbly/FocusDolphin/blob/main/PRIVACY.md` as the intended stable policy URL. The former `lovebubbly/FocusWhale` URLs were publicly reachable and the Limited Use statement was verified there on 2026-07-11; the repository remote rename and verification of the new URLs remain pending.
 
 **Why:** This provides one centralized repository channel and a stable, reviewable public policy target without introducing a developer backend.
 
@@ -216,9 +216,9 @@ This file records durable choices that are easy to accidentally undo. New undocu
 
 ## D-036: External References Inform Structure, Not Product Identity
 
-**Decision:** Translate the directly observed mobile focus-product hierarchy into three FocusWhale browser jobs: Session in the toolbar popup and intervention surfaces, Rules in Options, and Review in Options. Keep Preferences secondary. Adopt dark-first spatial hierarchy, one dominant action, large time typography, compact rule rows, and restrained selected/hero emphasis without copying another product's navigation, scores, imagery, copy, branding, permissions, or platform-specific semantics.
+**Decision:** Translate the directly observed mobile focus-product hierarchy into three browser jobs: Session in the toolbar popup and intervention surfaces, Rules in Options, and Review in Options. Keep Preferences secondary. Adopt dark-first spatial hierarchy, one dominant action, large time typography, compact rule rows, and restrained selected/hero emphasis without copying another product's navigation, scores, imagery, copy, branding, permissions, or platform-specific semantics.
 
-**Why:** The useful evidence is the separation of act now, configure future behavior, and understand the day. FocusWhale has different browser capabilities, a local-only privacy contract, explicit intensity meanings, a whale identity, and no defensible composite score. Literal mobile or visual copying would weaken those boundaries rather than polish the existing product.
+**Why:** The useful evidence is the separation of act now, configure future behavior, and understand the day. The extension has different browser capabilities, a local-only privacy contract, explicit intensity meanings, its own mascot identity, and no defensible composite score. Literal mobile or visual copying would weaken those boundaries rather than polish the existing product.
 
 ## D-037: Goal 8 Mockup Approval Freezes Production
 
@@ -246,6 +246,72 @@ This file records durable choices that are easy to accidentally undo. New undocu
 
 ## D-041: Outcome States Own Their Visual Hierarchy
 
-**Decision:** Keep 96 px as the default pet render size, with explicit 128 px large and 160 px hero variants. Completed-session, temporary-access, and emergency-pending states may change the pet mood and collapse the generic active-session shell so the outcome becomes dominant. These states remain additive and non-punitive. Rest, interruption, and emergency use never shrink, harm, or regress the whale.
+**Decision:** Keep 96 px as the default pet render size, with explicit 128 px large and 160 px hero variants. Completed-session, temporary-access, and emergency-pending states may change the pet mood and collapse the generic active-session shell so the outcome becomes dominant. These states remain additive and non-punitive. Rest, interruption, and emergency use never shrink, harm, or regress the dolphin.
 
-**Why:** The whale should communicate state rather than decorate every screen identically. Explicit renderer geometry prevents layout-specific CSS from distorting the atlas, while the wellness invariant prevents stronger visual feedback from becoming pressure or punishment.
+**Why:** The dolphin should communicate state rather than decorate every screen identically. Explicit renderer geometry prevents layout-specific CSS from distorting the atlas, while the wellness invariant prevents stronger visual feedback from becoming pressure or punishment.
+
+## D-042: Language Is A User-Owned Presentation Preference
+
+**Decision:** Store `auto`, `en`, or `ko` under an independent synchronized `uiLocale` key. Initialize the selected locale before rendering popup, Options, onboarding, blocked, or overlay surfaces. Keep it outside the session settings snapshot and lock-repair contract.
+
+**Why:** Language is presentation, not focus policy. A session must not revert or lock a user's language choice, and explicit English/Korean selection must override the browser locale without changing any blocking or wellness behavior.
+
+## D-043: Exact Duration Entry With Five-Minute Stepping
+
+**Decision:** Keep the 1-240 minute session contract, expose the current duration as a direct whole-minute input, and move minus/plus controls to adjacent five-minute marks. Invalid, fractional, or out-of-range input cannot submit a session.
+
+**Why:** A one-minute-only stepper makes long sessions impractical. Direct entry makes 90 minutes a two-keystroke action while five-minute stepping preserves fast, low-friction adjustment and exact values remain available.
+
+## D-044: Preserve Pet Identity With A 2x Source Atlas (Historical Whale Baseline)
+
+**Decision:** Reassemble the approved v3 whale sheets into a 768 x 3,840 atlas with 192 px source frames while retaining 96, 128, and 160 CSS px render sizes. Use the original high-resolution transparent sheets and the deterministic assembler; do not redraw or AI-upscale the mascot. This records the final pre-rename art baseline and is superseded for public identity by D-051; it remains truthful historical provenance.
+
+**Why:** The prior 96 px source frame was visibly enlarged in the 160 px Options hero. A 2x atlas restores source detail across every approved size without changing animation, growth stages, mood semantics, asset paths, or visual identity.
+
+## D-045: Motion Communicates Semantic State, Not Activity For Its Own Sake
+
+**Decision:** Use compositor-only Web Animations for new-surface entrances and positive confirmations, keyed by semantic UI state so ordinary rerenders cannot replay them. Keep the existing sprite, completion, radial-progress, modal, collapse, and blocked-action motion. Skip every new animation under `prefers-reduced-motion`; never make focus, navigation, storage, countdowns, or session behavior wait for animation completion.
+
+**Why:** The interface felt static because whole surfaces appeared instantly even though the pet already moved. State-keyed opacity/transform motion makes changes legible without stacking restless ambient movement on the pet, shifting layout, resetting timers, or weakening accessibility.
+
+## D-046: Soft Allow State Stays In The Isolated Content Script
+
+**Decision:** Keep a soft-overlay continue decision in the content script's per-document in-memory set. Do not write extension session identifiers or soft-allow keys into the host origin's `sessionStorage`, `localStorage`, DOM, or page-world globals.
+
+**Why:** Host-origin Web Storage is visible to page scripts and would disclose that Focus Dolphin is active plus an internal session identifier. The soft decision only needs to survive reevaluation and same-document navigation, so isolated in-memory state is sufficient and avoids an undisclosed third-party-origin write.
+
+## D-047: First-Run Data Disclosure Covers Every Stored Category
+
+**Decision:** Keep a prominent, always-visible bilingual disclosure in onboarding step 1. It names current-address handling and sanitized return paths, local session/focus/domain-attempt/intent retention, optional 30-day history processing and domain aggregates, browser-synced presentation/configuration/pet fields, no developer transmission, and the page-content categories Focus Dolphin never reads.
+
+**Why:** Chrome announced that all extension data collection must be prominently disclosed regardless of how closely it relates to the single purpose, with enforcement beginning August 1, 2026. Shipping the disclosure now keeps the first release truthful if review or publication crosses that date.
+
+## D-048: Public Submission Requires Name Clearance (Resolved By Pre-Release Rename)
+
+**Decision:** Treat the active `focuswhale.com` productivity brand's exact-name use as a pre-submission IP risk. The product owner selected **Focus Dolphin — Website Blocker** before publication instead of submitting the development codename. This resolves the exact-name collision for this product, but it does not replace final confusing-similarity review of the selected name.
+
+**Why:** Exact spelling in an adjacent productivity field creates avoidable confusion and common-law risk even when limited public database searches do not reveal a registered mark. Chrome and Whale both prohibit IP infringement, and a pre-launch rename is substantially cheaper than changing published item identity.
+
+## D-049: Store Art Derives From The Documented Runtime Mascot
+
+**Decision:** Generate the extension icon set, store icon, and Chrome small promotional tile deterministically from the current mature-dolphin idle frame via `scripts/generate-focusdolphin-icons.py`. The earlier `generate-focuswhale-icons.py` path and whale-derived outputs remain historical and must not be relabeled.
+
+**Why:** The previous icon was derived from an older atlas in task history but had no checked-in derivation record and no longer matched the production mascot. A reproducible project-owned source closes provenance ambiguity and keeps toolbar, store, and in-product identity consistent.
+
+## D-050: One Deterministic Package For Both Stores
+
+**Decision:** Build the Chrome Web Store and Whale Store upload from the same committed `dist/` using `scripts/package-release.py`. Sort entries, use fixed ZIP metadata, require MV3/locales/license notices, reject development artifacts and symlinks, compare every entry with `dist/`, rebuild the expected archive independently, and emit checksum plus per-file reports. Store-specific metadata and review records remain separate.
+
+**Why:** Manual archiving previously left a stale ZIP that was easy to mistake for the current candidate. A reproducible package proves exactly what both stores receive, catches trailing or mutated archive data, and isolates browser/listing differences from executable differences.
+
+## D-051: Focus Dolphin Is The Public Identity
+
+**Decision:** Publish as **Focus Dolphin — Website Blocker**, using **Focus Dolphin** in compact UI and prose. `FocusWhale` was an unreleased development codename. Preserve legacy storage keys, alarm namespaces, theme identifiers, asset/script filenames still required by the build, test fixtures, extension-state contracts, and historical QA/archive labels; do not migrate or cosmetically relabel those records. Rename the GitHub repository to `lovebubbly/FocusDolphin` and update Chrome Web Store and Whale Store records as separate release operations, each verified live before submission.
+
+**Why:** The public name is direct, avoids the known exact-name adjacent-use conflict, and was selected before any store release. Keeping compatibility identifiers avoids resetting development installs or invalidating evidence, while explicitly separating remote/dashboard operations prevents documentation from claiming external changes that have not happened yet. The 2026-07-12 knock-out search is a conditional screen, not legal clearance.
+
+## D-052: Current Mascot Is A Native High-Density Dolphin Atlas
+
+**Decision:** Use `assets/sprites/focusdolphin-atlas.png` as the runtime mascot: a 768 x 3,840, 4 x 20 atlas with 192 px cells, five additive stages, and `idle`, `happy`, `focus`, and `celebrate` moods. Assemble the project-generated v4 source sheets with `scripts/assemble-focusdolphin-atlas.py`; derive current icons and promotional art with `scripts/generate-focusdolphin-icons.py`. Keep the v3 whale sources and former public outputs as historical provenance only.
+
+**Why:** A dolphin public name needs an unmistakably coherent dolphin character at every production size. Native source frames avoid enlargement blur, deterministic assembly keeps geometry and hashes auditable, and preserving the former art record avoids falsifying Goal 8 evidence.

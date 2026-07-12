@@ -1,44 +1,50 @@
-# FocusWhale
+# Focus Dolphin — Website Blocker
 
-FocusWhale is a local-first Manifest V3 extension for Naver Whale and Chromium browsers. It creates bounded focus sessions, adds humane friction before distracting sites, and rewards completed focus with a growing whale companion.
+Focus Dolphin is a local-first Manifest V3 extension for Naver Whale and Chromium browsers. It creates bounded focus sessions, adds humane friction before distracting sites, and rewards completed focus with a growing dolphin companion.
 
-The product is deliberately non-punitive: users choose the intensity, the hard-mode emergency valve remains available, pets never die or regress, and FocusWhale does not send browsing data to an external service.
+The product is deliberately non-punitive: users choose the intensity, the hard-mode emergency valve remains available, pets never die or regress, and Focus Dolphin does not send browsing data to an external service.
+
+`FocusWhale` was the unreleased development codename. Legacy filenames, storage keys, alarm namespaces, theme identifiers, test fixtures, and historical QA evidence may retain that string so installed development data remains compatible and earlier evidence stays truthful. The intended public repository is `lovebubbly/FocusDolphin`; the GitHub remote and both store dashboards must be renamed separately and are still pending until their live URLs and records are verified.
 
 ## Release Status
 
-The current source and production build identify as **version 1.0.0**. Goal 8 executable commit `5029d2a924cc14b5175fe1da1f4f9a2fcf274fb8` is a technically verified branch candidate, not a claim of store publication.
+The current source and production build identify as **version 1.0.0**. Goal 8 executable commit `5029d2a924cc14b5175fe1da1f4f9a2fcf274fb8` is the verified redesign baseline; the current candidate adds exact duration entry, a user-owned language preference, a high-density pet atlas, and semantic motion for meaningful state changes. Neither is a claim of store publication.
 
 Choi Yunseong approved the complete Goal 8 Phase A visual contract at exact commit `e7274a1` on 2026-07-11, with no exceptions. Phase B implements that contract across Session, Rules, Review, Preferences, blocked, overlay, onboarding, and completion states while retaining the existing MV3, wellness, privacy, and storage contracts.
 
-Verified on the frozen 2026-07-12 Goal 8 production bundle:
+Verified on the final pre-rename 2026-07-12 production bundle (historical regression evidence):
 
 - `npm run build`: pass, including the two-stage extension/content build and release verifier.
 - `npm run typecheck`: pass.
-- `npm test`: pass, **33 test files / 250 tests**.
-- `assets/content.js`: classic IIFE, **194,791 bytes**, SHA-256 `1e61912aa791d63278fa79a8233ef5118c537e302e0c73d3f2948dc9f515b2df`.
-- `assets/background.js`: **42,956 bytes**, SHA-256 `172ca0d895958575048e022f1ef3051fb76d46b74ff1efe1ba80c731ab6f1d0e`.
-- `assets/popup.js`: **25,240 bytes**, SHA-256 `e191845b3f549fe92007c61d1002b10d233847751616c6bc04b277f566b16390`.
+- `npm test`: pass, **34 Vitest files / 259 application tests plus 6 release-package boundary tests**.
+- `assets/content.js`: classic IIFE, **203,956 bytes**, SHA-256 `123c8ef35b632bb6b1ce590947924ced97673ad85e386824fca53ae33b3b0306`.
+- `assets/background.js`: **42,956 bytes**, SHA-256 `1e5cddc9a4cd79f0444b6927d17f77534b37bffaa7c6d1f59ccb2a098b85dfa2`.
+- `assets/popup.js`: **27,173 bytes**, SHA-256 `50c92044b6deb4b924e21c8d5a6cff20b52378544ffe92d1e2818220c1c77718`.
 - Production output has no source maps, root-relative asset URLs, or unexpected external network URLs; the manifest exposes exactly four allowlisted web resources.
-- English and Korean locale catalogs contain the same **530 message keys**, with placeholder parity and production-reference coverage.
+- English and Korean locale catalogs contain the same **541 message keys**, with placeholder parity and production-reference coverage.
 - Authored production surface CSS is **115 lines**; raw colors are confined to the daisyUI theme declarations.
 - Pretendard Variable and its SIL Open Font License remain packaged locally.
 
-The comprehensive visible Naver Whale 4.38 / Chromium 148 popup/onboarding suite passed **161/161** assertions against the same unchanged background and UI system, including true hard-session completion, `+37 XP`, session-associated first-session/first-hard badges, keyboard access, light/dark representatives, reduced motion, and zero page/request errors. Final review then changed only popup milestone batching; the rebuilt final popup hash passed a separate **32/32** exact headed regression with five associated milestones, truthful deferred count, two keyboard acknowledgement screens, reload persistence, and the standard two-milestone case. Review, Rules at desktop and 390 px, Preferences permission behavior, active-session locking, modal focus restoration, light/dark/reduced-motion representatives, and truthful local metrics passed with zero extension diagnostics. Korean medium/hard/overlay QA passed live `x.com` aliases, the real 30-second gate and five-minute allow, both hard safe exits, pending/weekly bounds, Shadow DOM isolation, keyboard/inert/focus restoration, session ownership, and clean zero-session/zero-DNR teardown. The exact evidence boundary is in [QA.md](QA.md).
+The integrated Focus Dolphin tree has now repeated build, typecheck, **264 application tests**, **9 release-package tests**, **542 / 542 locale parity**, deterministic atlas/icon generation, release verification, dependency and sensitive-data scans, and a deterministic working-tree ZIP rehearsal. Its current archive is 3,715,534 bytes with 31 entries and SHA-256 `9477352d13105d1176c3cf540550b5a0252cbb2422528d92b943820bba1f5048`. A selected-commit rebuild, exact-archive browser QA, fresh screenshots, live repository/dashboard renames, and store submission remain open; full current fingerprints are recorded in [QA.md](QA.md).
 
-The old `release/FocusWhale-1.0.0.zip` and existing store imagery predate Goal 8. They are historical artifacts and must not be submitted or relabeled as this candidate. Publication still requires a clean-checkout rebuild of the selected executable commit, a regenerated and rescanned archive, an extracted-archive critical-flow smoke, refreshed store imagery, product-owner approval of the exact package/listing/disclosures, publisher upload, and store review.
+The pre-rename comprehensive visible Naver Whale 4.38 / Chromium 148 popup/onboarding suite passed **161/161** assertions against its unchanged background and UI system, including true hard-session completion, `+37 XP`, session-associated first-session/first-hard badges, keyboard access, light/dark representatives, reduced motion, and zero page/request errors. Final review then changed only popup milestone batching; that rebuilt popup hash passed a separate **32/32** exact headed regression. Review, Rules, Preferences, active-session locking, Korean medium/hard/overlay flows, accessibility, and clean teardown also passed. These results remain core-regression evidence, not proof of the Focus Dolphin name, art, icons, localized animal copy, or final ZIP. The exact evidence boundary is in [QA.md](QA.md).
+
+The retained motion follow-up was separately exercised in an isolated Whale clone/profile before the newest privacy disclosure, isolated-memory changes, and public-name migration. Semantic onboarding, popup, Options, blocked, and overlay transitions played once; same-state duration, intensity, tab, and locale rerenders did not replay; chart growth painted across successive frames; overlay readiness kept focus stable; and representative reduced-motion states produced zero new Web Animations with the sprite frozen. A fresh browser launch for the renamed build remains a pre-package gate rather than being inferred from that historical FocusWhale run. Exact boundaries and fingerprints are recorded in [QA.md](QA.md).
+
+The old `release/FocusWhale-1.0.0.zip` and existing whale store imagery predate the public-name migration. They are historical artifacts and must not be submitted or relabeled as Focus Dolphin. Publication to Chrome Web Store and Whale Store still requires a clean-checkout rebuild of the selected executable commit, a regenerated and rescanned Focus Dolphin archive, an extracted-archive critical-flow smoke in both browsers, refreshed bilingual dolphin store imagery, product-owner approval of the exact package/listing/disclosures, publisher upload, and independent store review.
 
 Goal 5 opt-in LLM analysis remains intentionally out of scope and is not a v1.0.0 publication blocker.
 
 ## Features
 
 - Goal 8 job-oriented UI: Session in the toolbar popup, Rules and Review in Options, and secondary Preferences.
-- Product-owner-approved dark-first/light-parity visual system with the whale as the only expressive color focus, one dominant action per state, and no copied third-party branding, scores, navigation, or mobile-only claims.
-- Session-first popup with a duration stepper, target summary, explicit intensity choice, radial active timer, immutable target/mode/source facts, two-step hard emergency control, and post-session growth acknowledgement.
+- Product-owner-approved dark-first/light-parity visual system with the dolphin as the only expressive color focus, one dominant action per state, and no copied third-party branding, scores, navigation, or mobile-only claims.
+- Session-first popup with direct 1-240 minute entry, five-minute step controls, target summary, explicit intensity choice, radial active timer, immutable target/mode/source facts, two-step hard emergency control, and post-session growth acknowledgement.
 - Rules as a compact projection of existing schedules and target lists, with focused editors and the same service-worker-owned active-session lock.
-- Locally truthful Review with current-week focus, completed sessions, attempts, temporary access, eight-week recorded focus, attempted domains/categories, whale growth, and timestamp-derived latest badges.
+- Locally truthful Review with current-week focus, completed sessions, attempts, temporary access, eight-week recorded focus, attempted domains/categories, dolphin growth, and timestamp-derived latest badges.
 - Manual and scheduled focus sessions.
 - Install-only, three-step onboarding with a versioned local completion record, skip/setup-only outcomes, an optional first 25-minute session, and an Options replay action.
-- Korean and English UI across onboarding, popup, Options, blocked page, soft overlay, pet stages, badges, growth copy, defaults, errors, and manifest metadata. Unsupported browser locales fall back to English.
+- Korean and English UI across onboarding, popup, Options, blocked page, soft overlay, pet stages, badges, growth copy, defaults, errors, and manifest metadata. Preferences offers Automatic, English, and Korean; unsupported automatic browser locales fall back to English.
 - User-selected `soft`, `medium`, or `hard` intensity; never automatically escalated.
 - Blocklist and allowlist site modes.
 - DNR-based main-frame redirects for medium/hard sessions.
@@ -86,23 +92,25 @@ XP = floor(completed_minutes * intensity_multiplier)
 soft = 1.0, medium = 1.2, hard = 1.5
 ```
 
-Stages begin at `0`, `100`, `600`, `2,000`, and `6,000` XP. Stage 4 is a star-marked adult whale, replacing the earlier clipped crown treatment.
+Stages begin at `0`, `100`, `600`, `2,000`, and `6,000` XP. Stage 4 is a star-marked adult dolphin, replacing the earlier development-art treatment.
 
-The production atlas is [assets/sprites/focuswhale-atlas.png](assets/sprites/focuswhale-atlas.png): **384 x 1,920**, four columns by twenty rows, 96 px frames, eighty validated frames. Rows represent five stages across four moods (`idle`, `happy`, `focus`, `celebrate`). Source, assembly, validation, and asset-license notes are in [assets/sprites/LICENSE.md](assets/sprites/LICENSE.md).
+The production atlas is [assets/sprites/focusdolphin-atlas.png](assets/sprites/focusdolphin-atlas.png): **768 x 3,840**, four columns by twenty rows, 192 px source frames, and eighty validated frames. It renders at 96, 128, or 160 CSS px without enlarging the source raster. Rows represent five stages across four moods (`idle`, `happy`, `focus`, `celebrate`). Source, assembly, validation, and asset-license notes are in [assets/sprites/LICENSE.md](assets/sprites/LICENSE.md). The former `focuswhale-atlas.png` and its v3 evidence remain development-history provenance, not current public art.
 
 Growth settlement is service-worker owned and idempotent. Per-session ledgers and recovery journals prevent duplicate XP, preserve newer synced progress during stale-journal recovery, and resume interrupted writes. See [docs/GAMIFICATION_V2.md](docs/GAMIFICATION_V2.md).
 
 ## Privacy And Data
 
-FocusWhale has no backend, telemetry SDK, advertising SDK, remote AI integration, API keys, or external asset loads. The repository policy is [PRIVACY.md](PRIVACY.md); the release checklist records when its public URL has been verified.
+Focus Dolphin has no backend, telemetry SDK, advertising SDK, remote AI integration, API keys, or external asset loads. The repository policy is [PRIVACY.md](PRIVACY.md); the release checklist records when its intended public URL has been verified.
+
+The first onboarding step presents an always-visible bilingual disclosure before setup. It explains current-address handling, local session/focus/domain-attempt records, locally retained medium-mode intent text, optional 30-day browser-history analysis, browser-sync fields, and that Focus Dolphin does not transfer this data to its developer.
 
 The mandatory manifest permissions are `declarativeNetRequest`, `storage`, and `alarms`. Browser history is an **optional permission** requested only when the user starts recommendation analysis. HTTP(S) host access supports session redirects, already-open-tab handling, and soft overlays.
 
 Storage summary:
 
-- `chrome.storage.sync`: settings, site lists, schedules, pet state. Browser-account sync may transmit these fields through the browser vendor when enabled.
+- `chrome.storage.sync`: UI language preference, settings, site lists, schedules, pet state. Browser-account sync may transmit these fields through the browser vendor when enabled.
 - `chrome.storage.local`: active/past sessions, intent text, daily stats, recommendations, category overrides, temporary allows, emergency usage, growth records, ledgers, acknowledgements, recovery journals, and the versioned onboarding completion timestamp/outcome.
-- Raw history URLs and visit records are processed in memory and are not persisted by FocusWhale. Thirty-day metrics use actual `history.getVisits` timestamps rather than lifetime URL counters. Stored recommendations contain domains and aggregate features, not titles, paths, queries, or visit timestamps.
+- Raw history URLs and visit records are processed in memory and are not persisted by Focus Dolphin. Thirty-day metrics use actual `history.getVisits` timestamps rather than lifetime URL counters. Stored recommendations contain domains and aggregate features, not titles, paths, queries, or visit timestamps.
 
 Retention and deletion:
 
@@ -122,7 +130,9 @@ Production UI uses Tailwind CSS 4, daisyUI 5, and locally bundled Pretendard Var
 
 Goal 8 keeps the compatible `focuswhale` and `focuswhale-dark` theme identifiers while making semantic theme variables authoritative for color, spacing, borders, and shadows. Authored production surface CSS is limited to 115 lines across the shared app/overlay entries and four one-line page imports. Raw colors are confined to the daisyUI theme declarations.
 
-The extension chooses Korean for Korean browser UI language tags and English otherwise. Chrome/Whale `chrome.i18n` messages are preferred when their runtime catalog agrees with the requested UI language; the bundled matching catalog is used when a Whale profile reports a stale/mismatched runtime catalog. Product-authored defaults are translated, while user-authored pet names, list names, domains, schedules, and intent text are preserved verbatim.
+Meaningful surface changes use a shared Web Animations policy with semantic state keys. Popup idle/active/completion changes, Options view/lock changes, onboarding steps, blocked states, and new soft overlays may enter with short opacity/transform motion; same-state rerenders, countdown ticks, locale refreshes, focus restoration, and session mutations do not replay or wait for it. `prefers-reduced-motion` disables the new motion, while the existing sprite renderer freezes to a complete frame.
+
+The `Automatic` language preference chooses Korean for Korean browser UI language tags and English otherwise. Users may explicitly choose English or Korean in Preferences; that presentation-only sync key remains outside session-lock snapshots. Chrome/Whale `chrome.i18n` messages are preferred when their runtime catalog agrees with the requested UI language; the bundled matching catalog is used when a Whale profile reports a stale/mismatched runtime catalog. Product-authored defaults are translated, while user-authored pet names, list names, domains, schedules, and intent text are preserved verbatim.
 
 The files directly under `mockups/` are archived Goal 6 references. The separately versioned [Goal 8 mockups](mockups/goal-8/README.md) are the approved structural contract for the current redesign: Choi Yunseong approved exact commit `e7274a1` on 2026-07-11 for all presented states with no exceptions. Mockup approval still does not substitute for live extension QA or store-publication approval.
 
@@ -156,7 +166,10 @@ npm install
 npm run typecheck
 npm test
 npm run build
+npm run package:release
 ```
+
+`npm run package:release` rebuilds `dist/` and creates a deterministic store ZIP plus SHA-256 and per-file JSON report under ignored `release/`. The packager requires Manifest V3, both locale catalogs, and all bundled license notices; rejects symlinks, source maps, TypeScript, and test artifacts; compares every archived byte with `dist/`; rebuilds the complete ZIP independently; and rejects any whole-archive mismatch or appended data. A generated artifact is not publishable until its source commit, product name, exact browser QA, screenshots, and dashboard declarations clear the remaining release gates.
 
 Load the result:
 
@@ -176,15 +189,16 @@ The live Whale development extension used for final-candidate checks had ID `ojo
 - [docs/GOAL_8_HANDOFF_2026-07-12.md](docs/GOAL_8_HANDOFF_2026-07-12.md): approved redesign boundary, production mapping, exact-current evidence, and release next steps.
 - [docs/NOTION_ISSUE_TRIAGE.md](docs/NOTION_ISSUE_TRIAGE.md): current resolution of the Notion issue list.
 - [docs/TECHNICAL_QA_EVIDENCE_2026-07-11.md](docs/TECHNICAL_QA_EVIDENCE_2026-07-11.md): sanitized exact-build alarm, restart, history-concurrency, and recovery-journal evidence.
+- [docs/LICENSE_AND_IP_AUDIT_2026-07-12.md](docs/LICENSE_AND_IP_AUDIT_2026-07-12.md): source/package license evidence, mascot/icon provenance, corrected name screening, residual-risk limits, and store-policy fit.
 - [store/README.md](store/README.md): selected-store strategy, listing copy, disclosures, reviewer instructions, and owner-only submission steps.
 - [DECISIONS.md](DECISIONS.md): durable product and engineering decisions.
 - [CHANGELOG.md](CHANGELOG.md): v1.0.0 release-candidate changes.
 
 ## Packaging And Publication
 
-The existing `release/FocusWhale-1.0.0.zip` and current store imagery were produced before Goal 8 and are historical artifacts, not the package described by the current branch. Do not upload or relabel that ZIP as the Goal 8 candidate. After the Goal 8 executable commit is selected, rebuild from a clean checkout, regenerate the archive, repeat byte-equality/privacy/dependency scans, refresh the core-flow screenshots, load the extracted archive in a clean ordinary Whale profile, and record the new hash. [GitHub Issues](https://github.com/lovebubbly/FocusWhale/issues) remains the public support/privacy channel, and [the repository privacy policy](https://github.com/lovebubbly/FocusWhale/blob/main/PRIVACY.md) was publicly verified on 2026-07-11.
+The existing `release/FocusWhale-1.0.0.zip` and whale store imagery are historical development artifacts, not a Focus Dolphin package. Do not upload or relabel them. After the renamed executable commit is selected, run the deterministic package command from a clean checkout, repeat privacy/dependency/license scans against its exact report and extracted tree, refresh the core-flow screenshots, load the extracted archive in clean ordinary Whale and Chrome profiles, and record the final hash. The intended support channel is [GitHub Issues](https://github.com/lovebubbly/FocusDolphin/issues), and the intended public [privacy policy](https://github.com/lovebubbly/FocusDolphin/blob/main/PRIVACY.md) must be verified after the GitHub repository rename and immediately before both dashboard submissions. Those remote and dashboard renames remain pending until observed live.
 
-The repository is publicly viewable but **all rights are reserved** under [LICENSE](LICENSE); no open-source license is granted for FocusWhale's original work. Pretendard remains under SIL OFL; Tailwind CSS, daisyUI, and the Vite core runtime retain their MIT notices in the shipped `licenses/` directory; generated sprite provenance is recorded separately.
+The repository is publicly viewable but **all rights are reserved** under [LICENSE](LICENSE); no open-source license is granted for Focus Dolphin's original work. Pretendard remains under SIL OFL; Tailwind CSS, daisyUI, and the Vite core runtime retain their MIT notices in the shipped `licenses/` directory. The mascot atlas, icons, and promotional tile have recorded source hashes and deterministic generation paths. This repository evidence is a conditional distribution pass, not legal advice or trademark clearance.
 
 ## Documentation Provenance
 

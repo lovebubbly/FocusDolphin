@@ -61,7 +61,7 @@ The remaining question is subjective: whether the owner considers the compositio
 
 **Resolution: source defect removed.**
 
-The previous crown treatment was clipped/inconsistent and is no longer the stage-4 contract. The regenerated stage-4 adult uses attached star markings. The deterministic assembler produced a 384 x 1,920 atlas with 80 validated frames and safe geometry; `atlas-report.json` records metrics and hash evidence.
+The previous crown treatment was clipped/inconsistent and is no longer the stage-4 contract. The regenerated stage-4 adult uses attached star markings. The deterministic assembler now produces a 768 x 3,840, 2x-density atlas with 80 validated frames and safe geometry; `atlas-report.json` records metrics and hash evidence.
 
 The exact-final installed-extension matrix inspected every stage-4 mood; the star adult remained centered and unclipped, and reduced motion disabled animation.
 
