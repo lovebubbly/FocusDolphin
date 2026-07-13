@@ -132,7 +132,7 @@ Historical package evidence: the current tracked/release-area archive belongs to
 - [x] Replace every historical FocusWhale/whale composite in the submission directory. **Current files and hashes are recorded in `store-assets/README.md`.**
 - [x] Confirm the packaged/store 128 px Focus Dolphin icons are byte-identical; regenerate the icon and copy-free promotional tile from the recorded mature-dolphin atlas frame. **SHA-256 `f2aad78150573693d4236377b830017315890d2c8f59cc85fabb2d0cc08e4714`; deterministic generator and provenance recorded.**
 - [x] Rename the GitHub repository/remote to `lovebubbly/FocusDolphin`, then verify the intended public Issues and privacy-policy URLs. **Repository, Issues, and `PRIVACY.md` are live on 2026-07-13.**
-- [ ] Update the Chrome Web Store and Whale Store dashboard names independently; do not infer either external rename from source changes.
+- [x] Update the Chrome Web Store and Whale Store dashboard names independently; do not infer either external rename from source changes. **Both uploaded 1.0.0 packages show `Focus Dolphin — Website Blocker`; draft IDs are recorded in `docs/STORE_SUBMISSION_EVIDENCE_2026-07-13.md`.**
 - [ ] Product owner confirms that the public support channel will be monitored.
 - [x] Prepare the privacy URL and Limited Use statement. **Reachability must be re-verified; dashboard entry remains a separate gate**
 - [x] Update reviewer instructions for first-install onboarding, language behavior, blocklist/medium/hard, and optional-history testing. **`store/REVIEWER_INSTRUCTIONS.md`**
@@ -156,4 +156,4 @@ Historical package evidence: the current tracked/release-area archive belongs to
 
 ## Current Decision
 
-**The Focus Dolphin 1.0.0 executable, exact archive, browser QA, public repository URLs, and current listing assets are technically ready for submission.** Remaining gates are live Chrome/Whale dashboard entry, support-monitoring responsibility, two submissions, independent reviews, and publication URLs. Historical FocusWhale archives and whale screenshots are not part of the submission set.
+**The Focus Dolphin 1.0.0 executable, exact archive, browser QA, public repository URLs, and current listing assets are technically ready for submission.** Independent Chrome and Whale draft items exist and contain the exact archive; their IDs and current state are recorded in `docs/STORE_SUBMISSION_EVIDENCE_2026-07-13.md`. Remaining gates are the two confirmed cloud-asset corrections, saved privacy/listing fields, support-monitoring responsibility, two review requests, independent reviews, and publication URLs. Historical FocusWhale archives and whale screenshots are not part of the submission set.
