@@ -1,6 +1,6 @@
 # Focus Dolphin QA Evidence And Checklist
 
-Last refreshed: **2026-07-12 KST** by **OpenAI Codex (GPT-5)**, for requester and product owner **Choi Yunseong (최윤성)**.
+Last refreshed: **2026-07-13 KST** by **OpenAI Codex (GPT-5)**, for requester and product owner **Choi Yunseong (최윤성)**.
 
 Frozen Goal 8 baseline evidence boundary: **Phase B executable commit `5029d2a924cc14b5175fe1da1f4f9a2fcf274fb8` on `codex/goal-8-web-product-polish`, exercised against a rebuilt `dist/` whose 42,956-byte background worker has SHA-256 `172ca0d895958575048e022f1ef3051fb76d46b74ff1efe1ba80c731ab6f1d0e` and whose final 25,240-byte popup has SHA-256 `e191845b3f549fe92007c61d1002b10d233847751616c6bc04b277f566b16390`**. This and every hash below that predates the rename belong to the unreleased `FocusWhale` development codename. Choi Yunseong approved the complete Phase A mockup contract at commit `e7274a1` on 2026-07-11 with no exceptions. That historical whale-design approval is not a substitute for Focus Dolphin executable, dolphin-art, package, or publication evidence.
 
@@ -14,16 +14,16 @@ The privacy-and-provenance candidate recorded below was verified statically and 
 - A fresh isolated Whale/Chrome disclosure-layout run was attempted but did not start the pre-rename FocusWhale build: headed browser launch was rejected by the environment's exhausted GUI approval quota, while all sandboxed headless Chromium binaries terminated before DevTools connection (`MachPortRendezvousServer ... Permission denied (1100)`). This is neither a product pass nor a product failure.
 - The syntax-checked rerun harness at `/tmp/focuswhale-bilingual-disclosure-rehearsal.cjs` is local-only evidence and is not part of the repository. It must be rerun after browser-launch approval is available, in both languages at 1280 x 800 and 720 x 820, before packaging.
 
-## 2026-07-12 Focus Dolphin Integrated Automated Candidate
+## 2026-07-13 Focus Dolphin Exact Release Candidate
 
-This is exact evidence for the integrated working tree after the public-name, bilingual-copy, mascot, privacy, duration, language, and motion changes. It is not yet the selected executable commit or a browser pass.
+Commit `09d7e26` is the selected Focus Dolphin executable candidate. A detached clean-checkout rebuild reproduced the reviewed archive byte-for-byte. The archive was extracted and exercised in Chrome for Testing and an ordinary installed Naver Whale process; the reports below refer to that exact extracted tree, not a development-path substitute.
 
 - Automated gates pass: `npm run typecheck`, `npm run build`, **34 Vitest files / 264 application tests**, and **9 release-package boundary tests**.
 - Locale catalogs have exact key and placeholder parity at **542 English / 542 Korean** entries. Both expose `Focus Dolphin — Website Blocker` as the manifest/store name and `Focus Dolphin` as the compact brand. The catalog regression rejects `FocusWhale`, standalone English `whale`, and standalone Korean `고래` in live product copy while preserving user-authored names.
 - Current bundle fingerprints: manifest **1,381 bytes** / `2d19f370e02fc7adb83e26c9fa2cc04502413eef132de983dbf5a8952d0fac9a`; background **42,962 bytes** / `38859b70d94ddb37be951f2081bf8d75906b9b1e85b7d7e2d28e25b76dd06af6`; popup **27,175 bytes** / `6e51bd056c4ea5dfe0274f3edff50c088e7deb7710d0f3b16c99defa5328e567`; content **204,679 bytes** / `877062f6880153e6e74daceec4231a64e9339dc4b4fcc419c980b062d18812db`; Options **52,003 bytes** / `e8679d17ba29066ad467f6192ed9880ed56a3c1ba908c3f7d2cd5e693c9af2d5`; onboarding **14,757 bytes** / `17c04bf1f8e2ba3fe18b5dc422de77e05cdd7b15f7dbee1b334a3d459c8dbda2`; blocked **16,819 bytes** / `d8fb80445ac10b6ef986e32f9e063cfa30bc2762ced5809956c8b2fa8ff93cec`.
 - The dolphin atlas is **768 x 3,840 RGBA**, eighty nonempty validated frames, and SHA-256 `b7a7a53b1b3b95e108da6b7e8970a4dd5ab1c75fc3b4ed6b598025e5107379e5`. Deterministic reassembly is byte-identical; all source/output metrics pass the 12 px safe margin. Light/dark contact-sheet review rejected angry focus and whale-like celebration drafts before selecting the final art.
 - The packaged and store 128 px icons are byte-identical at SHA-256 `f2aad78150573693d4236377b830017315890d2c8f59cc85fabb2d0cc08e4714`; the 16/32/48/128 matrix keeps the rostrum, dorsal fin, and flukes visible.
-- The deterministic working-tree rehearsal archive is `focus-dolphin-1.0.0.zip`: **3,715,534 bytes**, **31 entries**, SHA-256 `9477352d13105d1176c3cf540550b5a0252cbb2422528d92b943820bba1f5048`. `--verify-only` proves sorted, fixed-metadata, byte-equal `dist/` contents with manifest at the root. A selected-commit rebuild must reproduce this before it becomes release evidence.
+- The exact release archive is `release/focus-dolphin-1.0.0.zip`: **3,715,534 bytes**, **31 entries**, SHA-256 `9477352d13105d1176c3cf540550b5a0252cbb2422528d92b943820bba1f5048`. `--verify-only` proves sorted, fixed-metadata, byte-equal `dist/` contents with manifest at the root.
 - The archive contains the exact four Dolphin web-accessible resources, both locale catalogs, local font, four icons, and both required license notices. It contains no source maps, tests, TypeScript, source sheets, browser profiles, QA output, external network URLs, or stale live whale copy.
 - Repository-sensitive-data scanning found no private key, provider/API token, personal email, machine path, credential file, or tracked browser database. The only password match is the deliberate `parsed.password = ""` URL-sanitization line. Ignored local browser profiles are not tracked and do not enter `dist/` or the archive.
 - Live registry audit reports **0 total npm vulnerabilities** across 146 dependencies. Direct dependency licenses resolve to MIT, SIL OFL 1.1, or Apache 2.0; release-relevant notices are packaged.
@@ -31,10 +31,18 @@ This is exact evidence for the integrated working tree after the public-name, bi
 ## Focus Dolphin Candidate Evidence Required
 
 - [x] Record fresh build, typecheck, application-test, package-test, locale-parity, and exact-bundle hashes after the public-name and mascot migration are integrated.
-- [ ] Load the extracted `focus-dolphin-1.0.0.zip` in isolated ordinary Whale and Chrome profiles.
-- [ ] Exercise onboarding, popup idle/active/completion, Options Review/Rules/Preferences, medium/hard blocked states, and soft overlay in English and Korean.
-- [x] Confirm dolphin atlas resolution, all five stages x four moods, icon consistency, and no stale whale copy in current public surfaces through deterministic/static gates. **Browser reduced-motion, keyboard/focus, and extension-diagnostic checks remain pending below.**
-- [ ] Capture fresh store imagery from that exact archive. Historical FocusWhale/whale screenshots must not be relabeled or submitted.
+- [x] Load the extracted `focus-dolphin-1.0.0.zip` in isolated ordinary Whale and Chrome for Testing profiles.
+- [x] Exercise onboarding, popup idle/active/completion, active-session Options lock, real `x.com` medium/hard blocked states, soft overlay, exact 95-minute selection, and final cleanup. English/Korean onboarding and popup layout also pass at 1280 x 800 and 720 x 820.
+- [x] Confirm dolphin atlas resolution, all five stages x four moods, icon consistency, reduced motion, keyboard/focus behavior, zero serious extension diagnostics, and no stale whale copy in current public surfaces.
+- [x] Capture and inspect five current 1280 x 800 store images from the exact archive. Historical FocusWhale/whale screenshots were removed from the submission set.
+
+### Exact-package browser reports
+
+- **Chrome for Testing comprehensive:** PASS, 13 end-to-end steps, `/tmp/focus-dolphin-exact-final-20260713-1130-v3/chrome-for-testing/chrome-for-testing-exact/exact-package-report.json`.
+- **Ordinary Naver Whale 4.38 / Chromium 148:** PASS in 52.6 seconds, `/tmp/focus-dolphin-raw-cdp-qa-2026-07-13T02-57-10-758Z/release-qa-report.json`.
+- **Bilingual layout:** PASS in Whale and Chrome for Testing, `/tmp/focus-dolphin-bilingual-final-20260713-1042-v2/{whale/whale,chrome-for-testing/chrome-for-testing}/bilingual-report.json`.
+- The ordinary-Whale run started an exact 95-minute medium session through the popup, verified Options mutation rejection, redirected live `x.com`, completed the real 30-second intention gate, installed and removed temporary access, settled **95 minutes / +114 XP / Dolphin calf / First Ripple** once, verified both hard-mode confirmation surfaces without scheduling an emergency, exercised dark and reduced-motion soft overlays, and ended with no active session, pending emergency, temporary allow, DNR rule, or alarm.
+- All twelve recorded ordinary-Whale page/worker diagnostic buckets were empty. No developer API, analytics, font, image, stylesheet, or other external extension request was observed.
 
 ## 2026-07-12 Retained Motion Follow-Up
 
@@ -79,7 +87,7 @@ Do not turn an automated, prior-build live, or earlier-baseline result into an e
 | Font license | PASS | packaged Pretendard OFL matches source license |
 | Localization package | PASS | `default_locale: en`; localized manifest fields; 542 English and 542 Korean catalog entries with placeholder parity, live-brand guards, and production-reference coverage |
 | CSS/theme acceptance | PASS | 115 authored production surface lines; raw colors only in daisyUI theme declarations; local font/assets only |
-| Focus Dolphin release archive | WORKING-TREE PASS | 3,715,534 bytes / 31 entries / SHA-256 `9477352d13105d1176c3cf540550b5a0252cbb2422528d92b943820bba1f5048`; selected-commit rebuild and browser QA pending |
+| Focus Dolphin release archive | EXACT CANDIDATE PASS | Commit `09d7e26`; 3,715,534 bytes / 31 entries / SHA-256 `9477352d13105d1176c3cf540550b5a0252cbb2422528d92b943820bba1f5048`; clean rebuild and exact-package Chrome/Whale QA passed |
 
 ## Goal 8 Current Headed Whale Evidence
 
@@ -193,8 +201,8 @@ The historical v1 exact-final matrix was green in Whale, with soft/medium cross-
 
 Still pending before publication:
 
-- Product-owner visual/reward judgment and final manual sign-off.
-- Public privacy-URL verification, support-monitoring confirmation, owner approval, publisher-dashboard entry, store review, and publication remain tracked in `RELEASE_CHECKLIST.md`.
+- Chrome Web Store and Whale Store dashboard entry, independent review, approval, and public listing URLs remain tracked in `RELEASE_CHECKLIST.md`.
+- Public GitHub privacy and Issues URLs are live. Ongoing support monitoring remains a product-owner operational responsibility after launch.
 
 ## Earlier Baseline Evidence
 
@@ -285,9 +293,9 @@ An earlier 2026-07-06 Whale run also exercised a one-minute medium session, YouT
 
 ## Sign-Off
 
-Current Goal 7 technical sign-off: **not recorded**. Normal-browser session start and the active blocked/overlay/completion localization sweep remain pending.
+Current Focus Dolphin exact-package technical sign-off: **PASS**. Commit `09d7e26`, clean-rebuilt ZIP SHA-256 `9477352d13105d1176c3cf540550b5a0252cbb2422528d92b943820bba1f5048`, Chrome for Testing comprehensive QA, ordinary-Whale comprehensive QA, and bilingual layout QA are recorded above.
 
-Product-owner approval: **not recorded**.
+Product-owner release direction: **recorded on 2026-07-13** through the active release goal and explicit instruction to proceed. This does not misstate store review as complete.
 
 Store/publication approval: **not recorded**.
 

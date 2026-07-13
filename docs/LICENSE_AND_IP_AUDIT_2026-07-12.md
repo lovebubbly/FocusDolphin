@@ -1,6 +1,6 @@
 # Focus Dolphin License And IP Release Audit
 
-Status: **conditional pass; public submission blocked on exact renamed-package and external-record review**
+Status: **conditional package/IP pass; exact package, screenshots, and public repository records verified; store review remains external**
 Prepared: **2026-07-12 KST**
 Prepared by: **OpenAI Codex (GPT-5)** for product owner **Choi Yunseong (최윤성)**
 
@@ -10,7 +10,7 @@ This is a repository and public-source due-diligence record, not legal advice or
 
 The code, bundled font, CSS tooling, generated mascot, and derived icon/promo assets have a defensible recorded distribution path. The extension ZIP can remain proprietary while carrying the bundled third-party licenses.
 
-The product owner selected **Focus Dolphin — Website Blocker** before the first public store release. `FocusWhale` was the unreleased development codename and is not the intended public brand. That pre-release rename removes the known exact-name conflict with the active Focuswhale productivity business, but the limited Focus Dolphin knock-out search below is not legal clearance. After the Apple metadata correction was explained, Choi Yunseong directed the team to proceed on 2026-07-12, accepting the documented residual knock-out-screen risk. Live GitHub/dashboard renames and review of the exact renamed package and screenshots remain required.
+The product owner selected **Focus Dolphin — Website Blocker** before the first public store release. `FocusWhale` was the unreleased development codename and is not the intended public brand. That pre-release rename removes the known exact-name conflict with the active Focuswhale productivity business, but the limited Focus Dolphin knock-out search below is not legal clearance. After the Apple metadata correction was explained, Choi Yunseong directed the team to proceed on 2026-07-12, accepting the documented residual knock-out-screen risk. The exact package, current screenshots, public GitHub repository, privacy policy, and Issues URL were verified by 2026-07-13; store dashboard records and independent review remain external gates.
 
 ## Original Work And Repository License
 
@@ -30,7 +30,7 @@ The product owner selected **Focus Dolphin — Website Blocker** before the firs
 
 No runtime npm package, external font, CDN, analytics SDK, advertising SDK, remote script, or remote image is loaded by the production bundle. The CDN references under archived static `mockups/` do not enter `dist/` or the extension ZIP.
 
-The clean release archive must still contain both license files under `licenses/`, and the extracted-archive scan must confirm their byte identity before upload.
+The exact clean release archive contains both license files under `licenses/`; extracted-archive verification confirmed their expected bytes before upload.
 
 ## Mascot, Icons, And Promotional Art
 
@@ -44,7 +44,7 @@ The clean release archive must still contain both license files under `licenses/
 
 The current tracked product, public listing copy, and store assets contain no named third-party design brand, logo, screenshot, score, navigation, slogan, or copied media. The durable design decision in `DECISIONS.md` limits external references to generic information hierarchy and explicitly rejects copied branding, imagery, copy, permissions, and platform-specific semantics.
 
-Visual similarity cannot be cleared by a text search alone. Final screenshots must be reviewed for overall trade-dress confusion before upload, but the present Focus Dolphin mascot, browser-specific flows, local-first privacy model, copy, and information architecture are materially project-specific.
+Visual similarity cannot be cleared by a text search alone. The five final exact-package screenshots were reviewed at 1280 x 800 and contain only project-specific Focus Dolphin UI, mascot, local-first privacy copy, and browser-extension flows. This visual review is still not legal trade-dress clearance.
 
 ## Store Policy Fit
 
@@ -81,7 +81,7 @@ The product owner proposed **Focus Dolphin** because it communicates the categor
 
 The corrected screen therefore leaves **Focus Dolphin** as a reasonable conditional-go candidate: no exact collision surfaced in the official USPTO queries or the indexed app/extension stores checked, and the exact `.com` appeared unregistered and unresolved at the time of checking. It is still not legal clearance. WIPO, EUIPO/TMview, KIPRIS/KIPO, broader confusing-similarity searches, and common-law use remain inconclusive and should be completed before asserting exclusivity.
 
-The selected name required a coherent dolphin mascot/copy migration while preserving legacy storage keys, alarm namespaces, XP thresholds, badge IDs, and other installed-state contracts. The current v4 atlas and public copy now implement that identity; the exact integrated package and fresh screenshots still require verification.
+The selected name required a coherent dolphin mascot/copy migration while preserving legacy storage keys, alarm namespaces, XP thresholds, badge IDs, and other installed-state contracts. The current v4 atlas and public copy implement that identity; the exact integrated package and five fresh screenshots are verified.
 
 ### Straightforward Ocean-Compatible Candidates
 
@@ -109,10 +109,10 @@ Under the owner's explicit “straightforward title” criterion, **Focus Dolphi
 - [x] Replace current runtime mascot art and public animal-specific copy with a coherent dolphin identity while retaining compatibility identifiers and historical evidence labels.
 - [x] Record product-owner acceptance of the documented residual Focus Dolphin knock-out-screen risk. **Accepted by Choi Yunseong on 2026-07-12 after the Apple metadata correction; this is not legal clearance.**
 - [ ] Complete broader international, common-law, and confusing-similarity review before asserting exclusivity; professional review remains recommended.
-- [ ] Rename and verify the intended `lovebubbly/FocusDolphin` GitHub repository/URLs and both independent store dashboard records.
-- [ ] Inspect the exact final Focus Dolphin ZIP and screenshots after integration.
-- [ ] Record the final owner decision and evidence in `RELEASE_CHECKLIST.md` before either store submission.
+- [x] Rename and verify the intended `lovebubbly/FocusDolphin` GitHub repository, privacy policy, and Issues URLs. **Verified live 2026-07-13; independent store dashboard records remain pending.**
+- [x] Inspect the exact final Focus Dolphin ZIP and screenshots after integration. **ZIP SHA-256 `9477352d13105d1176c3cf540550b5a0252cbb2422528d92b943820bba1f5048`; five current screenshots and hashes are recorded in `store-assets/README.md`.**
+- [x] Record the owner release direction and technical evidence in `RELEASE_CHECKLIST.md` before store submission.
 
 ## Recorded Decision
 
-Choi Yunseong selected **Focus Dolphin — Website Blocker** and accepted the documented conditional-go risk on 2026-07-12 after correction of the irrelevant Apple-listing evidence. Do not publish under `FocusWhale`, and do not relabel historical whale archives or screenshots. Preserve development-only compatibility identifiers where migration would reset installed state or invalidate evidence. Complete the remaining repository, dashboard, exact-package, and screenshot gates before either store submission.
+Choi Yunseong selected **Focus Dolphin — Website Blocker** and accepted the documented conditional-go risk on 2026-07-12 after correction of the irrelevant Apple-listing evidence, then authorized release execution on 2026-07-13. Do not publish under `FocusWhale`, and do not relabel historical whale archives or screenshots. Preserve development-only compatibility identifiers where migration would reset installed state or invalidate evidence. The package, screenshot, and repository gates are complete; dashboard review and publication remain independent external records.

@@ -2,7 +2,7 @@
 
 > **Provenance and scope**
 >
-> - Source issue page: `FocusWhale 문제점` (`396e729950038016a240f746102a6982`)
+> - Source issue page: `FocusWhale 문제점` (private workspace identifier omitted)
 > - Product owner: **Choi Yunseong (최윤성)**
 > - Prepared by: **OpenAI Codex, GPT-5 coding agent**
 > - Original triage: **2026-07-09 21:14:34 KST**

@@ -1,8 +1,8 @@
 # Focus Dolphin Smoke Test
 
-Documentation refresh: **OpenAI Codex (GPT-5)** for product owner **Choi Yunseong (최윤성)**, **2026-07-12 KST**.
+Documentation refresh: **OpenAI Codex (GPT-5)** for product owner **Choi Yunseong (최윤성)**, **2026-07-13 KST**.
 
-Use a dedicated Naver Whale or Chromium profile with the freshly built `dist/` loaded unpacked. Do not reuse stale build output.
+Use the extracted, checksum-verified release ZIP in a dedicated Naver Whale or Chromium profile. Loading `dist/` remains useful during development, but it is not release-artifact evidence.
 
 This checklist targets **Focus Dolphin — Website Blocker** after its pre-release rename from the unreleased `FocusWhale` development codename. Phase A commit `e7274a1` was approved by Choi Yunseong on 2026-07-11 for every presented state, with no exceptions, but that approval predates the dolphin identity. It remains structural history and does not replace renamed executable, package, visual, or publication verification.
 
@@ -16,7 +16,14 @@ npm run build
 
 Historical expected result for the frozen pre-rename Goal 8 candidate: 33 test files / 250 tests; 42,956-byte `assets/background.js` with SHA-256 `172ca0d895958575048e022f1ef3051fb76d46b74ff1efe1ba80c731ab6f1d0e`; 25,240-byte `assets/popup.js` with SHA-256 `e191845b3f549fe92007c61d1002b10d233847751616c6bc04b277f566b16390`; classic `assets/content.js` at 194,791 bytes with SHA-256 `1e61912aa791d63278fa79a8233ef5118c537e302e0c73d3f2948dc9f515b2df`; 11 verified manifest targets; exact four-resource WAR allowlist; no source maps, root-relative asset URLs, or unexpected external URLs; packaged Pretendard license; onboarding page; 530-key English/Korean catalogs; 115 authored production surface CSS lines; and raw colors only in theme declarations. Record fresh counts and hashes for the integrated Focus Dolphin build rather than copying these values.
 
-Current release artifact boundary: every existing `FocusWhale` ZIP is a historical development artifact. Do not submit, relabel, or use one as evidence for Focus Dolphin. After selecting the executable commit, rebuild in a clean checkout, generate `release/focus-dolphin-1.0.0.zip`, rescan and compare it byte-for-byte, and repeat the critical flows from that extracted archive.
+Current release artifact boundary: commit `09d7e26`, `release/focus-dolphin-1.0.0.zip`, **3,715,534 bytes / 31 entries / SHA-256 `9477352d13105d1176c3cf540550b5a0252cbb2422528d92b943820bba1f5048`**. The clean-checkout rebuild is byte-identical. Historical FocusWhale archives remain development evidence only.
+
+## 2026-07-13 Exact-package result
+
+- Chrome for Testing comprehensive suite: **PASS**, 13 end-to-end steps, including exact duration, Options lock, real `x.com` DNR/friction, growth settlement, hard confirmation, overlay, diagnostics, and cleanup.
+- Ordinary Naver Whale 4.38 / Chromium 148 direct-CDP suite: **PASS** in 52.6 seconds against the same extracted tree and ZIP hash.
+- English/Korean onboarding and popup layout: **PASS** in Whale and Chrome for Testing at 1280 x 800 and 720 x 820 with no overflow, undersized controls, missing atlas, or serious diagnostics.
+- Evidence paths are recorded in `QA.md`. The ordinary-Whale suite ended with no active session, pending emergency, temporary allow, DNR rule, or alarm.
 
 ## Goal 8 Pre-Rename Exact-Build Matrix (Historical)
 
@@ -88,7 +95,7 @@ Inspect document language, visible copy, product-owned default names, pet sprite
 
 ### Known Harness Boundary
 
-Playwright-launched Whale stalls at `chrome.alarms.create` during session start and consumes roughly 97-100% CPU. The same stall reproduces from pre-Goal-7 commit `acb45b6`, so record it as a harness limitation/pre-existing baseline behavior, not a Goal 7 regression. It is also not a current normal-browser pass. Complete the active popup, blocked, overlay, and completion rows manually in an ordinary visible Whale profile.
+Playwright-launched Whale stalls at `chrome.alarms.create` during session start and consumes roughly 97-100% CPU. The same stall reproduces from pre-Goal-7 commit `acb45b6`, so it remains a harness limitation rather than an application regression. Direct raw CDP against an ordinary installed Whale process is the supported release path; that path now passes active popup, blocked, overlay, completion, and cleanup against the exact Focus Dolphin ZIP.
 
 Do not record a Google Chrome Goal 7 smoke pass from the attempted run: browser URL policy blocked extension pages before the extension could be exercised.
 
@@ -240,7 +247,7 @@ Headless and headed checks used isolated disposable profiles. Naver Whale 4.38 /
 Remaining evidence boundary:
 
 - Every technical row in the historical v1.0.0 matrix was checked at that time. The history-latency and worker-interruption rows are explicitly instrumented evidence rather than unmodified user-flow evidence.
-- Consumer Google Chrome 148 rejected command-line unpacked-extension loading before the historical FocusWhale build ran; Chrome for Testing remains the supported disposable-profile cross-check channel. Repeat the cross-check for the extracted Focus Dolphin archive.
-- Goal 7 still requires the normal-browser active-session localization matrix, a live zero-network trace, refreshed archive proof, product-owner reward/visual judgment, public privacy/store metadata review, and publication sign-off.
+- Consumer Google Chrome 148 rejected command-line unpacked-extension loading before the historical FocusWhale build ran; Chrome for Testing remains the supported disposable-profile cross-check channel and has passed the extracted Focus Dolphin archive.
+- Exact-package normal-Whale active-session proof, zero-external-request diagnostics, archive proof, public privacy URL, and listing-image review are complete. Dashboard submission, store review, and publication remain external gates.
 
 Track owner/publication work in [QA.md](QA.md) and [RELEASE_CHECKLIST.md](RELEASE_CHECKLIST.md). Do not infer approval or publication from technical green checks.

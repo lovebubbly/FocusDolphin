@@ -1,6 +1,6 @@
 # Store Listing Copy
 
-Prepared by **OpenAI Codex (GPT-5)** for product owner **Choi Yunseong (최윤성)** and refreshed on **2026-07-12 KST**.
+Prepared by **OpenAI Codex (GPT-5)** for product owner **Choi Yunseong (최윤성)** and refreshed on **2026-07-13 KST**.
 
 ## Submission Fields
 
@@ -95,4 +95,4 @@ Support URL: <https://github.com/lovebubbly/FocusDolphin/issues>
 
 Privacy URL: <https://github.com/lovebubbly/FocusDolphin/blob/main/PRIVACY.md>
 
-The URLs above are the intended canonical values. Do not paste them into either store dashboard until the GitHub repository rename is complete and both URLs have been verified live.
+The URLs above are the canonical values. The repository, privacy policy, and Issues endpoint were verified live on 2026-07-13; recheck them immediately before each final dashboard submission.

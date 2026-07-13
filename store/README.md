@@ -1,8 +1,8 @@
 # Focus Dolphin Store Submission Pack
 
-Prepared by **OpenAI Codex (GPT-5)** for product owner **Choi Yunseong (최윤성)** and refreshed on **2026-07-12 KST**.
+Prepared by **OpenAI Codex (GPT-5)** for product owner **Choi Yunseong (최윤성)** and refreshed on **2026-07-13 KST**.
 
-This directory contains paste-ready metadata for **Focus Dolphin — Website Blocker** 1.0.0. It does not enter the extension ZIP. Every existing `FocusWhale` ZIP and whale screenshot is a historical development artifact and must not be uploaded or relabeled. All listing screenshots must be replaced with exact-package Focus Dolphin captures before submission.
+This directory contains paste-ready metadata for **Focus Dolphin — Website Blocker** 1.0.0. It does not enter the extension ZIP. Historical `FocusWhale` ZIPs and whale screenshots must not be uploaded or relabeled. The current `store-assets/` submission set contains only exact-package Focus Dolphin captures.
 
 ## Selected 1.0 Path
 
@@ -18,7 +18,7 @@ Whale and Chrome submissions are independent: each receives a separate item ID, 
 - `PERMISSIONS_AND_PRIVACY.md`: dashboard declarations and permission justifications.
 - `REVIEWER_INSTRUCTIONS.md`: repeatable bilingual reviewer path with no account or credentials.
 - `RELEASE_NOTES_1.0.0.md`: first-release notes.
-- `../store-assets/`: screenshots and promotional images outside the extension package; the present screenshots are prior-build collateral and are not uploadable evidence for the final candidate.
+- `../store-assets/`: five current screenshots, icon, and promotional tile outside the extension package; source reports and checksums are recorded in its README.
 
 ## Official Requirements Checked
 
@@ -30,12 +30,12 @@ Whale currently accepts MV3 ZIP submissions and requires a 128 x 128 icon plus o
 
 1. Record owner acceptance of the residual Focus Dolphin naming risk after the documented knock-out screen; this repository audit is not legal advice or full clearance.
 2. Review both Korean and English listing copy, privacy disclosures, localized screenshots, and the license choice.
-3. Rename the GitHub repository/remote to `lovebubbly/FocusDolphin`, verify its Issues and privacy-policy URLs live, and confirm that Issues will be monitored without asking users to post private browsing details.
+3. Confirm that the live `lovebubbly/FocusDolphin` Issues channel will be monitored without asking users to post private browsing details. The repository, Issues, and privacy-policy URLs were verified on 2026-07-13.
 4. Update the Chrome and Whale dashboard product names independently, then recheck the exact public privacy-policy URL at submission time.
-5. From the selected clean commit, run all gates and `npm run package:release`; retain its ZIP, checksum, and per-file report.
-6. Confirm the ZIP contains Pretendard's SIL OFL plus the Tailwind CSS, daisyUI, and Vite core MIT notices under `licenses/`.
-7. Verify onboarding, language selection, and core flows in Korean and English in both Chrome and Whale against that exact package.
-8. Regenerate or approve screenshots that match the exact localized package.
+5. Use the selected exact ZIP, SHA-256 `9477352d13105d1176c3cf540550b5a0252cbb2422528d92b943820bba1f5048`, and its retained checksum/per-file report.
+6. The ZIP already contains Pretendard's SIL OFL plus the Tailwind CSS, daisyUI, and Vite core MIT notices under `licenses/`; recheck after any future rebuild.
+7. Exact-package onboarding, language selection, and critical Chrome/Whale flows pass; repeat only if the uploaded ZIP changes.
+8. Upload only the checksum-recorded current images from `store-assets/`.
 9. Complete Chrome publisher setup and Whale developer registration.
 10. Upload the checksum-verified ZIP and matching listing assets to both dashboards.
 11. Request both reviews, then record each store item ID, submission date, reviewer feedback, approval date, and public URL in `RELEASE_CHECKLIST.md`.

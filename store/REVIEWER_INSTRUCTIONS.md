@@ -1,6 +1,6 @@
 # Reviewer Instructions
 
-Prepared by **OpenAI Codex (GPT-5)** for product owner **Choi Yunseong (최윤성)** and refreshed on **2026-07-12 KST**.
+Prepared by **OpenAI Codex (GPT-5)** for product owner **Choi Yunseong (최윤성)** and refreshed on **2026-07-13 KST**.
 
 No login, subscription, reviewer credential, developer server, or external service is required. Version 1.0.0 supports Korean and English. Automatic follows the browser locale and falls back to English; reviewers may explicitly select English or Korean in Preferences.
 
@@ -53,4 +53,4 @@ The onboarding tab opens automatically only after installation, not after ordina
 
 ## Localization Check
 
-In `Settings` / `설정` > `Preferences` / `환경설정`, select English and repeat the popup idle state, Options navigation, and blocked-page heading; then select Korean and repeat them. Restore Automatic when finished. Changing this presentation preference during an active session must not reset the countdown or unlock Rules. Unsupported browser locales use English while Automatic is selected. This document does not claim that those exact-package checks have passed until the final submission artifact is regenerated and recorded in the release checklist.
+In `Settings` / `설정` > `Preferences` / `환경설정`, select English and repeat the popup idle state, Options navigation, and blocked-page heading; then select Korean and repeat them. Restore Automatic when finished. Changing this presentation preference during an active session must not reset the countdown or unlock Rules. Unsupported browser locales use English while Automatic is selected. These exact-package language/layout checks passed in Whale and Chrome for Testing on 2026-07-13; reviewers may repeat them without special credentials.

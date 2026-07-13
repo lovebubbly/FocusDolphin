@@ -4,7 +4,7 @@ Status: canonical implementation handoff
 Audit date: 2026-07-10 KST  
 Source repository: this FocusWhale repository  
 Target repository: the sibling SNSLOCK repository  
-Target Codex task: 019e2fa5-85a3-7680-8d0f-4cfe51a2ea13
+Target Codex task: private task reference intentionally omitted from this public document
 
 ## Bottom line
 
@@ -575,7 +575,7 @@ At minimum, add tests for:
 
 ## Copy-paste directive for the SNSLOCK task
 
-Use this as the next prompt in task 019e2fa5-85a3-7680-8d0f-4cfe51a2ea13:
+Use this as the next prompt in the SNSLOCK task:
 
 > Treat `docs/SNSLOCK_CORE_CONCEPT_PORT_PLAN.md` in the FocusWhale repository as the canonical migration contract. Do not trust the old “Goals 2-8 complete” wording as proof of product completeness. Preserve the dirty worktree, Instagram detector/fixtures, Accessibility privacy boundary, DM safe route, no-keyboard overlay behavior, Usage Access foundation, Room gate logs, and verify-debug.sh. Implement Milestone 0 and Milestone 1 first: one Room-backed serialized SessionRuntimeCoordinator, immutable deadline, early-completion rejection, captured session targets, idempotent session settlement, durable GrowthEvent acknowledgement, restart reconciliation, and correct foreground-service shutdown. Do not broadly redesign MainActivity or the overlay until the one-minute Medium golden vertical slice and concurrency/restart tests pass. Report exact files changed, migrations, tests, remaining device-only uncertainty, and do not claim live verification without a connected device.
 

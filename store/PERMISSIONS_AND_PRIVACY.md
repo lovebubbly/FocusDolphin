@@ -1,6 +1,6 @@
 # Permission And Privacy Declarations
 
-Prepared by **OpenAI Codex (GPT-5)** for product owner **Choi Yunseong (최윤성)** and refreshed on **2026-07-12 KST**.
+Prepared by **OpenAI Codex (GPT-5)** for product owner **Choi Yunseong (최윤성)** and refreshed on **2026-07-13 KST**.
 
 These are paste-ready explanations for store review. They describe version 1.0.0 and must be revised if permissions or data behavior change.
 
@@ -43,7 +43,7 @@ These are paste-ready explanations for store review. They describe version 1.0.0
 - Data is not made available for developer-side human review.
 - Raw history URLs and visit records are processed transiently and are not persisted by Focus Dolphin.
 - Browser-provider sync may transmit settings, site lists, schedules, and pet state when the user has browser sync enabled; Focus Dolphin has no developer-operated server.
-- Privacy-policy URL: <https://github.com/lovebubbly/FocusDolphin/blob/main/PRIVACY.md> **intended; verify after the pending repository rename**
+- Privacy-policy URL: <https://github.com/lovebubbly/FocusDolphin/blob/main/PRIVACY.md> **verified live 2026-07-13**
 
 The privacy policy contains the affirmative Chrome Web Store Limited Use statement. Local-only processing is still disclosed; the submission must not claim that Focus Dolphin handles no user data.
 
@@ -53,6 +53,6 @@ Whale's public submission guide does not document dedicated permission-justifica
 
 ## Support Boundary
 
-Support URL: <https://github.com/lovebubbly/FocusDolphin/issues> **intended; verify after the pending repository rename**
+Support URL: <https://github.com/lovebubbly/FocusDolphin/issues> **verified live 2026-07-13**
 
 The repository's bug-report form warns users not to post browsing details, intent text, account information, or other personal data. The owner must still confirm that this channel will be monitored before submission.
