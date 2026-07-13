@@ -8,7 +8,7 @@ The product is deliberately non-punitive: users choose the intensity, the hard-m
 
 ## Release Status
 
-The current source and production build identify as **version 1.0.0**. Commit `09d7e26` is the selected Focus Dolphin executable candidate; it includes the verified Goal 8 redesign, exact duration entry, a user-owned language preference, a high-density dolphin atlas, and semantic motion for meaningful state changes. This is release-candidate evidence, not a claim of store publication.
+The current source and production build identify as **version 1.0.0**. Commit `09d7e26` is the selected Focus Dolphin executable candidate; it includes the verified Goal 8 redesign, exact duration entry, a user-owned language preference, a high-density dolphin atlas, and semantic motion for meaningful state changes. The exact archive was submitted to both stores on 2026-07-13 KST: Chrome Web Store reports **Pending review**, and Whale Store reports **심사 중**. This is verified submission evidence, not a claim of approval or public publication.
 
 Choi Yunseong approved the complete Goal 8 Phase A visual contract at exact commit `e7274a1` on 2026-07-11, with no exceptions. Phase B implements that contract across Session, Rules, Review, Preferences, blocked, overlay, onboarding, and completion states while retaining the existing MV3, wellness, privacy, and storage contracts.
 
@@ -31,7 +31,7 @@ The pre-rename comprehensive visible Naver Whale 4.38 / Chromium 148 popup/onboa
 
 The retained motion follow-up was separately exercised in an isolated Whale clone/profile before the newest privacy disclosure, isolated-memory changes, and public-name migration. Semantic onboarding, popup, Options, blocked, and overlay transitions played once; same-state duration, intensity, tab, and locale rerenders did not replay; chart growth painted across successive frames; overlay readiness kept focus stable; and representative reduced-motion states produced zero new Web Animations with the sprite frozen. The renamed exact package has now repeated the relevant active, reduced-motion, overlay, and diagnostic checks in both release browsers. Exact boundaries and fingerprints are recorded in [QA.md](QA.md).
 
-Historical FocusWhale archives and whale store imagery are not in the upload set and must never be relabeled as Focus Dolphin. The exact Focus Dolphin ZIP, current screenshots, public repository URLs, listing copy, disclosures, and reviewer instructions are ready. Publication still requires the two publisher-dashboard uploads, independent store review, and public listing URLs.
+Historical FocusWhale archives and whale store imagery are not in the upload set and must never be relabeled as Focus Dolphin. The exact Focus Dolphin ZIP, current screenshots, public repository URLs, listing copy, disclosures, and reviewer instructions were submitted to Chrome Web Store and Whale Store. Independent reviews are still pending, and no public listing URL exists yet. Submission IDs and evidence are recorded in [the store submission report](docs/STORE_SUBMISSION_EVIDENCE_2026-07-13.md).
 
 Goal 5 opt-in LLM analysis remains intentionally out of scope and is not a v1.0.0 publication blocker.
 

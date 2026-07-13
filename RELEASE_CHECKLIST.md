@@ -106,7 +106,7 @@ The historical core matrix passed in Whale. The exact headed pass additionally c
 - [x] Final Goal 8 intended working-tree scan finds no cloud/API/provider token, private key, personal email, `/Users/...` path, browser profile/storage/database, or QA-result file in tracked content; a live full `npm audit --audit-level=low` reports zero vulnerabilities. Dummy credential-bearing URLs remain only as explicit sanitization tests/checklist data. Ignored `dist/`, `output/`, `release/`, and `.playwright-mcp/` are excluded from staging.
 - [x] Repeat the same scan against the clean rebuilt archive after packaging. **No secret, token, private key, personal email, machine path, credential file, browser database, or external runtime URL is present in the exact 31-entry ZIP.**
 - [x] Re-verify the public privacy-policy URL and Limited Use statement immediately before store entry. **Live at `lovebubbly/FocusDolphin/blob/main/PRIVACY.md` on 2026-07-13.**
-- [ ] Add the public privacy URL to each live store dashboard record.
+- [x] Add the public privacy URL to each live store dashboard record. **Chrome uses its dedicated privacy-policy field; Whale includes the URL in both submitted language descriptions because its submission flow exposed no separate field.**
 - [ ] Product owner confirms the public support channel will be monitored.
 
 ## Package
@@ -148,12 +148,12 @@ Historical package evidence: the current tracked/release-area archive belongs to
 - [x] Product owner authorizes release execution for the committed Focus Dolphin candidate. **Explicit active-goal direction and “Then let's go!!” recorded on 2026-07-13; no technical exception remains.**
 - [x] Exact regenerated archive and current imagery pass Codex checksum, privacy, and full-resolution visual review under that release direction.
 - [x] Listing copy/assets/privacy disclosures are prepared for the authorized Chrome and Whale submissions; live dashboard values remain independently verifiable.
-- [ ] Submit to the selected store(s).
-- [ ] Record submission ID/date/account owner.
+- [x] Submit to the selected store(s). **Chrome: Pending review. Whale: 심사 중. Both review requests were accepted on 2026-07-13 KST.**
+- [x] Record submission ID/date/account owner. **Chrome `eacmhaieiibgiiflpjogoccoaikemopl`, publisher `ysstar12356` / `99fafc2b-32d0-4e3a-8577-f76d721c2126`; Whale `lfamocjkclmgodmjnaeophegmphejmgn`, developer display `버블리`.**
 - [ ] Resolve reviewer feedback without weakening wellness/privacy invariants.
 - [ ] Record approval/publication URLs and dates.
 - [ ] Update `CHANGELOG.md` from local release candidate to public release only after publication.
 
 ## Current Decision
 
-**The Focus Dolphin 1.0.0 executable, exact archive, browser QA, public repository URLs, and current listing assets are technically ready for submission.** Independent Chrome and Whale draft items exist and contain the exact archive; their IDs and current state are recorded in `docs/STORE_SUBMISSION_EVIDENCE_2026-07-13.md`. Remaining gates are the two confirmed cloud-asset corrections, saved privacy/listing fields, support-monitoring responsibility, two review requests, independent reviews, and publication URLs. Historical FocusWhale archives and whale screenshots are not part of the submission set.
+**The Focus Dolphin 1.0.0 exact archive was submitted to both selected stores on 2026-07-13 KST.** Chrome reports **Pending review** with automatic publication after approval enabled; Whale reports **심사 중** with version 1.0.0 and public visibility. Item IDs and dashboard evidence are recorded in `docs/STORE_SUBMISSION_EVIDENCE_2026-07-13.md`. Remaining gates are support-monitoring responsibility, any reviewer feedback, independent approvals, public listing URLs, and the post-publication changelog update. Historical FocusWhale archives and whale screenshots are not part of the submission set.
