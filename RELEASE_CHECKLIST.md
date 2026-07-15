@@ -54,7 +54,7 @@ Headed disposable Naver Whale 4.38.386.14 / Chromium 148 evidence from the froze
 - [x] Programmatic onboarding heading focus remains assistive-technology-visible without a raw control outline; interactive focus rings remain visible.
 - [x] The modal-layer duplicate-primary measurement is reviewed: only the modal primary is operable/focusable while the background is inert.
 - [x] Korean exact blocked/overlay matrix passes: live `x.com` aliases, real medium 30-second gate and five-minute allow, hard long clock/two safe exits/two-step pending/weekly rejection, soft waiting/ready isolation/focus/inert/session ownership, light/dark/reduced motion, zero extension errors, and clean final session/DNR state.
-- [ ] Product owner completes visual/copy judgment in both languages.
+- [x] Product owner completes visual/copy judgment in both languages. **Covered by Choi Yunseong's no-exception approval of all presented Goal 8 states on 2026-07-11 and the subsequent release direction.**
 
 The earlier Goal 7 Playwright/Whale alarm stall is historical, not a current blocker: visible Goal 8 automation completed real session starts, alarms, DNR, completion, and acknowledgement. Temporary test profiles were removed and their CDP ports closed; screenshots/results remain only under ignored local `output/goal-8-final/`.
 
