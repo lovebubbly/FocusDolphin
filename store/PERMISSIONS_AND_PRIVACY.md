@@ -1,8 +1,8 @@
 # Permission And Privacy Declarations
 
-Prepared by **OpenAI Codex (GPT-5)** for product owner **Choi Yunseong (최윤성)** and refreshed on **2026-07-13 KST**.
+Prepared by **OpenAI Codex (GPT-5)** for product owner **Choi Yunseong (최윤성)** and refreshed on **2026-07-15 KST**.
 
-These are paste-ready explanations for store review. They describe version 1.0.0 and must be revised if permissions or data behavior change.
+These are paste-ready explanations for store review. They describe version 1.0.1 and must be revised if permissions or data behavior change.
 
 ## Single Purpose
 
@@ -49,7 +49,7 @@ The privacy policy contains the affirmative Chrome Web Store Limited Use stateme
 
 ## Whale Review Notes
 
-Whale's public submission guide does not document dedicated permission-justification or privacy-policy fields. Include the local-processing, optional-history, revocation, no-page-content, privacy-policy URL, and support URL directly in the detailed listing. The exact 1.0.0 manifest has no `homepage_url`; if the live publisher dashboard separately exposes a developer-website field, the repository URL may be entered there, but the submission pack does not depend on that field.
+Whale's public submission guide does not document dedicated permission-justification or privacy-policy fields. Include the local-processing, optional-history, revocation, no-page-content, privacy-policy URL, and support URL directly in the detailed listing. The exact 1.0.1 manifest has no `homepage_url`; if the live publisher dashboard separately exposes a developer-website field, the repository URL may be entered there, but the submission pack does not depend on that field.
 
 ## Support Boundary
 

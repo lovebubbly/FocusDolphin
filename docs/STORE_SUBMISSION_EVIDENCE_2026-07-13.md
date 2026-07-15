@@ -1,6 +1,6 @@
 # Focus Dolphin Store Submission Evidence
 
-Prepared by **OpenAI Codex (GPT-5)** for product owner **Choi Yunseong (최윤성)** on **2026-07-13 KST**.
+Prepared by **OpenAI Codex (GPT-5)** for product owner **Choi Yunseong (최윤성)** on **2026-07-13 KST** and refreshed on **2026-07-15 KST**.
 
 ## Release Artifact
 
@@ -42,8 +42,21 @@ The same checksum-verified Manifest V3 archive was uploaded to both publisher da
 - Privacy and support: the public privacy-policy and GitHub Issues URLs are present in both language descriptions because the Whale submission flow did not expose a separate privacy-policy field.
 - Public evidence: the anonymous storefront API returns the exact item with `review: READY_FOR_OPEN`, installation support enabled, and version `1.0.0`.
 
-## Publication Boundary
+## Version 1.0.1 Store Update - 2026-07-15 KST
+
+- Source patch: local commit `47fd825`; identical committed tree published to GitHub `main` as `ddf5a018bdd5d8658698cce5a1e5077f7ec7f87c` through the connected GitHub app.
+- Archive: `release/focus-dolphin-1.0.1.zip`
+- Size: **3,716,109 bytes**
+- Entries: **31**
+- SHA-256: `cc63612f2bf6bb667b851bcfeac89cf67ae6b5a8ad431bdcc89068daa3553bab`
+- Scope: correct gentle-overlay sizing on hosts such as YouTube and preserve a completed gentle check-in during same-hostname navigation for the active focus session.
+- Permission impact: **none**. Existing `storage` permission holds the short-lived extension-session check-in; no host access, optional permission, or remote-data behavior changed.
+- Verification: deterministic MV3 package and release verifier pass; typecheck passes; 10 focused content-script/session-allowance tests pass.
+- Chrome Web Store: dashboard accepted draft version **1.0.1** and confirmed **Your extension was submitted for review**; subsequent item status is **Pending review**. Automatic publication after approval remains enabled. Public version remains 1.0.0 during review.
+- Whale Store: dashboard accepted version **1.0.1**, saved matching English and Korean update notes, and now reports **심사 중**. Public version 1.0.0 remains 게시 중 during review.
+
+## Version 1.0.0 Publication Boundary
 
 Both stores now expose authoritative anonymous public records for the exact submitted item IDs. Chrome returns the titled listing with an active Add to Chrome control, version 1.0.0, and an updated date of July 15, 2026. Whale returns the exact public record with `READY_FOR_OPEN`, the state its storefront maps to approved/published, and installation support enabled.
 
-The release objective is therefore complete for version 1.0.0. Subsequent source changes, including the 1.0.1 soft-overlay scale patch, require a separately packaged and reviewed store update and must not be described as published until those storefront versions change.
+The original release objective remains complete for version 1.0.0. Version 1.0.1 has now been separately packaged and submitted to both stores, but it must not be described as published until the public storefront versions change after review and rollout.

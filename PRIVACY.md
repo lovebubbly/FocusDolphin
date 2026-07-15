@@ -1,10 +1,10 @@
 # Focus Dolphin Privacy Policy
 
-Product owner and requester: **Choi Yunseong (최윤성)**. Repository-accuracy refresh prepared by **OpenAI Codex (GPT-5)** on **2026-07-12 KST**.
+Product owner and requester: **Choi Yunseong (최윤성)**. Repository-accuracy refresh prepared by **OpenAI Codex (GPT-5)** on **2026-07-15 KST**.
 
 Effective date: July 11, 2026
 
-Focus Dolphin is a local-first Naver Whale and Chromium extension. This policy describes version 1.0.0 as implemented in this repository. `FocusWhale` was the unreleased development codename; compatible internal storage keys and historical evidence may retain it without changing the data practices described here.
+Focus Dolphin is a local-first Naver Whale and Chromium extension. This policy describes version 1.0.1 as implemented in this repository. `FocusWhale` was the unreleased development codename; compatible internal storage keys and historical evidence may retain it without changing the data practices described here.
 
 ## Summary
 
@@ -85,6 +85,6 @@ Material changes to data collection, permissions, transmission, or retention sho
 
 ## Contact
 
-For support, privacy questions, or deletion questions, use [Focus Dolphin GitHub Issues](https://github.com/lovebubbly/FocusDolphin/issues). Do not include private browsing details, intent text, or other sensitive information in a public issue. This is the intended canonical URL; the repository rename must be completed and the link verified live before either store submission.
+For support, privacy questions, or deletion questions, use [Focus Dolphin GitHub Issues](https://github.com/lovebubbly/FocusDolphin/issues). Do not include private browsing details, intent text, or other sensitive information in a public issue. The repository and Issues URLs were verified live on 2026-07-13 and are the canonical support destinations used by both store records.
 
-The intended stable public location for this policy is [the repository `PRIVACY.md`](https://github.com/lovebubbly/FocusDolphin/blob/main/PRIVACY.md). The GitHub remote and store dashboard records still require separate renaming; the exact pushed revision, live URL, and Limited Use statement must be verified immediately before either store submission.
+The stable public location for this policy is [the repository `PRIVACY.md`](https://github.com/lovebubbly/FocusDolphin/blob/main/PRIVACY.md). The live URL and Limited Use statement were verified before the original `1.0.0` publication and remain referenced by the independently submitted Chrome and Whale `1.0.1` updates.

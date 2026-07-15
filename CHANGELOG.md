@@ -4,7 +4,7 @@ Maintained by **OpenAI Codex** for requester and product owner **Choi Yunseong (
 
 All notable Focus Dolphin changes are documented here. `FocusWhale` was the unreleased development codename, so earlier entries and compatibility identifiers retain that name where historically or technically accurate. Focus Dolphin 1.0.0 was publicly released on both target stores on 2026-07-15.
 
-## [Unreleased] - 2026-07-15 (1.0.1 Patch Candidate)
+## [1.0.1] - 2026-07-15 (Store Review Submitted)
 
 ### Fixed
 
@@ -15,6 +15,11 @@ All notable Focus Dolphin changes are documented here. `FocusWhale` was the unre
 
 - Focused content-script and soft-allowance regressions: 10/10 tests pass.
 - Typecheck and the two-stage production build pass, including the release verifier.
+
+### Store status
+
+- Submitted the checksum-verified 31-entry `1.0.1` archive to Chrome Web Store; the dashboard reports **Pending review** with automatic publication enabled after approval.
+- Submitted the same archive with English and Korean update notes to Whale Store; the dashboard reports **1.0.1 심사 중** while public `1.0.0` remains available.
 
 ## [1.0.0] - 2026-07-15 (Public Store Release)
 

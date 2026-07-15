@@ -1,8 +1,19 @@
-# Focus Dolphin v1.0.0 Release Checklist
+# Focus Dolphin Release Checklist
 
-Last refreshed: **2026-07-13 KST** by **OpenAI Codex (GPT-5)**, for requester and product owner **Choi Yunseong (최윤성)**.
+Last refreshed: **2026-07-15 KST** by **OpenAI Codex (GPT-5)**, for requester and product owner **Choi Yunseong (최윤성)**.
 
-The source version remains 1.0.0. This checklist gates **Focus Dolphin — Website Blocker** on `main` for independent Chrome Web Store and Whale Store submissions. `FocusWhale` was the unreleased development codename. Choi Yunseong approved the complete Phase A mockup contract at commit `e7274a1` on 2026-07-11 with no exceptions; that historical whale-design approval does not approve the renamed archive, dolphin imagery, listing, or publication. Unchecked blocking rows mean the candidate must not be submitted.
+The current source version is 1.0.1. The historical sections below preserve the independent Chrome Web Store and Whale Store release evidence for 1.0.0; the active patch-update gate is recorded first. `FocusWhale` was the unreleased development codename.
+
+## v1.0.1 Patch Update
+
+- [x] Fix gentle-overlay scaling on pages with a nonstandard root font size, including YouTube.
+- [x] Preserve a completed gentle check-in across full document navigation on the same hostname for the active focus session.
+- [x] Add no permission, host-access, remote-code, telemetry, or developer-data transfer.
+- [x] Pass 10 focused content-script/session-allowance tests, typecheck, production build, and release verifier.
+- [x] Generate deterministic `release/focus-dolphin-1.0.1.zip`: **3,716,109 bytes / 31 entries / SHA-256 `cc63612f2bf6bb667b851bcfeac89cf67ae6b5a8ad431bdcc89068daa3553bab`**.
+- [x] Submit Chrome draft version 1.0.1. **Dashboard receipt: Your extension was submitted for review; current status Pending review; automatic publication after approval enabled.**
+- [x] Submit Whale version 1.0.1 with matching English and Korean notes. **Current status 심사 중; public 1.0.0 remains 게시 중.**
+- [ ] Verify each anonymous storefront exposes version 1.0.1 after approval and record the public update dates.
 
 ## Pre-Rename Automated Evidence (Historical)
 
@@ -156,4 +167,4 @@ Historical package evidence: the current tracked/release-area archive belongs to
 
 ## Current Decision
 
-**Focus Dolphin 1.0.0 is publicly released and installable on Chrome Web Store and Whale Store as of 2026-07-15.** The exact public URLs, item IDs, version evidence, and publication states are recorded in `docs/STORE_SUBMISSION_EVIDENCE_2026-07-13.md`. Support-channel monitoring and broader name review remain post-release operational/legal responsibilities, not contradictions of the verified publication state. Historical FocusWhale archives and whale screenshots are not part of the public release.
+**Focus Dolphin 1.0.0 is publicly released and installable on Chrome Web Store and Whale Store as of 2026-07-15.** Version 1.0.1 was submitted to both stores later that day and remains under independent review, so it is not yet described as publicly available. The exact public URLs, item IDs, version evidence, and publication states are recorded in `docs/STORE_SUBMISSION_EVIDENCE_2026-07-13.md`. Support-channel monitoring and broader name review remain post-release operational/legal responsibilities, not contradictions of the verified publication state. Historical FocusWhale archives and whale screenshots are not part of the public release.

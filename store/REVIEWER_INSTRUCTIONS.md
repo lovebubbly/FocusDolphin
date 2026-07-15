@@ -1,8 +1,8 @@
 # Reviewer Instructions
 
-Prepared by **OpenAI Codex (GPT-5)** for product owner **Choi Yunseong (최윤성)** and refreshed on **2026-07-13 KST**.
+Prepared by **OpenAI Codex (GPT-5)** for product owner **Choi Yunseong (최윤성)** and refreshed on **2026-07-15 KST**.
 
-No login, subscription, reviewer credential, developer server, or external service is required. Version 1.0.0 supports Korean and English. Automatic follows the browser locale and falls back to English; reviewers may explicitly select English or Korean in Preferences.
+No login, subscription, reviewer credential, developer server, or external service is required. Version 1.0.1 supports Korean and English. Automatic follows the browser locale and falls back to English; reviewers may explicitly select English or Korean in Preferences.
 
 ## Install And Onboarding
 
