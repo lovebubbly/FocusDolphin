@@ -18,6 +18,7 @@ import {
   type SupportedLocale
 } from "../shared/i18n";
 import { siteListDisplayName } from "../shared/siteLists";
+import { sendMessage } from "../shared/messaging";
 import overlayStyles from "../styles/overlay.css?inline";
 
 const OVERLAY_ID = "focuswhale-soft-overlay";
@@ -113,7 +114,14 @@ async function evaluateSessionSurface(): Promise<void> {
   }, Math.max(1_000, session.endsAt - Date.now()));
 
   const hostname = normalizeDomain(window.location.hostname);
-  if (!hostname || (session.intensity === "soft" && isSoftAllowedForPage(session.id, hostname))) {
+  if (!hostname) {
+    removeOverlay();
+    return;
+  }
+  if (session.intensity === "soft" && await isSoftAllowedForPage(session.id, hostname)) {
+    if (!evaluationGuard.isCurrent(evaluationToken)) {
+      return;
+    }
     removeOverlay();
     return;
   }
@@ -224,9 +232,9 @@ function showOverlay(
     leaveSoftOverlayForFocus(removeOverlay, (target) => window.location.replace(target));
   });
 
-  continueButton.addEventListener("click", () => {
+  continueButton.addEventListener("click", async () => {
     evaluationGuard.invalidate();
-    rememberSoftAllowed(session.id, hostname);
+    await rememberSoftAllowed(session.id, hostname);
     removeOverlay();
   });
 
@@ -425,12 +433,31 @@ function hasActiveTempAllow(hostname: string, tempAllows: TempAllow[], sessionId
   ));
 }
 
-function rememberSoftAllowed(sessionId: string, hostname: string): void {
+async function rememberSoftAllowed(sessionId: string, hostname: string): Promise<void> {
   softAllowedPages.add(softAllowKey(sessionId, hostname));
+  try {
+    await sendMessage({ type: "SET_SOFT_ALLOW", payload: { sessionId, hostname } });
+  } catch {
+    // The current document remains allowed even if ephemeral cross-navigation storage is unavailable.
+  }
 }
 
-function isSoftAllowedForPage(sessionId: string, hostname: string): boolean {
-  return softAllowedPages.has(softAllowKey(sessionId, hostname));
+async function isSoftAllowedForPage(sessionId: string, hostname: string): Promise<boolean> {
+  const key = softAllowKey(sessionId, hostname);
+  if (softAllowedPages.has(key)) {
+    return true;
+  }
+
+  try {
+    const response = await sendMessage({ type: "GET_SOFT_ALLOW", payload: { sessionId, hostname } });
+    if (response.ok && response.allowed) {
+      softAllowedPages.add(key);
+      return true;
+    }
+  } catch {
+    // Fall back to document memory when the background is temporarily unavailable.
+  }
+  return false;
 }
 
 function softAllowKey(sessionId: string, hostname: string): string {

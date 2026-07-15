@@ -54,10 +54,12 @@ The following configuration and progress data use `chrome.storage.sync`: UI lang
 
 All other Focus Dolphin data uses `chrome.storage.local`, including active and past sessions, intent entries, daily aggregates, recommendations, category overrides, growth records, temporary allows, emergency-use records, schedule-occurrence suppression, recovery journals, and the onboarding completion record. Focus Dolphin does not copy these local records to its own server.
 
+After the user completes a soft-overlay check-in, Focus Dolphin keeps only the active session identifier, normalized hostname, and session expiry in `chrome.storage.session`. This extension-owned record prevents the same site from prompting again when a full page navigation reloads the content script. It is not available to the website, is not synced, expires with the focus session, and is cleared when the browser session ends or local data is cleared.
+
 ## Retention And Deletion
 
 - Raw history records are not persisted by Focus Dolphin after an analysis. The derived recommendation list remains in local extension storage until a later analysis replaces it or the user clears extension data. If an idle local clear succeeds while an older analysis is still running, its stale result is rejected instead of recreating the cleared recommendation list.
-- Temporary allows expire automatically. Transaction and recovery journals are removed after their work completes.
+- Temporary allows and soft-overlay session check-ins expire automatically. Transaction and recovery journals are removed after their work completes.
 - Growth events and celebration acknowledgements are each capped at the newest 500 records. Pending celebrations remain until acknowledged.
 - Session history and its idempotency ledgers retain at most the newest 5,000 session identifiers or records. Medium-mode intent history retains at most the newest 200 entries. Daily aggregates older than 400 days are pruned when new daily activity is recorded.
 - Emergency-use state rolls over by local week. The current derived recommendation list is replaced by the next analysis.

@@ -9,10 +9,11 @@ All notable Focus Dolphin changes are documented here. `FocusWhale` was the unre
 ### Fixed
 
 - Pinned the shadow-DOM soft overlay's compiled `rem` units to the product's 16 px design scale so host pages such as YouTube cannot shrink the card while leaving the fixed-pixel dolphin sprite oversized.
+- Kept a completed soft-overlay check-in active across full document navigation on the same hostname by storing the session/domain allowance only in extension session storage.
 
 ### Verification
 
-- Focused content-script regression: 8/8 tests pass.
+- Focused content-script and soft-allowance regressions: 10/10 tests pass.
 - Typecheck and the two-stage production build pass, including the release verifier.
 
 ## [1.0.0] - 2026-07-15 (Public Store Release)

@@ -29,6 +29,8 @@ export type FocusWhaleRequest =
   | { type: "ADD_RECOMMENDATION_DOMAIN"; payload: { domain: string } }
   | { type: "ANALYZE_HISTORY" }
   | { type: "CLEAR_LOCAL_DATA" }
+  | { type: "GET_SOFT_ALLOW"; payload: { sessionId: string; hostname: string } }
+  | { type: "SET_SOFT_ALLOW"; payload: { sessionId: string; hostname: string } }
   | { type: "RECORD_BLOCKED_ATTEMPT"; payload: { domain: string } }
   | { type: "REQUEST_TEMP_ALLOW"; payload: { domain: string; intent: string; sessionId: string } };
 
@@ -53,6 +55,7 @@ type MessageSuccess<T extends FocusWhaleMessage> =
     pet: { awardedXp: number; petState: PetState; streakStatus: "active" | "resting" | "fresh" };
   } :
   T["type"] extends "SET_PET_NAME" ? { ok: true; petState: PetState } :
+  T["type"] extends "GET_SOFT_ALLOW" ? { ok: true; allowed: boolean } :
   T["type"] extends "REQUEST_TEMP_ALLOW" ? { ok: true; nextSnoozeDelayMin: number; until: number } :
   T["type"] extends "SESSION_COMPLETED" ? { ok: true } :
   { ok: true };

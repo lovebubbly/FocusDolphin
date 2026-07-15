@@ -1,7 +1,7 @@
 import type { FocusWhaleRequest } from "../shared/messaging";
 import { STORAGE_KEYS, getTyped, normalizeSettings, setTyped } from "../shared/storage";
 import { migrateSiteListsForCurrentDefaults } from "../shared/siteLists";
-import { ChromeDynamicRuleClient } from "./rules";
+import { ChromeDynamicRuleClient, normalizeDomain } from "./rules";
 import {
   EMERGENCY_END_ALARM,
   SESSION_END_ALARM,
@@ -17,6 +17,11 @@ import { MutationGeneration, SerialOperationQueue } from "./operationQueue";
 import { requireTrustedBlockedPageSender } from "./blockedPageSender";
 import { runAlarmWithRetry } from "./alarmRetry";
 import { HistoryAnalysisCoordinator } from "./historyAnalysis";
+import {
+  SOFT_ALLOW_SESSION_KEY,
+  grantSoftAllow,
+  hasSoftAllow
+} from "./softAllow";
 import { runInstalledLifecycle } from "../pages/onboarding/lifecycle";
 import {
   addRecommendationDomain,
@@ -242,6 +247,40 @@ async function handleMessage(message: QueuedFocusWhaleRequest, sender: chrome.ru
     case "CLEAR_LOCAL_DATA": {
       await sessionManager.clearLocalData();
       localDataGeneration.advance();
+      await chrome.storage.session.remove(SOFT_ALLOW_SESSION_KEY);
+      return { ok: true };
+    }
+    case "GET_SOFT_ALLOW": {
+      const hostname = normalizeDomain(message.payload.hostname);
+      if (!hostname) {
+        return { ok: true, allowed: false };
+      }
+      const stored = await chrome.storage.session.get(SOFT_ALLOW_SESSION_KEY);
+      return {
+        ok: true,
+        allowed: hasSoftAllow(stored[SOFT_ALLOW_SESSION_KEY], message.payload.sessionId, hostname)
+      };
+    }
+    case "SET_SOFT_ALLOW": {
+      const hostname = normalizeDomain(message.payload.hostname);
+      const { activeSession } = await sessionManager.getState();
+      if (
+        !hostname
+        || !activeSession
+        || activeSession.id !== message.payload.sessionId
+        || activeSession.intensity !== "soft"
+      ) {
+        throw new Error("Soft allowance does not match the active session.");
+      }
+      const stored = await chrome.storage.session.get(SOFT_ALLOW_SESSION_KEY);
+      await chrome.storage.session.set({
+        [SOFT_ALLOW_SESSION_KEY]: grantSoftAllow(
+          stored[SOFT_ALLOW_SESSION_KEY],
+          activeSession.id,
+          hostname,
+          activeSession.endsAt
+        )
+      });
       return { ok: true };
     }
     case "RECORD_BLOCKED_ATTEMPT": {

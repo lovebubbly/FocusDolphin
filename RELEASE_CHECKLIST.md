@@ -99,7 +99,7 @@ The historical core matrix passed in Whale. The exact headed pass additionally c
 
 - [x] `PRIVACY.md` covers the versioned onboarding record, user-selected language, domain-level attempt counts, local analytics, optional history, browser sync boundary, retention, and deletion behavior.
 - [x] The first onboarding screen prominently discloses current-address handling, local records and intent text, optional 30-day history analysis, browser-sync fields, and zero developer transfer in both languages.
-- [x] Soft-overlay temporary allow state stays inside the isolated content-script world and is not written to host-page `sessionStorage`; a source regression test enforces this boundary.
+- [x] Soft-overlay allowance state stays inside extension-owned document/session storage and is never written to host-page `sessionStorage`; the session record expires with the active session or browser and a source regression test enforces the host-page boundary.
 - [x] Verify [Focus Dolphin GitHub Issues](https://github.com/lovebubbly/FocusDolphin/issues) after the repository remote is renamed; this is the intended support/privacy contact channel. **Live on 2026-07-13.**
 - [x] Manifest permissions remain `declarativeNetRequest`, `storage`, and `alarms`; `history` remains optional and is requested only from Analyze.
 - [x] Static production verifier confirms no backend, telemetry, advertising, remote AI, CDN, remote font, or unexpected external URL.

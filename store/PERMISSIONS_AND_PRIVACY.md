@@ -15,7 +15,7 @@ These are paste-ready explanations for store review. They describe version 1.0.0
 | Permission | Reviewer justification |
 | --- | --- |
 | `declarativeNetRequest` | Creates and removes session-scoped main-frame redirect and temporary-allow rules for domains chosen by the user. It does not inspect request bodies or transmit request data. |
-| `storage` | Stores the UI language preference, settings, lists, schedules, and dolphin progress in browser sync; stores session state, onboarding completion, bounded statistics, recommendations, temporary allows, and recovery records locally. |
+| `storage` | Stores the UI language preference, settings, lists, schedules, and dolphin progress in browser sync; stores session state, onboarding completion, bounded statistics, recommendations, temporary allows, and recovery records locally; and keeps soft-overlay check-ins only in browser-session extension storage. |
 | `alarms` | Reliably handles session deadlines, scheduled starts, temporary-allow expiry, delayed emergency ending, and MV3 recovery while the service worker sleeps. |
 | Optional `history` | Requested only when the user starts recommendation analysis. It processes up to the most recent 30 days locally into domain-level aggregates. Raw URLs and visit records are not persisted or transmitted, the permission can be revoked, and core focus features work without it. |
 | `http://*/*`, `https://*/*` | Broad HTTP(S) access is necessary because users may configure any domain and allowlist mode applies to every web origin outside the selected list. Access excludes non-web schemes. |

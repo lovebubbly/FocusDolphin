@@ -112,6 +112,7 @@ Storage summary:
 
 - `chrome.storage.sync`: UI language preference, settings, site lists, schedules, pet state. Browser-account sync may transmit these fields through the browser vendor when enabled.
 - `chrome.storage.local`: active/past sessions, intent text, daily stats, recommendations, category overrides, temporary allows, emergency usage, growth records, ledgers, acknowledgements, recovery journals, and the versioned onboarding completion timestamp/outcome.
+- `chrome.storage.session`: a soft-overlay check-in keyed only by the active session and hostname, expiring with the focus session and cleared when the browser session ends. This prevents repeated prompts during same-site navigation without exposing state to the website or browser sync.
 - Raw history URLs and visit records are processed in memory and are not persisted by Focus Dolphin. Thirty-day metrics use actual `history.getVisits` timestamps rather than lifetime URL counters. Stored recommendations contain domains and aggregate features, not titles, paths, queries, or visit timestamps.
 
 Retention and deletion:
@@ -120,7 +121,7 @@ Retention and deletion:
 - Medium-mode intent entries keep at most 200 entries.
 - Daily statistics retain 400 days.
 - Growth events and celebration acknowledgements keep at most 500 records; pending celebrations remain until acknowledged.
-- Temporary allows expire; transaction journals are removed after successful recovery.
+- Temporary allows and soft-overlay check-ins expire; transaction journals are removed after successful recovery.
 - Options provides localized history-permission revoke and local-data clear controls. Local clearing is rejected while a session is active and preserves sync-backed lists, schedules, settings, and pet progress. It also preserves the current week's emergency-use allowance and any still-active schedule-occurrence suppression so clearing records cannot bypass either commitment rule. The local onboarding completion record is cleared; clearing does not itself reopen onboarding, and the flow remains manually replayable from Options.
 - Removing the extension/browser sync data remains the path to clearing sync-backed fields.
 
