@@ -1,10 +1,29 @@
 # Changelog
 
-Documentation refresh: **OpenAI Codex (GPT-5)** for requester and product owner **Choi Yunseong (최윤성)**, **2026-07-12 KST**.
+Maintained by **OpenAI Codex** for requester and product owner **Choi Yunseong (최윤성)**; originally assembled on **2026-07-12 KST** and last updated on **2026-07-15 KST**.
 
-All notable Focus Dolphin changes are documented here. `FocusWhale` was the unreleased development codename, so earlier entries and compatibility identifiers retain that name where historically or technically accurate. The project has not yet recorded a public store release.
+All notable Focus Dolphin changes are documented here. `FocusWhale` was the unreleased development codename, so earlier entries and compatibility identifiers retain that name where historically or technically accurate. Focus Dolphin 1.0.0 was publicly released on both target stores on 2026-07-15.
 
-## [Unreleased] - 2026-07-12 (Goal 8 Web Polish Candidate)
+## [Unreleased] - 2026-07-15 (1.0.1 Patch Candidate)
+
+### Fixed
+
+- Pinned the shadow-DOM soft overlay's compiled `rem` units to the product's 16 px design scale so host pages such as YouTube cannot shrink the card while leaving the fixed-pixel dolphin sprite oversized.
+
+### Verification
+
+- Focused content-script regression: 8/8 tests pass.
+- Typecheck and the two-stage production build pass, including the release verifier.
+
+## [1.0.0] - 2026-07-15 (Public Store Release)
+
+### Released
+
+- Published [Focus Dolphin — Website Blocker on Chrome Web Store](https://chromewebstore.google.com/detail/focus-dolphin-%E2%80%94-website-b/eacmhaieiibgiiflpjogoccoaikemopl), version 1.0.0, item `eacmhaieiibgiiflpjogoccoaikemopl`.
+- Published [Focus Dolphin — Website Blocker on Whale Store](https://store.whale.naver.com/detail/lfamocjkclmgodmjnaeophegmphejmgn/?hl=ko), version 1.0.0, item `lfamocjkclmgodmjnaeophegmphejmgn`.
+- Published the checksum-verified 31-entry archive prepared from executable commit `09d7e26` after exact-package Chrome and Whale QA.
+
+## Historical Goal 8 Candidate - 2026-07-12
 
 ### Added
 
@@ -59,14 +78,14 @@ All notable Focus Dolphin changes are documented here. `FocusWhale` was the unre
 - Authored production surface CSS: 115 lines; raw colors remain confined to theme definitions.
 - The integrated Focus Dolphin build, final package-test total, exact hashes, and browser evidence must be recorded after the full suite reruns.
 
-### Release Boundary
+### Release Boundary (Historical Candidate State)
 
 - Source version remains 1.0.0 and no store publication is claimed.
 - Every existing FocusWhale ZIP and whale screenshot is historical. A Focus Dolphin ZIP and fresh bilingual screenshots must be generated and reviewed from the selected executable before submission.
 - Chrome Web Store and Whale Store are both release targets. The exact-name `FocusWhale` conflict was resolved for this product by selecting **Focus Dolphin — Website Blocker** before publication; final confusing-similarity review and live repository/dashboard renames remain release gates.
 - Phase A approval covers every presented mockup state with no exceptions. It does not by itself constitute store submission or publication approval.
 
-## [1.0.0] - 2026-07-10 (Local Release Candidate)
+## Historical 1.0.0 Candidate - 2026-07-10
 
 ### Added
 
@@ -160,7 +179,7 @@ All notable Focus Dolphin changes are documented here. `FocusWhale` was the unre
 - Commit `acb45b6` remains the pre-Goal-7 behavioral baseline for the previously recorded soft/medium/hard, recovery, DNR, pet, accessibility, and optional-history browser matrix. Those results are historical evidence for unchanged core behavior, not exact-current proof for the bilingual build.
 - The regenerated 2,754,338-byte release ZIP has SHA-256 `cba02253a1422d8f19ed7ddb16288f0c51a442656cbd02cf459740e68b5656a0`; 31 files extract byte-equal to `dist/`, and archive/privacy/dependency scans pass.
 
-### Not Yet Released
+### Candidate Boundary (Historical)
 
 - Executable commit `bc62727` passes a detached clean `npm ci` rebuild, typecheck, 237 tests, build verification, and byte comparison with all 31 archive files. Extracted-archive ordinary-browser load and normal-browser active-session smoke remain pending. No store submission or publication is recorded.
 - Whale Store is selected as the first target. Listing copy, privacy/permission declarations, reviewer instructions, release notes, and store images under `store/` and `store-assets/` must be rechecked against the final rebuilt bilingual package.

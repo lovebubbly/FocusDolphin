@@ -148,12 +148,12 @@ Historical package evidence: the current tracked/release-area archive belongs to
 - [x] Product owner authorizes release execution for the committed Focus Dolphin candidate. **Explicit active-goal direction and “Then let's go!!” recorded on 2026-07-13; no technical exception remains.**
 - [x] Exact regenerated archive and current imagery pass Codex checksum, privacy, and full-resolution visual review under that release direction.
 - [x] Listing copy/assets/privacy disclosures are prepared for the authorized Chrome and Whale submissions; live dashboard values remain independently verifiable.
-- [x] Submit to the selected store(s). **Chrome: Pending review. Whale: 심사 중. Both review requests were accepted on 2026-07-13 KST.**
+- [x] Submit to the selected store(s). **Both review requests were accepted on 2026-07-13 KST and both version 1.0.0 listings were publicly verified on 2026-07-15.**
 - [x] Record submission ID/date/account owner. **Chrome `eacmhaieiibgiiflpjogoccoaikemopl`, publisher `ysstar12356` / `99fafc2b-32d0-4e3a-8577-f76d721c2126`; Whale `lfamocjkclmgodmjnaeophegmphejmgn`, developer display `버블리`.**
-- [ ] Resolve reviewer feedback without weakening wellness/privacy invariants.
-- [ ] Record approval/publication URLs and dates.
-- [ ] Update `CHANGELOG.md` from local release candidate to public release only after publication.
+- [x] Resolve reviewer feedback without weakening wellness/privacy invariants. **Both stores approved the submitted artifact; neither public record remains in review.**
+- [x] Record approval/publication URLs and dates. **Both version 1.0.0 listings were publicly verified on 2026-07-15; exact URLs are in `docs/STORE_SUBMISSION_EVIDENCE_2026-07-13.md`.**
+- [x] Update `CHANGELOG.md` from local release candidate to public release only after publication.
 
 ## Current Decision
 
-**The Focus Dolphin 1.0.0 exact archive was submitted to both selected stores on 2026-07-13 KST.** Chrome reports **Pending review** with automatic publication after approval enabled; Whale reports **심사 중** with version 1.0.0 and public visibility. Item IDs and dashboard evidence are recorded in `docs/STORE_SUBMISSION_EVIDENCE_2026-07-13.md`. Remaining gates are support-monitoring responsibility, any reviewer feedback, independent approvals, public listing URLs, and the post-publication changelog update. Historical FocusWhale archives and whale screenshots are not part of the submission set.
+**Focus Dolphin 1.0.0 is publicly released and installable on Chrome Web Store and Whale Store as of 2026-07-15.** The exact public URLs, item IDs, version evidence, and publication states are recorded in `docs/STORE_SUBMISSION_EVIDENCE_2026-07-13.md`. Support-channel monitoring and broader name review remain post-release operational/legal responsibilities, not contradictions of the verified publication state. Historical FocusWhale archives and whale screenshots are not part of the public release.

@@ -23,6 +23,10 @@ import overlayStyles from "../styles/overlay.css?inline";
 const OVERLAY_ID = "focuswhale-soft-overlay";
 const URL_CHANGED_EVENT = "focuswhale:url-changed";
 const PRETENDARD_FONT_URL = extensionAssetUrl("assets/PretendardVariable.woff2");
+const RUNTIME_OVERLAY_STYLES = rewriteOverlayAssetUrls(
+  normalizeOverlayRemUnits(overlayStyles),
+  PRETENDARD_FONT_URL
+);
 
 let countdownTimer: number | undefined;
 let countdownDeadlineMs: number | undefined;
@@ -281,7 +285,19 @@ function updateOverlayLocalization(host: HTMLElement, siteList: SiteList, hostna
 }
 
 function runtimeOverlayStyles(): string {
-  return rewriteOverlayAssetUrls(overlayStyles, PRETENDARD_FONT_URL);
+  return RUNTIME_OVERLAY_STYLES;
+}
+
+export function normalizeOverlayRemUnits(styles: string, pixelsPerRem = 16): string {
+  if (!Number.isFinite(pixelsPerRem) || pixelsPerRem <= 0) {
+    return styles;
+  }
+
+  // Shadow DOM isolates selectors, but rem units still use the host page's root font size.
+  return styles.replace(/(-?(?:\d+(?:\.\d+)?|\.\d+))rem\b/g, (_match, value: string) => {
+    const pixels = Number.parseFloat(value) * pixelsPerRem;
+    return `${Number(pixels.toFixed(4))}px`;
+  });
 }
 
 export function rewriteOverlayAssetUrls(styles: string, pretendardUrl: string): string {

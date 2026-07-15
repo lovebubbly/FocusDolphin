@@ -6,6 +6,7 @@ import {
   clampOverlaySeconds,
   LatestEvaluationGuard,
   leaveSoftOverlayForFocus,
+  normalizeOverlayRemUnits,
   rewriteOverlayAssetUrls,
   softCountdownSnapshot
 } from "./index";
@@ -89,6 +90,14 @@ describe("content-script extension URLs", () => {
       extensionFontUrl
     )).toBe(
       `a{src:url("${extensionFontUrl}")}b{src:url("${extensionFontUrl}")}`
+    );
+  });
+
+  it("pins overlay rem units to the designed scale instead of the host page root", () => {
+    expect(normalizeOverlayRemUnits(
+      "a{font-size:1rem;margin:-.25rem;max-width:28rem}@media(width>=40rem){a{gap:.5rem}}"
+    )).toBe(
+      "a{font-size:16px;margin:-4px;max-width:448px}@media(width>=640px){a{gap:8px}}"
     );
   });
 

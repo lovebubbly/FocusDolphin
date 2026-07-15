@@ -8,7 +8,9 @@ The product is deliberately non-punitive: users choose the intensity, the hard-m
 
 ## Release Status
 
-The current source and production build identify as **version 1.0.0**. Commit `09d7e26` is the selected Focus Dolphin executable candidate; it includes the verified Goal 8 redesign, exact duration entry, a user-owned language preference, a high-density dolphin atlas, and semantic motion for meaningful state changes. The exact archive was submitted to both stores on 2026-07-13 KST: Chrome Web Store reports **Pending review**, and Whale Store reports **심사 중**. This is verified submission evidence, not a claim of approval or public publication.
+**Focus Dolphin 1.0.0 is publicly released and installable** on the [Chrome Web Store](https://chromewebstore.google.com/detail/focus-dolphin-%E2%80%94-website-b/eacmhaieiibgiiflpjogoccoaikemopl) and [Whale Store](https://store.whale.naver.com/detail/lfamocjkclmgodmjnaeophegmphejmgn/?hl=ko) as of 2026-07-15. Commit `09d7e26` and its checksum-recorded archive are the published executable evidence.
+
+The current source identifies as **version 1.0.1** and contains an unpublished patch that prevents host pages with a nonstandard root font size, notably YouTube, from shrinking the shadow-DOM soft overlay. Storefronts remain on 1.0.0 until that patch is separately packaged and submitted.
 
 Choi Yunseong approved the complete Goal 8 Phase A visual contract at exact commit `e7274a1` on 2026-07-11, with no exceptions. Phase B implements that contract across Session, Rules, Review, Preferences, blocked, overlay, onboarding, and completion states while retaining the existing MV3, wellness, privacy, and storage contracts.
 
@@ -31,7 +33,7 @@ The pre-rename comprehensive visible Naver Whale 4.38 / Chromium 148 popup/onboa
 
 The retained motion follow-up was separately exercised in an isolated Whale clone/profile before the newest privacy disclosure, isolated-memory changes, and public-name migration. Semantic onboarding, popup, Options, blocked, and overlay transitions played once; same-state duration, intensity, tab, and locale rerenders did not replay; chart growth painted across successive frames; overlay readiness kept focus stable; and representative reduced-motion states produced zero new Web Animations with the sprite frozen. The renamed exact package has now repeated the relevant active, reduced-motion, overlay, and diagnostic checks in both release browsers. Exact boundaries and fingerprints are recorded in [QA.md](QA.md).
 
-Historical FocusWhale archives and whale store imagery are not in the upload set and must never be relabeled as Focus Dolphin. The exact Focus Dolphin ZIP, current screenshots, public repository URLs, listing copy, disclosures, and reviewer instructions were submitted to Chrome Web Store and Whale Store. Independent reviews are still pending, and no public listing URL exists yet. Submission IDs and evidence are recorded in [the store submission report](docs/STORE_SUBMISSION_EVIDENCE_2026-07-13.md).
+Historical FocusWhale archives and whale store imagery are not part of the public release and must never be relabeled as Focus Dolphin. Submission IDs, approval evidence, and both public listing URLs are recorded in [the store submission report](docs/STORE_SUBMISSION_EVIDENCE_2026-07-13.md).
 
 Goal 5 opt-in LLM analysis remains intentionally out of scope and is not a v1.0.0 publication blocker.
 
@@ -196,7 +198,7 @@ The live Whale development extension used for final-candidate checks had ID `ojo
 
 ## Packaging And Publication
 
-The upload artifact is `release/focus-dolphin-1.0.0.zip`: 3,715,534 bytes, 31 entries, SHA-256 `9477352d13105d1176c3cf540550b5a0252cbb2422528d92b943820bba1f5048`. Its clean rebuild, archive scans, license inventory, exact-package Chrome/Whale journeys, and current listing images pass. The public support channel is [GitHub Issues](https://github.com/lovebubbly/FocusDolphin/issues), and the public [privacy policy](https://github.com/lovebubbly/FocusDolphin/blob/main/PRIVACY.md) was verified live on 2026-07-13. Store dashboard entry, review, and publication remain pending until observed live.
+The published 1.0.0 upload artifact is `release/focus-dolphin-1.0.0.zip`: 3,715,534 bytes, 31 entries, SHA-256 `9477352d13105d1176c3cf540550b5a0252cbb2422528d92b943820bba1f5048`. Its clean rebuild, archive scans, license inventory, exact-package Chrome/Whale journeys, and listing images pass. The public support channel is [GitHub Issues](https://github.com/lovebubbly/FocusDolphin/issues), and the public [privacy policy](https://github.com/lovebubbly/FocusDolphin/blob/main/PRIVACY.md) was verified live on 2026-07-13.
 
 The repository is publicly viewable but **all rights are reserved** under [LICENSE](LICENSE); no open-source license is granted for Focus Dolphin's original work. Pretendard remains under SIL OFL; Tailwind CSS, daisyUI, and the Vite core runtime retain their MIT notices in the shipped `licenses/` directory. The mascot atlas, icons, and promotional tile have recorded source hashes and deterministic generation paths. This repository evidence is a conditional distribution pass, not legal advice or trademark clearance.
 
